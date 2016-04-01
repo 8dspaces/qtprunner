@@ -1,0 +1,24 @@
+
+**************************         Action1 > Iteration (Test-Action) = 1-1        **************************
+
+
+Step 1 (13:05:52)         Pass
+----------------------------------------
+Expected Result:  Window Should Open
+Actual Result: All OK 
+Details: No Details 
+
+
+Step 2 (13:05:52)         Warning
+----------------------------------------
+Expected Result:  Window Should Open
+Actual Result: It Didn't 
+Details: Some Details 
+
+
+Step 3 (13:05:53)         Fail
+----------------------------------------
+Expected Result:  Window Should Open
+Actual Result: App. Crashed 
+Details: Bla Bla Bla 
+

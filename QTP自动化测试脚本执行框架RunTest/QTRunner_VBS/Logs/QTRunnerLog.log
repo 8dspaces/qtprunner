@@ -1,0 +1,83 @@
+2009-12-19 12:29:55: --- Start a new batch task at 2009-12-19 12:29:55
+2009-12-19 12:29:55: Console logs are saved in Logs\QTRunnerLog.log
+2009-12-19 12:29:55: Reading Test Configurations From config.ini
+2009-12-19 12:30:07: Launching QTP...
+2009-12-19 12:30:10: -------------------------
+2009-12-19 12:30:10: Opening Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1
+2009-12-19 12:30:10: The Result of Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1 will be save in D:\Automation Framworks\RunTest\QTRunner_VBS\TestResults\2009.12.19_12.29.55\Test1
+2009-12-19 12:30:13: Runing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1
+2009-12-19 12:30:13: D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1End Running With PassedStatus
+2009-12-19 12:30:13: Parameter List:
+2009-12-19 12:30:13: DBName=Pubs
+2009-12-19 12:30:13: DBType=SQLServer2000
+2009-12-19 12:30:13: Password=123456
+2009-12-19 12:30:13: Result=True
+2009-12-19 12:30:13: UserID=sasa
+2009-12-19 12:30:15: Closing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1
+2009-12-19 12:30:15: -------------------------
+2009-12-19 12:30:17: -------------------------
+2009-12-19 12:30:17: Opening Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2
+2009-12-19 12:30:17: The Result of Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2 will be save in D:\Automation Framworks\RunTest\QTRunner_VBS\TestResults\2009.12.19_12.29.55\Test2
+2009-12-19 12:30:20: Runing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2
+2009-12-19 12:30:20: D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2End Running With PassedStatus
+2009-12-19 12:30:20: Parameter List:
+2009-12-19 12:30:22: Closing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2
+2009-12-19 12:30:22: -------------------------
+2009-12-20 13:08:36: --- Start a new batch task at 2009-12-20 13:08:36
+2009-12-20 13:08:36: Console logs are saved in Logs\QTRunnerLog.log
+2009-12-20 13:08:36: Reading Test Configurations From config.ini
+2009-12-20 13:08:51: Launching QTP...
+2009-12-20 13:08:53: -------------------------
+2009-12-20 13:08:53: Opening Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1
+2009-12-20 13:08:54: The Result of Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1 will be save in D:\Automation Framworks\RunTest\QTRunner_VBS\TestResults\2009.12.20_13.8.36\Test1
+2009-12-20 13:08:56: Runing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1
+2009-12-20 13:08:56: D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1End Running With PassedStatus
+2009-12-20 13:08:56: Parameter List:
+2009-12-20 13:08:56: DBName=Pubs
+2009-12-20 13:08:56: DBType=SQLServer2000
+2009-12-20 13:08:56: Password=123456
+2009-12-20 13:08:56: Result=True
+2009-12-20 13:08:56: UserID=sasa
+2009-12-20 13:08:58: Closing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1
+2009-12-20 13:08:58: -------------------------
+2009-12-20 13:09:01: -------------------------
+2009-12-20 13:09:01: Opening Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2
+2009-12-20 13:09:01: The Result of Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2 will be save in D:\Automation Framworks\RunTest\QTRunner_VBS\TestResults\2009.12.20_13.8.36\Test2
+2009-12-20 13:09:03: Runing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2
+2009-12-20 13:09:03: D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2End Running With PassedStatus
+2009-12-20 13:09:03: Parameter List:
+2009-12-20 13:09:05: Closing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2
+2009-12-20 13:09:05: -------------------------
+2009-12-20 13:09:49: --- Start a new batch task at 2009-12-20 13:09:49
+2009-12-20 13:09:49: Console logs are saved in Logs\QTRunnerLog.log
+2009-12-20 13:09:49: Reading Test Configurations From config.ini
+2009-12-20 13:10:04: Launching QTP...
+2009-12-20 13:10:07: -------------------------
+2009-12-20 13:10:07: Opening Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1
+2009-12-20 13:10:07: The Result of Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1 will be save in D:\Automation Framworks\RunTest\QTRunner_VBS\TestResults\2009.12.20_13.9.49\Test1
+2009-12-20 13:10:09: Runing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1
+2009-12-20 13:10:09: D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1End Running With PassedStatus
+2009-12-20 13:10:09: Parameter List:
+2009-12-20 13:10:09: DBName=Pubs
+2009-12-20 13:10:09: DBType=SQLServer2000
+2009-12-20 13:10:09: Password=123456
+2009-12-20 13:10:09: Result=True
+2009-12-20 13:10:09: UserID=sasa
+2009-12-20 13:10:11: Closing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test1
+2009-12-20 13:10:11: -------------------------
+2009-12-20 13:10:14: -------------------------
+2009-12-20 13:10:14: Opening Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2
+2009-12-20 13:10:14: The Result of Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2 will be save in D:\Automation Framworks\RunTest\QTRunner_VBS\TestResults\2009.12.20_13.9.49\Test2
+2009-12-20 13:10:16: Runing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2
+2009-12-20 13:10:16: D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2End Running With PassedStatus
+2009-12-20 13:10:16: Parameter List:
+2009-12-20 13:10:18: Closing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\Test2
+2009-12-20 13:10:18: -------------------------
+2009-12-20 13:10:21: -------------------------
+2009-12-20 13:10:21: Opening Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\ReporterManager_MyTest
+2009-12-20 13:10:21: The Result of Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\ReporterManager_MyTest will be save in D:\Automation Framworks\RunTest\QTRunner_VBS\TestResults\2009.12.20_13.9.49\ReporterManager_MyTest
+2009-12-20 13:10:26: Runing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\ReporterManager_MyTest
+2009-12-20 13:10:26: D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\ReporterManager_MyTestEnd Running With FailedStatus
+2009-12-20 13:10:26: Parameter List:
+2009-12-20 13:10:28: Closing Test D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\ReporterManager_MyTest
+2009-12-20 13:10:28: -------------------------

@@ -1,0 +1,72 @@
+<html>
+<head>
+<title>test</title>
+<script language=vbscript>
+
+function Flights(fIts)
+
+' Run the Flights test
+
+Dim qtApp 'As QuickTest.Application ' Declare the Application object variable
+Dim qtTest 'As QuickTest.Test ' Declare a Test object variable
+Dim qtResultsOpt 'As QuickTest.RunResultsOptions ' Declare a Run Results Options object variable
+
+Set qtApp = CreateObject("QuickTest.Application") ' Create the Application object
+qtApp.Launch ' Start QuickTest
+qtApp.Visible = True ' Make the QuickTest application visible
+
+' Set QuickTest run options
+qtApp.Options.Run.CaptureForTestResults = "OnError"
+qtApp.Options.Run.RunMode = "Fast"
+qtApp.Options.Run.ViewResults = False
+
+qtApp.Open "T:\Test Team\Test Tool Team\QT Scripts\Live\regression\UK\UK_OO_Flights", True ' Open the test in read-only mode
+
+' set run settings for the test
+Set qtTest = qtApp.Test
+' Set iterations based on user input
+numIts = UCase(fIts)
+If numIts > "" Then
+If numIts = "ALL" Then
+qtTest.Settings.Run.IterationMode = "rngAll" ' Run All Iterations
+Else
+qtTest.Settings.Run.IterationMode = "rngIterations" ' Run only iterations 2 to 4
+qtTest.Settings.Run.StartIteration = 1
+qtTest.Settings.Run.EndIteration = fIts
+End If
+End If
+qtTest.Settings.Run.OnError = "NextStep" ' Instruct QuickTest to perform next step when error occurs
+
+Set qtResultsOpt = CreateObject("QuickTest.RunResultsOptions") ' Create the Run Results Options object
+qtResultsOpt.ResultsLocation = "C:\Res1" ' Set the results location
+
+qtTest.Run qtResultsOpt ' Run the test
+
+MsgBox qtTest.LastRunResults.Status ' Check the results of the test run
+qtTest.Close ' Close the test
+
+Set qtResultsOpt = Nothing ' Release the Run Results Options object
+Set qtTest = Nothing ' Release the Test object
+Set qtApp = Nothing ' Release the Application object
+End function
+
+' Add hotels test launch code here
+function Hotels(hIts)
+
+MsgBox hIts
+
+End Function
+
+</script>
+</head>
+
+<body>
+<H1> QTP Test launcher</H1><br><br>
+<pre> Number of Iterations </pre>
+<input type=submit name=Flights value=Flights onClick="Flights fIts.value"><input type=text name=fIts>
+<br>
+<input type=submit name=Hotels value=Hotels onClick="Hotels hIts.value"><input type=text name=hIts>
+<pre> Enter a number or all </pre>
+</form>
+</body>
+</html>
