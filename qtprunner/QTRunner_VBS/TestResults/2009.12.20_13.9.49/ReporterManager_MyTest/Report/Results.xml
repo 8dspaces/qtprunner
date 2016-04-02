@@ -1,0 +1,207 @@
+﻿<?xml version="1.0"?>
+<!DOCTYPE Report
+[
+<!ELEMENT Report (General ,(Doc|BPT)) >
+<!ATTLIST Report ver CDATA #REQUIRED tmZone CDATA #REQUIRED>
+
+<!ELEMENT General ( DocLocation ) >
+<!ATTLIST General productName CDATA #REQUIRED productVer CDATA #REQUIRED os CDATA #REQUIRED host CDATA #REQUIRED qcserver CDATA #IMPLIED qcproject CDATA #IMPLIED  >
+
+<!ELEMENT BPT (DName,Res,DVer?,TSet?,TInst?,NodeArgs,AdditionalInfo*,Doc*) >
+<!ATTLIST BPT rID ID #REQUIRED >
+
+<!ELEMENT Doc (DName,Res,DVer?,TSet?,TInst?,RunType?,DT?,AdditionalInfo*,Step*,DIter*,Step*,Action*,Summary?,TestMaintenanceSummary*,NodeArgs?) >
+<!ATTLIST Doc rID ID #REQUIRED type (Test|BC) "Test" productName CDATA #REQUIRED BCIter CDATA #IMPLIED >
+
+<!ELEMENT RunType ( #PCDATA )>
+<!ATTLIST RunType fmStep (False|True) "False" batch (False|True) "False" upDesc (False|True) "False" upChk (False|True) "False" upAS (False|True) "False">
+
+<!ELEMENT DName ( #PCDATA ) >
+
+<!ELEMENT Res ( #PCDATA ) >
+
+<!ELEMENT AdditionalInfo (AdditionalDataName,AdditionalDataValue ) >
+
+<!ELEMENT AdditionalDataName ( #PCDATA ) >
+
+<!ELEMENT AdditionalDataValue ( #PCDATA ) >
+
+<!ELEMENT DVer ( #PCDATA ) >
+
+<!ELEMENT TSet ( #PCDATA ) >
+
+<!ELEMENT TInst ( #PCDATA ) >
+
+<!ELEMENT DIter (Step?,Action+,Summary?,NodeArgs)>
+<!ATTLIST DIter rID ID #REQUIRED iterID CDATA #REQUIRED>
+
+<!ELEMENT DocLocation ( #PCDATA )>
+
+<!ELEMENT Action (AName,AIter*,(Step|HtmlStep|Action)*,Summary,ActionMaintenanceSummary*,NodeArgs ) >
+<!ATTLIST Action rID ID #REQUIRED>
+
+<!ELEMENT AIter ((Step|HtmlStep|Action)*,Summary?,NodeArgs) >
+<!ATTLIST AIter rID ID #REQUIRED iterID CDATA #REQUIRED>
+
+<!ELEMENT AName ( #PCDATA ) >
+
+<!ELEMENT TestMaintenanceSummary (ActionMaintenanceSummary*) >
+<!ATTLIST TestMaintenanceSummary ObjectsAdded CDATA #REQUIRED ObjectsUpdated CDATA #REQUIRED StepsUpdated CDATA #REQUIRED StepsComments CDATA #REQUIRED><!ELEMENT ActionMaintenanceSummary (ObjectChange* ) >
+<!ATTLIST ActionMaintenanceSummary Action CDATA #REQUIRED Objects CDATA #REQUIRED Updated CDATA #REQUIRED LinesTotal CDATA #REQUIRED Added CDATA #REQUIRED LinesUpdated CDATA #REQUIRED>
+
+<!ELEMENT ObjectChange  (Hierarchy, PropertyChangeList* ) >
+<!ATTLIST ObjectChange Operation CDATA #IMPLIED OriginalRepository CDATA #IMPLIED>
+
+<!ELEMENT PropertyChangeList (PropertyDef*) >
+
+<!ELEMENT PropertyDef (OriginalValue, NewValue) >
+<!ATTLIST PropertyDef PropName CDATA #REQUIRED OriginRegularExpression (True|False) "False" NewRegularExpression (True|False) "False" AddedProperty (True|False) "False" >
+
+<!ELEMENT OriginalValue ( #PCDATA )>
+
+<!ELEMENT NewValue ( #PCDATA )>
+
+<!ELEMENT Hierarchy  (ObjectName, Hierarchy*) >
+<!ATTLIST Hierarchy MicClass CDATA #REQUIRED>
+
+<!ELEMENT ObjectName  ( #PCDATA ) >
+
+<!ELEMENT Step (Obj,Details,Time,TimeTick* ,(Step|HtmlStep|Doc)*,NodeArgs) >
+<!ATTLIST Step rID ID #REQUIRED retval CDATA #IMPLIED>
+
+<!ELEMENT HtmlStep (HTML,TimeTick*,(Step|HtmlStep|Doc)*,NodeArgs) >
+<!ATTLIST HtmlStep rID ID #REQUIRED >
+
+<!ELEMENT Obj ( #PCDATA ) >
+<!ATTLIST Obj plainTxt (False|True) "True">
+
+<!ELEMENT Details ( #PCDATA ) >
+<!ATTLIST Details plainTxt (False|True) "True">
+
+<!ELEMENT Time ( #PCDATA ) >
+
+<!ELEMENT HTML ( #PCDATA ) >
+
+<!ELEMENT Disp ( #PCDATA ) >
+
+<!ELEMENT TimeTick ( #PCDATA ) >
+
+<!ELEMENT NodeArgs (Disp,TopPane?,BtmPane?)>
+<!ATTLIST NodeArgs eType CDATA #REQUIRED icon CDATA #REQUIRED nRep CDATA #REQUIRED filter (False|True) "True">
+<!ATTLIST NodeArgs status (Passed|Failed|Done|Warning|Information) "Done">
+<!ATTLIST NodeArgs iconSel CDATA #IMPLIED nType CDATA #IMPLIED MovieMarker CDATA "">
+<!ATTLIST NodeArgs Source CDATA #IMPLIED SourceLine CDATA #IMPLIED >
+
+<!ELEMENT TopPane (Path)>
+
+<!ELEMENT BtmPane ( (Path|WR)?,ASHilite?)>
+<!ATTLIST BtmPane vType CDATA "HTML">
+
+<!ELEMENT Path ( #PCDATA ) >
+
+<!ELEMENT ASHilite ( #PCDATA ) >
+
+<!ELEMENT WR ( #PCDATA ) >
+
+<!ELEMENT DT (NodeArgs) >
+<!ATTLIST DT rID ID #REQUIRED>
+
+<!ELEMENT Summary (Param*)>
+<!ATTLIST Summary sTime CDATA #IMPLIED eTime CDATA #IMPLIED passed CDATA #IMPLIED failed CDATA #IMPLIED warnings CDATA #IMPLIED retval CDATA #IMPLIED stopped (False|True) "False" >
+
+<!ELEMENT Param (ParamName,ParamVal)+ >
+<!ATTLIST Param paramInOut (In|Out) "In">
+
+<!ELEMENT ParamName ( #PCDATA ) >
+
+<!ELEMENT ParamVal ( #PCDATA ) >
+
+]
+>
+<Report ver="2.0" tmZone="中国标准时间">
+<General productName="QuickTest Professional" productVer="10.00" os="Windows XP" host="CHENNENGJI"><DocLocation><![CDATA[D:\Automation Framworks\RunTest\QTRunner_VBS\Tests\ReporterManager_MyTest]]></DocLocation></General>
+<Doc rID="T1"   productName= "QuickTest Professional"  >
+<DName><![CDATA[ReporterManager_MyTest]]></DName>
+<Res><![CDATA[ReporterManager_MyTest]]></Res>
+<DT rID="T2">
+<NodeArgs eType="Table" icon="2" nRep="4" filter="False" >
+<Disp><![CDATA[Run-Time Data Table]]></Disp>
+<BtmPane vType="Table">
+<Path><![CDATA[Default.xls]]></Path>
+</BtmPane>
+</NodeArgs>
+</DT>
+<Step rID="T3">
+<Obj ><![CDATA[Create XML Report]]></Obj>
+<Details ><![CDATA[File corrupted, overwriting
+File = D:\Automation Framworks\RunTest\QTRunner_VBS\TestResults\2009.12.20_13.9.49\ReporterManager_MyTest\QTPLog.XML]]></Details>
+<Time><![CDATA[2009-12-20 - 13:10:22]]></Time>
+<TimeTick>1261285822</TimeTick>
+<NodeArgs eType="User" icon="3" nRep="6" status="Warning" >
+<Disp><![CDATA[Create XML Report]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T4">
+<Obj ><![CDATA[Stylesheet not found]]></Obj>
+<Details ><![CDATA[The stylesheet you've specified (C:\QTPLog.XSL) doesn't exist.
+If you're using the default stylesheet, make sure you copy the supplied QTPLog.XLS file to C:\QTPLog.XSL]]></Details>
+<Time><![CDATA[2009-12-20 - 13:10:22]]></Time>
+<TimeTick>1261285822</TimeTick>
+<NodeArgs eType="User" icon="3" nRep="7" status="Warning" >
+<Disp><![CDATA[Stylesheet not found]]></Disp>
+</NodeArgs>
+</Step>
+<DIter rID="T5" iterID="1" >
+<Action rID="T6">
+<AName><![CDATA[Action1]]></AName>
+<Step rID="T7">
+<Obj ><![CDATA[Step 1]]></Obj>
+<Details ><![CDATA[Expected Result: Window Should Open
+Actual Result: All OK
+
+Details: No Details]]></Details>
+<Time><![CDATA[2009-12-20 - 13:10:23]]></Time>
+<TimeTick>1261285823</TimeTick>
+<NodeArgs eType="User" icon="3" nRep="10" status="Passed" Source="Action1" SourceLine="-1" >
+<Disp><![CDATA[Step 1]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T8">
+<Obj ><![CDATA[Step 2]]></Obj>
+<Details ><![CDATA[Expected Result: Window Should Open
+Actual Result: It Didn't
+
+Details: Some Details]]></Details>
+<Time><![CDATA[2009-12-20 - 13:10:24]]></Time>
+<TimeTick>1261285824</TimeTick>
+<NodeArgs eType="User" icon="3" nRep="11" status="Warning" Source="Action1" SourceLine="-1" >
+<Disp><![CDATA[Step 2]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T9">
+<Obj ><![CDATA[Step 3]]></Obj>
+<Details ><![CDATA[Expected Result: Window Should Open
+Actual Result: App. Crashed
+
+Details: Bla Bla Bla]]></Details>
+<Time><![CDATA[2009-12-20 - 13:10:24]]></Time>
+<TimeTick>1261285824</TimeTick>
+<NodeArgs eType="User" icon="3" nRep="12" status="Failed" Source="Action1" SourceLine="-1" >
+<Disp><![CDATA[Step 3]]></Disp>
+</NodeArgs>
+</Step>
+<Summary sTime="2009-12-20 - 13:10:23" eTime="2009-12-20 - 13:10:25" passed="1" failed="1" warnings="1" ></Summary>
+<NodeArgs eType="StartAction" icon="5" nRep="9" status="Failed" >
+<Disp><![CDATA[Action1 Summary]]></Disp>
+</NodeArgs>
+</Action>
+<NodeArgs eType="StartIteration" icon="4" nRep="8" status="Failed" >
+<Disp><![CDATA[ReporterManager_MyTest Iteration 1 (Row 1)]]></Disp>
+</NodeArgs>
+</DIter>
+<Summary sTime="2009-12-20 - 13:10:21" eTime="2009-12-20 - 13:10:25" passed="1" failed="1" warnings="3" ></Summary>
+<NodeArgs eType="StartTest" icon="1" nRep="3" status="Failed" >
+<Disp><![CDATA[Test ReporterManager_MyTest Summary]]></Disp>
+</NodeArgs>
+</Doc>
+</Report>

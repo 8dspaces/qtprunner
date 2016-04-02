@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_DDT_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.3 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/28 11:18:42 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/DDT/emos_ddt_lib/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#*	This library contains wrappers for some chosen ddt_functions with
+#*	extended logging and some additional useful functions.
+#*&lt;p&gt;NOTE:&lt;br&gt;
+#*	The interface to multiple Excel sheets is now supported.
+#*	We kindly thank &lt;a href="mailto:aanoop@covansys.com"&gt;Anoop Joy&lt;/a&gt; 
+#*	for his &lt;code&gt;ExcelSheet.dll&lt;/code&gt; which provides the basis for this implementation.
+#*/</font></i><font color=black>
+
+<b>static</b> nameSep = </font><font color="#00bb00">"#"</font><font color=black>;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Setter function for sheet separator sign (default: #).
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> ddt_set_name_sep ( <b>in</b> sep )
+{
+	nameSep = substr( sep, 1, 1 );
+}
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Getter function for sheet separator sign.
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> ddt_get_name_sep ()
+{
+	<b>return</b> nameSep;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#*	Opens the given Excel table. This function supports access to multiple Excel
+#*	sheets by appending "#&amp;lt;sheet_name&amp;gt;" to &amp;gt;table&amp;lt; name, e.g.
+#*&lt;pre&gt;
+#*		DDT_open_table( "C:&#92;&#92;some_dir&#92;&#92;table.xls#sheet1" );
+#*&lt;/pre&gt;
+#* @param table (in)	table name
+#* @param mode (in)	(optional) DDT_MODE_READ or DDT_MODE_READWRITE [defult: DDT_MODE_READ]
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_open_table ( <b>in</b> table, <b>in</b> mode )
+{
+	<b>auto</b> rc, nameArr[], count;
+	
+	count = split( table, nameArr, nameSep );
+	<b>switch</b> ( count )
+	{
+	<b>case</b> 1:
+		<b>break</b>;
+	<b>case</b> 2:
+		rc = ddt_set_excel_sheet(nameArr[1], nameArr[2] );
+		<b>if</b> ( rc != E_OK )
+		{
+			<b>tl_step</b>( </font><font color="#00bb00">"DDT_open_table()"</font><font color=black>, rc, table &amp; </font><font color="#00bb00">" [ rc="</font><font color=black> &amp; rc &amp; </font><font color="#00bb00">"]"</font><font color=black> );
+			<b>return</b> rc;
+		}
+		<b>break</b>;
+	<b>default</b>:
+		rc = E_ILLEGAL_PARAMETER;
+		<b>tl_step</b>( </font><font color="#00bb00">"DDT_open_table()"</font><font color=black>, rc, table &amp; </font><font color="#00bb00">" [ rc="</font><font color=black> &amp; rc &amp; </font><font color="#00bb00">"]"</font><font color=black> );
+		<b>return</b> rc;
+	}
+	<b>if</b> ( mode == </font><font color="#00bb00">""</font><font color=black> )
+		rc = ddt_open( nameArr[1] );
+	<b>else</b>
+		rc = ddt_open( nameArr[1], mode );
+	<b>if</b>( rc == E_FILE_OPEN )
+	{
+		ddt_close( nameArr[1] );
+		<b>if</b> ( mode == </font><font color="#00bb00">""</font><font color=black> )
+			rc = ddt_open( nameArr[1] );
+		<b>else</b>
+			rc = ddt_open( nameArr[1], mode );
+	}
+	<b>tl_step</b>( </font><font color="#00bb00">"DDT_open_table()"</font><font color=black>, rc, table &amp; </font><font color="#00bb00">" [ rc="</font><font color=black> &amp; rc &amp; </font><font color="#00bb00">"]"</font><font color=black> );
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#*	Closes the table. This routine now parses the table name and removes the
+#*	sheet specification if present. This way we ensure that underlying ddt_close()
+#*	will not fail due to multiple sheet support integrated in DDT_open_table().
+#* @param table (in)	table name
+#* @return
+#*	E_OK:	operation succeeded
+#*	!E_OK:	operation failed
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_close_table ( <b>in</b> table )
+{
+	<b>auto</b> nameArr[], count;
+	
+	count = split( table, nameArr, nameSep );
+	<b>return</b> ddt_close( nameArr[1] );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#*	Displays a dialog wher you can either choose the default table or display
+#*	the file-browser and pick any file you want.
+#* @param def_path (in)	name of the default table (full path!)
+#* @param dir (out)		name of the chosen directory
+#* @param name (out)		name of the chosen file
+#* @return
+#*	E_OK:		table chosen ( output variables filled )
+#*	E_BAD_PATH:	oeration failed
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_choose_table ( <b>in</b> def_path, <b>out</b> dir, <b>out</b> name )
+{
+	<b>auto</b> rc, table;
+
+	rc = pause_test( </font><font color="#00bb00">"Should the following table be used?\n\n"</font><font color=black> &amp; def_path,
+                     </font><font color="#00bb00">"&amp;Yes"</font><font color=black>, </font><font color="#00bb00">"&amp;No"</font><font color=black> );
+	<b>if</b> ( rc == 0 )
+		table = def_path;
+	<b>else</b>
+		table = create_browse_file_dialog( </font><font color="#00bb00">"*.xls"</font><font color=black> );
+
+	rc = split_path( table, dir, name );
+	<b>if</b> ( rc != E_OK )
+		<b>tl_step</b>( </font><font color="#00bb00">"DDT_choose_table()"</font><font color=black>, rc, table &amp; </font><font color="#00bb00">" [BAD_PATH]"</font><font color=black> );
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#*	A special-purpose function. It wraps around a ddt_val function by parsing
+#*	the retrieved value. If the value begins with the particular substring
+#*	(default: ?), then a dialog is displayed where the retrieved value may
+#*	be modified before being sent to further processing.
+#* @param table (in)	table name (full path)
+#* @param param (in)	column name
+#* @param msg (in)		message to be displayed in case the substring is found
+#* @param flag (in)	(optional) substring that triggers the dialog [default: ?]
+#* @return
+#*	value (either modified or unmodified) which is to be further processed
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_ask ( <b>in</b> table, <b>in</b> param, <b>in</b> msg, <b>in</b> flag )
+{
+	<b>auto</b> rc, val, len;
+	<b>if</b> ( flag == </font><font color="#00bb00">""</font><font color=black> )
+		flag = </font><font color="#00bb00">"?"</font><font color=black>;
+	len = <b>length</b>( flag );
+	val = ddt_val( table, param );
+	<b>if</b> ( <b>length</b>( val ) &lt; len )
+		<b>return</b> val;
+	<b>if</b> ( substr( val, 1, len ) == flag )
+	{
+		val = substr( val, len+1 );
+		rc = create_input_dialog( msg &amp; </font><font color="#00bb00">": "</font><font color=black> &amp; val );
+		<b>if</b> ( rc == </font><font color="#00bb00">""</font><font color=black> )
+			<b>return</b> val;
+		<b>return</b> rc;
+	} 
+	<b>return</b> val;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># The following functions build upon the work of  </font></i><font color=black>
+</font><font color="#ff0000"><i># &lt;a href="mailto:aanoop@covansys.com"&gt;Anoop Joy </font></i><font color=black>
+</font><font color="#ff0000"><i># and his/her ExcelSheet.dll.</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------</font></i><font color=black>
+
+<b>public</b> <b>const</b> _initexsheet = load_dll( getvar(</font><font color="#00bb00">"testname"</font><font color=black>) &amp; </font><font color="#00bb00">"&#92;&#92;ExcelSheet.dll"</font><font color=black> );
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Changes the active sheet in the given excel file.
+#* An Excel file contains number of worksheets. Only one among them will be active.
+#* Winrunner access only this active sheet. 
+#* This function uses excel automation to implement the following algorithm: 
+#* &lt;pre&gt; 
+#* 				1. Create an instance of Excel application
+#* 				2. Open the given file in the application
+#* 				3. Iterate through each worksheet in the file
+#* 				4. If the worksheet name matches with the given Sheetname
+#* 					Then Set the sheet to Active
+#* 				5. Save the excel file
+#* 				6. Close Excel application
+#*&lt;/pre&gt; 
+#* Usage : SetExcelSheet ( "C:\sample.xls", "Sheet2");
+#* @param table (in)  table name/path
+#* @param sheet (in) sheet name
+#* @return	
+#* 	-1	Couldn't Open Excel Application
+#* 	-2	File not found
+#* 	-4	UnExpected Error
+#* 	-3	Sheet not found
+#*/</font></i><font color=black>
+<b>extern</b> <b>int</b> SetExcelSheet ( <b>in</b> <b>string</b>&lt;1024&gt;, <b>in</b> <b>string</b>&lt;1024&gt; );
+
+<b>public</b> <b>const</b> E_NO_EXCEL = -20661;
+<b>public</b> <b>const</b> E_NO_EXCEL_FILE = -20662;
+<b>public</b> <b>const</b> E_NO_EXCEL_SHEET = -20663;
+<b>public</b> <b>const</b> E_EXCEL_ERROR = -20664;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Selects the specified sheet in the given Excel table.
+#* @param excel_filename (in) name/path of the Excel table
+#* @param excel_sheetname (in) name of the excel shhet to be selected
+#* @return
+#*	E_OK	(0)	Operation succesfull
+#*	E_FILE_OPEN	(-10007)	Cannot open file. File may already be open.
+#*	E_SHARING_VIOLATION	(-10041)	Sharing violation (i.e. file opened by another app)
+#*	E_FILE_NOT_FOUND	(-10033)	File not found.
+#* 	E_NO_EXCEL	(-20661)	Couldn't Open Excel Application
+#* 	E_NO_EXCEL_FILE	(-20662)	File not found or not an excel file
+#* 	E_NO_EXCEL_SHEET	(-20663)	Sheet not found
+#* 	E_EXCEL_ERROR	(-20664)	UnExpected Error
+#*  other errors possible
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> ddt_set_excel_sheet ( <b>in</b> excel_filename, <b>in</b> excel_sheetname )
+{
+	<b>auto</b> rc, line;
+	</font><font color="#ff0000"><i># not sure this signature applies to all Excel files/versions</font></i><font color=black>
+	<b>static</b> excel_signature = </font><font color="#00bb00">"–œ‡°±"</font><font color=black>;
+
+	rc = file_open( excel_filename, FO_MODE_READ );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	rc = file_getline ( excel_filename, line );
+	file_close( excel_filename );
+	<b>if</b> ( rc != E_OK || match( line, excel_signature ) != 1 )
+		<b>return</b> E_NO_EXCEL_FILE;
+
+	rc = SetExcelSheet ( excel_filename, excel_sheetname );
+	<b>return</b> (rc) ? -20660+rc : E_OK;
+}
+
+</pre></body></html>

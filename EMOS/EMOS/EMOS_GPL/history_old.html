@@ -1,0 +1,707 @@
+<!doctype html public "-//W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+<title>EMOS Framework History</title>
+<meta name="author" content="Dean Rajovic">
+<meta name="keywords" content="EMOS Framework, WinRunner, functional testing">
+<meta name="generator" content="Ulli Meybohms HTML EDITOR">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+<a name="top"></a>
+<hr color="#000000">
+<font face="verdana,arial,helvetica,sans-serif">
+<table border="0" width="100%">
+  <tbody>
+    <tr>
+      <td align="Left"><font size="+2" color="blue">
+      <b>
+ EMOS Framework<br>
+ History</b>
+      </font></td>
+      <td align="Right"><a href="http://www.emos.de/"><img src="http://www.emos.de/homepage/emosnewhome.nsf/emoslogo128x70.gif?OpenImageResource" align="Right" border="0" alt="EMOS Homepage">
+      </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<hr color="#000000">
+<h3>Content</h3>
+<ul>
+<li><a href="#1.4.1.3">What's new in Release: 1.4.1.3</a></li>
+<li><a href="#1.4.1.2">What's new in Release: 1.4.1.2</a></li>
+<li><a href="#1.4.1.1">What's new in Release: 1.4.1.1</a></li>
+<li><a href="#1.4.1">What's new in Release: 1.4.1</a></li>
+<ul>
+	<li><b>Support for multiple Excel sheets</b> added</li>
+	<li>Simple test statistics added</li>
+	<li>Version numbering corrected</li>   
+</ul>
+<li><a href="#1.4.0">What's new in Release: 1.4.0</a></li>
+<li><a href="#7.01.00.06">What's new in Release: 7.01.00.06</a></li>
+<li><a href="#7.01.00.05">What's new in Release: 7.01.00.05</a></li>
+<li><a href="#7.01.00.04">What's new in Release: 7.01.00.04</a></li>
+<li><a href="#7.01.00.03">What's new in Release: 7.01.00.03</a></li>
+<li><a href="#7.01.00.02">What's new in Release: 7.01.00.02</a></li>
+<li><a href="#7.01.00.01">What's new in Release: 7.01.00.01</a></li>
+<li><a href="#6.02.01.01">What's new in Release: 6.02.01.01</a></li>
+<li><a href="#6.02.01.00">What's new in Release: 6.02.01.00</a></li>
+<li><a href="#6.02.00.02">What's new in Release: 6.02.00.02</a></li>
+</ul>
+<hr>
+<h3><a name="1.4.1.3"></a>What's new in Release: 1.4.1.3</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li><b>Improved error reporting</b></li>
+<p></p>
+ Error numbers are converted to textual descriptions.<br>
+ Many thanks to Mr. Skobowsky from DAT and his help on translating English error texts to German.
+<p></p>
+<li><b>Improved error handling</b></li>
+<p></p>
+ If a test block fails, a dialog is shown where you can choose whether retry, 
+ continue or abort the test execution.
+<p></p>
+<li>Smaller changes that I might have lost track of</li>
+</ol>
+<hr>
+<h3><a name="1.4.1.2"></a>What's new in Release: 1.4.1.2</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li><b>BUGFIX of the 1.4.1.1 bugfix</b></li>
+</ol>
+<hr>
+<h3><a name="1.4.1.1"></a>What's new in Release: 1.4.1.1</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li><b>BUGFIX for sheet names with uppercase characters</b></li>
+<p></p>
+    FRM_open() function used to lowercase the table name in order to recognise<br>
+    the reuse of the same table name in case of different spelling. This worked fine<br>
+    as long as we only used table names (because Windows file system is case-insensitive).<br>
+    Sheet names however ARE case-sensitive so we are now taking care not to convert<br>
+    them prior to DDT_table_open() call.
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_lib
+    </pre>
+</ol>
+<hr>
+<h3><a name="1.4.1"></a>What's new in Release: 1.4.1</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li><b>Support for multiple Excel sheets added</b></li>
+<p></p>
+    Probably the most important new feature in EMOS Framework in last few years.<br>
+    This feature allows new ways of structuring tests in Excel tables with fewer files.
+<p></p>
+    This feature builds upon the idea (and software) created by Anoop Joy.
+    His <code>ExcelSheet.dll</code> and the routine <code>SetExcelSheet</code>
+    has been included in our <code>emos_ddt_lib</code> and used accordingly in 
+    other libraries.
+<p></p>
+    For EMOS Framework users the change is visible in modified syntax of LINK,
+    LINA and LINX instructions. From now on you can specify the sheet name by
+    appending "#<name>" to the second parameter. The new syntax rules are:
+    <pre>
+    LINK~[driver]~[table][#sheet]~test
+    LINA~[driver]~[table][#sheet]~test
+    LINX~driver~[table][#sheet]~[test]  --> not completely implemented!    </pre>
+    Examples:
+    <pre>
+    LINK~~C:/path/testa.xls#main~1
+    LINK~~tests.xsl#main~1
+    LINK~~#main~1    </pre>
+    New examples can be found in the updated 
+    <a href="http://www.emos.de/homepage/emosnewhome.nsf/downlfrmexample?OpenPage">FlightDemo</a> project.
+<p></p>
+    <b>NOTE:</b>  <font color="red">Use this feature with care since it is not thorougly tested yet!</font> 
+    In fact, let me abuse you as beta testers for a while. So please let me know all the good and bad things.
+    Thanks a lot, <a href="mailto:drajovic@emos.de">dean</a>
+<p></p>
+    Affected:
+    <pre>
+    DDT/emos_ddt_lib
+    FRM/emos_frm_lib
+    FRM/emos_frm_stp_lib
+    </pre>
+<li><b>Simple test statistics added</b></li>
+<p></p>
+    Upon Lars Underbacke's request the simple test statistics are now produced
+    by the standard EMOS Framework suite driver. The idea is realised with a 
+    handful new functions in a new library "FRM/emos_frm_result_lib".
+    The calls to the new routines have been implanted inFRM/emos_frm_driver_lib
+    and in kickoff scripts.
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_result_lib
+    FRM/emos_frm_driver_lib
+    FRM/TPL/Scripts/kickoff_new_style
+    FRM/TPL/Scripts/kickoff_old_style
+    </pre>
+<li><b>Version numbering corrected in registry</b></li>
+<p></p>
+    Version 1.4.0 used to print 7.01.00.06 in WR help screen
+</ol>
+<hr>
+<h3><a name="1.4.0"></a>What's new in Release: 1.4.0</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li><b>New release numbering</b></li>
+<p></p>
+We have finally given up the versioning approach that stupidly followed the
+WinRunner's release numbering as EMOS Framework is, generally, independent of WR changes.
+New version number was calculated by accumulating old versions:
+<pre>
+        6.02.00.02 --> 1.1.1
+        6.02.01.00 --> 1.2.0
+        6.02.01.01 --> 1.2.2
+        7.01.00.01 --> 1.3.1
+        7.01.00.02 --> 1.3.2
+        7.01.00.03 --> 1.3.3
+        7.01.00.04 --> 1.3.4
+        7.01.00.05 --> 1.3.5
+        7.01.00.06 --> 1.3.6
+        1.4.0</pre>
+<li><b>History rewritten in HTML-format</b></li>
+<p></p>
+    This file used to be a plain text file.
+<p></p>
+    Affected:
+    <pre>
+    history.txt  --> removed
+    history.htm --> inserted
+    </pre>
+
+<li><b>WrDoc package documentation added</b></li>
+<p></p>
+    Documentation improved adding package.html files into all directories.
+    Overview.html was added in two project roots (EMOS_GPL and EMOS_GPL/FRM/TPL).
+<p></p>
+    Affected:
+    <pre>
+    */overview.html  --> added
+    */package.html --> added
+    </pre>
+
+<li><b>Invocation of non-existing tests can (optionally) raise an error </b></li>
+<p></p>
+    Motivation: see <a href="http://groups.yahoo.com/group/EMOS_frame/message/62">http://groups.yahoo.com/group/EMOS_frame/message/62</a>
+<p></p>
+    New function FRM_DRV_set_fail_on_unknown_test( mode )  and
+    FRM_DRV_set_is_fail_on_unknown_test() have been added to
+    emos_frm_driver_lib.
+<p></p>
+    Setting "mode" to TRUE will cause FRM_DRV_test_set_driver() to raise an
+    error if an unknown test (i.e. nonexisting column) has been called. Leaving
+    this parameter alone (or setting it to FALSE) will leave the old logic
+    unchanged which only reports  an "UNKNOWN, ignored" message.
+<p></p>
+    To turn the feature on insert the following statement into your kickoff
+    test(s)
+<pre>
+        FRM_DRV_set_fail_on_unknown_test( TRUE );</pre>
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_driver_lib
+    </pre>
+    
+<li><b>Misha's Perl-like regular expressions (v0.2) included</b></li>
+<p></p>
+    Motivation: see <a href="http://groups.yahoo.com/group/winrunner/message/28067">Misha's birthday present</a>
+<p></p>
+    Here is Misha's original text: <cite>
+This is the first release of a script and dll to provide WinRunner
+with perl-like regular expression search and match functions.
+
+If you currently use the builtin function match() you will probably
+appreciate the expanded breadth of expressions supported.
+
+Also added is a GUI property "label_like" for window label recognition.
+
+re_func.dll is a wrapper for regex++ in the c++ library at www.boost.org.
+
+The following functions are exported from the dll:
+
+re_match - match a RE to a whole string
+re_search - find a match for RE within a string
+
+Also defined is a query and verify function for a new property called
+"label_like".
+This can be used to find regular expressions (equivalent to re_search)
+in windows labels.
+
+Note that this will probably not work with web objects or other custom
+controls, as it
+uses the windows API GetWindowText() to extract the label.
+
+Included are a sample script and a copy of the supported regular
+expression syntax.</cite>
+<p></p>
+    EMOS Framework distributes v0.2 of re_func which contains another 
+improvement. Here Misha's text again: <cite>
+This version now has another GUI property "id_like", to match MSW_id's.</cite>
+<p></p>
+    To turn the feature on insert the following statement into your startup test:
+<pre>
+        re_func_init();</pre>
+<p></p>
+	Note also that v0.3 of re_func is available which completely replaces the
+	built-in regular expression logic (i.e. including !-logic in GUI-Map). Although
+	we prefer this version we do not distribute it with EMOS framework because
+	of its (nice) feature that invalidates the original match() functionality. 
+	Those who are interessted should check <a href="http://groups.yahoo.com/group/winrunner/files/re_func_0.3.zip">
+	http://groups.yahoo.com/group/winrunner/files/re_func_0.3.zip</a>.
+<p></p>
+    Affected:
+    <pre>
+    STD/misha_std_re_func_lib
+    FRM/TPL/Scripts/startup
+    emosinit
+    </pre>
+</ol>
+<hr>
+<h3><a name="7.01.00.06"></a>What's new in Release: 7.01.00.06</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li><b>LINK now allows parameter driver to be left blank</b></li>
+<p></p>
+    The introduction of new driver logic allowed the following syntax construct
+<pre>         LINK~~~1    (see comments for v7.01.00.01 below)</pre>
+    As of this release this finally works.
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_stp_lib
+    </pre>
+<!--  -->
+<li><b>Missing wait() added in EMOS_check_win_closed()</b></li>
+<p></p>
+    EMOS_check_win_closed() used to ignore the timeout parameter.
+<p></p>
+    Affected:
+    <pre>
+    STD/emos_std_win_lib
+    </pre>
+</ol>
+<hr>
+<h3><a name="7.01.00.05"></a>What's new in Release: 7.01.00.05</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<!--  -->
+<li><b>Workaround for WinRunner bug in EMOS_win_close_all()</b></li>
+<p></p>
+    WinRunner function win_close() sometimes returns E_OK for windows
+    which are not closed. It seems to affect windows that do not have a
+    close button (x-button in the upper-right corner) such as Login window of
+    the Flight Application. Our workaround is to attempt Alt-F4 in such cases
+    which seems to work.
+<p></p>
+    Affected:
+    <pre>
+    STD/emos_std_win_lib
+    </pre>
+<!--  -->
+<li><b>Workaround for WinRunner bug with setvar/getvar("timeout"/"timeout_msec")</b></li>
+<p></p>
+    Mercury has managed again to confuse "timeout" amd "timeout_msec".
+    In version 7.00 and 7.01 "timeout_msec" did not work properly.
+    As of Version 7.5 "timeout" does not work any more. Try this code on different
+    WR versions if you are curious:
+<pre>
+            setvar("timeout", 1);
+            printf("timeout=%s", getvar("timeout"));
+            printf("timeout_msec=%s", getvar("timeout_msec"));
+            setvar("timeout_msec", 1000);
+            printf("timeout=%s", getvar("timeout"));
+            printf("timeout_msec=%s", getvar("timeout_msec"));</pre>
+    We have to use the trick now to make our set_timeout()/restore_timeout()
+    functions work in both envirinments.
+<p></p>
+    Affected:
+    <pre>
+    STD/emos_std_misc_lib
+    </pre>
+<!--  -->
+<li><b>Some reformatting/beautifying in TPL directory</b></li>
+<p></p>
+    Template directory was updated for the new driver logic which was introduced
+    in 7.01.00.04. However, the example is still the same old stupid "Hello world!"
+    If you are intrested in a better example, then you should consider the updated
+    FlightDemo example which is available on our download pages.
+<p></p>
+    Affected:
+    <pre>
+    TPL/*.*
+    </pre>
+</ol>
+<hr>
+<h3><a name="7.01.00.04"></a>What's new in Release: 7.01.00.04</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<!--  -->
+<li><b>Improves/fixes thealgorithm for loading driver libraries</b></li>
+<p></p>
+    New driver logic originally did not allow the combination of new and old drivers
+    in a test suite. This proved to be incompatible in rare cases where a specially
+    designed test (the so called inverted test or tests whos data tables are not
+    organised in column-wise manner but row-wise similar to ddt-logic) needs
+    to be called within the suite.
+<p></p>
+    This version introduces a new algorithm in emos_frm_drv_lib that first checks
+    whether the specified driver is a compiled module (or it has accompanied a
+    compiled module whthe same name plus suffix "_lib"). If this is true, the compiled
+    module is called using new driver logic. Otherwise the driver is treated as a
+    main test (i.e. old driver logic) and is called as usual with call_close statement.
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_driver_lib
+    STD/emos_std_misc_lib
+    </pre>
+</ol>
+<hr>
+<h3><a name="7.01.00.03"></a>What's new in Release: 7.01.00.03</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li><b>Fixes a bug introduiced with 7.01.00.01</b></li>
+<p></p>
+    New driver logic used to incorrectly load/unload driver libs due to a "feature"
+    in TSL laod/unload/reload statements. We are now forced to reload driver libs
+    for each LINK statement which we hoped to have avoided earlier. In any case
+    this release should be stable. If you want to avoid unnecessary reloading of
+    your driver libs, than integrate all of your drivers into one lib and/or avoid
+    using the first argument of the LINK statement if not absolutely necessary.
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_drm_driver_lib
+    </pre>
+</ol>
+<hr>
+<h3><a name="7.01.00.02"></a>What's new in Release: 7.01.00.02</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li><b>WrSync integrated into EMOS Framework</b></li>
+<p></p>
+    If WrSync is present in its default location, emosinit will automatically load it.
+<p></p>
+    WrSync is a new library from EMOS that can be used to syncronise WinRunner
+    tests on several machines. This can prove very useful for measuring
+    application's performance (especially in combination with WrLog) and/or for
+    implementing simple load tests. For more info on WrSync please contact
+    emos@emos.de
+<p></p>
+    Affected:
+    <pre>
+    emosinit
+    </pre>
+</ol>
+<hr>
+<h3><a name="7.01.00.01"></a>What's new in Release: 7.01.00.01</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li><b>New test driver logic introduced</b></li>
+<p></p>
+    This change has fixed a very subtle bug in Framework that present since its
+    creation. Namely, TSL does not provide for local variables in main tests (the
+    equivalent of "auto" variables in functions). This imposes limitations in case
+    of recursive invocations of main tests which was afecting Framework test
+    drivers. Until now we were using the variable frm_rc to indicate that some
+    failed. However, we were not able to completely mark the failed execution
+    call chain. This error was not that obvious from the default WinRunner test
+    results. However, with the introduction of WrLog this bacame really anoying
+    due to WrLogs feature to clearly mark the execution chain.
+<p></p>
+    The new test driver logic does not use man test for drivers any more.
+    Instead you create a library with four functions (see DRV/drv_lib in FRM/TPL
+    directory for an example). These functions have reserved names and will be
+    called from the new function FRM_DRV_test_driver() that resides inside the
+    emos_frm_driver_lib. Due to a fat that we have managed to implement the
+    whole logic with functions we can now take the full advantage of recursion
+    while removing the bug with return codes.
+<p></p>
+    One side effect of TSL functions ist that they do not create a branch in test
+    result tree (a feature that we used to love in EMOS Framework). We have
+    therefore included  new main test in FRM/TPL/Scripts/DRV directory called
+    emos_test_driver. Its only purpose is to provoke a new test branch in test
+    result tree for every test invoked.
+<p></p>
+    For compatibility reasons we have not removed the old (and from now on
+    obsolete) logic. The new Framework will by default execute the old logic
+    and should be transparent to existing installations. To activate the new
+    feature do the following:
+<p></p>
+<ol start="1" type="a">
+<li>for every test driver you use create a new compiled module in the
+          same directory with the same name and witt suffix "_lib"</li>
+<li>extract the parts of your divers into the four functions (see example in
+          FRM/TPL/Scripts/DRV/drv_lib)</li>
+<li>include the following line in all your kickoff-files before calling the
+emos_test_suite_driver:</li>
+</ol>
+<pre>
+          FRM_DRV_set_new_test_driver( TRUE );
+</pre>
+<p></p>
+      If you obey the naming covention fom the point a), then no changes in your
+      Excel tables are required. Otherwise all suite tables ans all LINK commands
+      are affected. Here a few examples:
+<pre>
+          LINK~drv/main~table1.xls~1
+</pre>
+      will attempt to load the library named "drv/main_lib" before attempting to process
+      the test 1 in table1.xls  (if no suffix "_lib" exists, Framework will append it)
+<pre>
+          LINK~drv/xyz_lib~table1.xls~1
+</pre>
+      will attempt to load "drv/xyz_lib"  (you may name any file as lng as you name it
+      "..._lib")
+<pre>
+          LINK~~table1.xls~1
+</pre>
+      will use the last loaded driver to process the test 1 in table1.xls (note that this
+      was NOT possible before, you always had to specify the driver)
+<pre>
+          LINK~~~1
+</pre>
+      willuse the last loaded driver to process test 1 in the current table (this was also
+      not possible before)
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_drm_driver_lib
+    FRM/emos_frm_stp_lib
+    FRM/TPL/Scripts/DRV/drv_lib
+    FRM/TPL/Scripts/DRV/emos_test_driver
+    </pre>
+</ol>
+<hr>
+<h3><a name="6.02.01.01"></a>What's new in Release: 6.02.01.01</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li><b>ATR mode added</b></li>
+<p></p>
+    Beside SET/CHK/GEN modes the framework now "understands" the ATR mode. ATR stands
+    for ATtRibute check. This means that you may now specify object's physical
+    attributes/properties to be checked. You can specify this with a colon-separated
+    pair attrName:attrValue ( e.g. enabled:1). Multiple attributes can be specified
+    by separating multiple pairs with embeded newlin character (within Excel Alt-Return).
+    Note that different FRM wrappers use different  chk_info functions. For example
+    FRM_edit_set() uses edit_check_info(), FRM_obj_type() uses obj_check_info(),
+    FRM_static_get() uses static_check_info() etc.
+<p></p>
+    Affected:
+    <pre>
+    STD/emos_attr_lib (new)
+    FRM/emos_frm_gui_lib
+    FRM/emos_frm_web_lib
+    emosinit
+    </pre>
+<li><b>WrLog interface modified</b></li>
+<p></p>
+    Framework is now capable of supplying formatted report messages that can
+    be displayed and analysed with the modified WrLog system.
+<p></p>
+    Affected:
+    <pre>
+    STD/emos_wrlog_lib
+    FRM/emos_frm_driver_lib
+    FRM/emos_frm_lib
+    </pre>
+<li><b>Function EMOS_win_close_all() added</b></li>
+<p></p>
+    This function can be used to assure that none of the specified windows (passed as
+    0-indexed array) exist upon the exit of the function.
+<p></p>
+    Affected:
+    <pre>
+    STD/emos_std_win_lib
+</pre>
+<li><b>Function debug_msg2() added</b></li>
+<p></p>
+    This function prints a report_msg if debug level (can be set by set_gebug()) is
+    greater than or equal 2.
+<p></p>
+    Affected:
+    <pre>
+    STD/emos_std_misc_lib
+    </pre>
+<li><b>WrLog functionallity removed</b></li>
+<p></p>
+    The WrLog interface was changed to a dummy interface. The full WrLog functinallity
+    is from now on only available through the separate product EMOS WrLog.
+<p></p>
+    Affected:
+    <pre>
+    STD/emos_std_wrlog_lib
+    </pre>
+</ol>
+<hr>
+<h3><a name="6.02.01.00"></a>What's new in Release: 6.02.01.00</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li></li>
+    Parameters for main test emos_frm_driver are now additionally made available
+    via getter/setter functions (can improve legibility of kickoff scripts).
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_driver
+    </pre>
+<li><b>Restart capability integrated into emos_frm_driver</b></li>
+<p></p>
+    It is now possible to
+    restart the particular run by only executing the test that either failed or
+    were not executed the last time. This only works when executing tests in
+    interactive mode. In order to enable the retry capability you either need
+    to enable it generically (e.g. in the startup test) or individually for
+    EACH test suite by calling functions FRM_DRV_enable_retry() and/or
+    FRM_DRV_disable_retry().
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_driver
+    kickoff scripts of your choice
+    </pre>
+<li><b>Support for multiple testsequence rows added</b></li>
+<p></p>
+    Step library extended to support spreading the testsequence over several
+    (max. 100) cells. This was done due to the bug in ddt-interface that prevents
+    writing to data tables into cells that exceed the length of 255 characters
+    (i.e. cells displayed as ####). All you need to do now is to split the big
+    cell across several rows. You must name additional test sequence rows by
+    appending 1, 2, etc. to the original name of this row. For example if your
+    test sequence row is indexed by the name "Testvorgang" you should name
+    additional rows "Testvorgang1", "Testvorgang2", etc.
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_stp_lib
+    </pre>
+<li><b>Reporting improved</b></li>
+<p></p>
+    Reporting improved in emos_frm_stp_lib. This lib had the "property" of
+    poorely (or nothing at all) reporting the cases when internal steps (e.g.
+    LINK, CALL, EVAL) failed. This failures are mainly caused by erroneus
+    entries in the data tables. Fremework was detecting all such errors but it
+    used to "report" them only by misterious return codes and absolutely no
+    message at all. This is now hopefully imporoved.
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_stp_lib
+    </pre>
+<li></li>
+    A few bugs removed from the emos_frm_stp_lib (e.g. LINA was not working at
+    all).
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_stp_lib
+    </pre>
+<li><b>Command LINX added</b></li>
+<p></p>
+    In order to support the possibily for defining test casses
+    in an inverted form (i.e. spread accross rows insted columns, the same as native
+    ddt but with indexed rows) we had to introduce a new keyword. This keyword
+    performs a slightly different kind of "loading" of data tables. This loading is
+    similar to LINA command that loads all columns. The difference is that LINX
+    does not require a test (i.e. the column name) to exists.
+<p></p>
+    This new feature enables the Framework to deliberately combine vertically and
+    horizontally organised tests by using the standard linking approach. In order
+    to implement such tests a special kind of test drivers has to be written wich
+    is capable of executing the horizontally oriented tests (not a complicated
+    thing to do).
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_stp_lib
+    </pre>
+<li><b>Command EXEC added</b></li>
+<p></p>
+    This command now makes the old-fashioned EXE: command obsolete.
+    The only difference between the new and the old sysntaxis that the new syntax
+    follows the style of other new (4-letter) commands such as LINK, EVAL and CALL.
+    For example the old EXE:some_block should in future be written as EXEC~some_block
+    where ~ is a separator of your choice.
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_stp_lib
+    </pre>
+<li><b>Wrlog-functionallity is by default deactivated</b></li>
+<p></p>
+    Due to the problems (slow responses of the AUT) detected in one project, which
+    was traced down to loading of wrlog.dll, the wrlog is now by default deactivated.
+    Use functions wrlog_start() and wrlog_stop() to (de)activate the remote logging.
+<p></p>
+    Affected:
+    <pre>
+    STD/emos_wrlog_lib
+    </pre>
+</ol>
+<hr>
+<h3><a name="6.02.00.02"></a>What's new in Release: 6.02.00.02</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ol>
+<li><b>Function FRM_STP_exec() fixed</b></li>
+<p></p>
+    Function was using an invalid variable to execute a command which
+    effectively caused nothing to be executed.
+<p></p>
+    Affected:
+    <pre>
+    FRM/emos_frm_stp_lib
+    </pre>
+<li><b>Function EMOS_menu_item() is now capable of selecting the last menu
+    item instead of the whole menu path.</b></li>
+<p></p>
+    There sems to be a bug in menu_select_item() function that causes the
+    selection of subitems (e.g. menu_select_item( "File;New..." )) to fail.
+    However, selecting the last subitem only (e.g. menu_select_item( "New..."))
+    seems to work fine. This seems to be an undocumented "feature" which
+    appears to be more reliable than the documented one. There are four new
+    functions that let you set and check the menu selection mode:
+<pre>
+        EMOS_menu_set_complete_path_selection()
+        EMOS_menu_set_last_entry_selection()
+        EMOS_menu_is_complete_path_selection()
+        EMOS_menu_is_last_entry_selection()</pre>
+<p></p>
+    Affected:
+    <pre>
+    STD/emos_std_menu_lib
+    </pre>
+<li><b>Function EMOS_menu_select_item_via_text() was extended to adopt an optional
+    parameter that specifies physical properties of the window that contains
+    the menu.</b></li>
+<p></p>
+    Originally, the window description was hard-coded in the function which
+    limitted its usage only to such case (now this value will only be used if
+    no other description is provided).
+<p></p>
+    Affected:
+    <pre>
+    STD/emos_std_menu_lib
+    </pre>
+</ol>
+<hr color="#000000">
+<table border="0" width="100%">
+<tbody>
+<tr>
+<td align="Left" valign="Top"><font size="-2">&nbsp;</font></td>
+<td align="Right" valign="Top"><font size="-2" color="blue"> &copy; 2000,2001,2002,2003, EMOS Computer Consulting GmbH  </font></td>
+</tr>
+<tr>
+<td align="Left" valign="Top"><font size="-2"> </font></td>
+<td align="Right" valign="Top"><font size="-2" color="blue"><a href="http://www.emos.de/">www.emos.de</a></font></td>
+</tr>
+</tbody>
+</table>
+</font>
+</body>
+</html>

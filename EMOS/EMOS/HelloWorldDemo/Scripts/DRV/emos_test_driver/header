@@ -1,0 +1,36 @@
+[General]
+TDDB_ID=0
+NAME=D:\Projekte\ICS-TEST2002\standard\Scripts\DRV\emos_test_driver
+TYPE=TP
+AUTHOR=drajovic
+DATE=1026315157
+FUNCTION=
+SPEC=
+FSEARCH=
+TSEARCH=
+SUM_DESCRIPTION=
+DESCRIPTION=
+COMMENTS=
+ADDONS=StringRay,Y2K,EMOS Framework
+DATA_TBL=d:\projekte\ics-test2002\standard\scripts\..\data\admin\useradmin.xls
+VERSION=7.00
+[Params]
+PARAM_CNT=3
+NAME_0=arg_tid
+TYPE_0=VOID
+MAN_0=NO
+SER_0=NO
+ENC_0=NO
+DES_0=NO DESCRIPTION
+NAME_1=arg_test
+TYPE_1=VOID
+MAN_1=NO
+SER_1=NO
+ENC_1=NO
+DES_1=NO DESCRIPTION
+NAME_2=arg_script
+TYPE_2=VOID
+MAN_2=NO
+SER_2=NO
+ENC_2=NO
+DES_2=NO DESCRIPTION

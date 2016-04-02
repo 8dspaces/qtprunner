@@ -1,0 +1,373 @@
+<?xml version="1.0"?>
+<Object_Repository>
+  <Object Name="MainBrowser" Type="Browser">
+    <Def Type="ParentObject">
+      <Description>"MainBrowser"</Description>
+    </Def>
+    <Object Name="Login" Type="Page">
+      <Def Type="ChildObject">
+        <Description>
+          <title>Welcome: Mercury Tours</title>
+        </Description>
+      </Def>
+      <Object Name="Login_UserName_TextField" Type="WebEdit">
+        <Def Type="ChildObject">
+          <Description>
+            <name>userName</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="Login_Password_TextField" Type="WebEdit">
+        <Def Type="ChildObject">
+          <Description>
+            <name>password</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="Login_SignIn_Button" Type="image">
+        <Def Type="ChildObject">
+          <Description>
+            <file__XORSPACE__name>btn_signin.gif</file__XORSPACE__name>
+          </Description>
+        </Def>
+      </Object>
+    </Object>
+    <Object Name="FlightFinder" Type="Page">
+      <Def Type="ChildObject">
+        <Description>
+          <title>Find a Flight: Mercury Tours:</title>
+        </Description>
+      </Def>
+      <Object Name="FlightFinder_TripType_RadioButton" Type="WebRadioGroup">
+        <Def Type="ChildObject">
+          <Description>
+            <name>tripType</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="FlightFinder_PassCount_List" Type="WebList">
+        <Def Type="ChildObject">
+          <Description>
+            <name>passCount</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="FlightFinder_FromPort_List" Type="WebList">
+        <Def Type="ChildObject">
+          <Description>
+            <name>fromPort</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="FlightFinder_FromMonth_List" Type="WebList">
+        <Def Type="ChildObject">
+          <Description>
+            <name>fromMonth</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="FlightFinder_FromDay_List" Type="WebList">
+        <Def Type="ChildObject">
+          <Description>
+            <name>fromDay</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="FlightFinder_ToPort_List" Type="WebList">
+        <Def Type="ChildObject">
+          <Description>
+            <name>toPort</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="FlightFinder_ToMonth_List" Type="WebList">
+        <Def Type="ChildObject">
+          <Description>
+            <name>toMonth</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="FlightFinder_ToDay_List" Type="WebList">
+        <Def Type="ChildObject">
+          <Description>
+            <name>toDay</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="FlightFinder_ServClass_RadioButton" Type="WebRadioGroup">
+        <Def Type="ChildObject">
+          <Description>
+            <name>servClass</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="FlightFinder_Airline_List" Type="WebList">
+        <Def Type="ChildObject">
+          <Description>
+            <html__XORSPACE__tag>SELECT</html__XORSPACE__tag>
+            <name>airline</name>
+          </Description>
+        </Def>
+      </Object>
+      <Object Name="FlightFinder_Continue_Button" Type="Image">
+        <Def Type="ChildObject">
+          <Description>
+            <file__XORSPACE__name>continue.gif</file__XORSPACE__name>
+          </Description>
+        </Def>
+      </Object>
+    </Object>
+<Object Name="SelectFlight" Type="Page">
+<Def Type="ChildObject">
+<Description>
+<title>Select a Flight: Mercury Tours</title>
+</Description>
+</Def>
+<Object Name="SelectFlight_Continue_Button" Type="Image">
+<Def Type="ChildObject">
+<Description>
+<file__XORSPACE__name>continue.gif</file__XORSPACE__name>
+</Description>
+</Def>
+</Object>
+</Object>
+<Object Name="BookFlight" Type="Page">
+<Def Type="ChildObject">
+<Description>
+<title>Book a Flight: Mercury Tours</title>
+</Description>
+</Def>
+<Object Name="BookFlight_PassFirst0_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>passFirst0</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_PassLast0_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>passLast0</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_Pass.1.meal_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>pass.1.meal</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_PassFirst1_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>passFirst1</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_PassLast1_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>passLast1</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_Pass..meal2_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>pass.1.meal</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_PassFirst2_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>passFirst2</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_PassLast2_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>passLast2</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_Pass..meal3_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>pass.1.meal</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_CreditCard_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>creditCard</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_Creditnumber_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>creditnumber</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_Ccexp_dt_mn_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>cc_exp_dt_mn</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_Ccexp_dt_yr_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>cc_exp_dt_yr</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_Ccfrst_name_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>cc_frst_name</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_Ccmid_name_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>cc_mid_name</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_Cclast_name_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>cc_last_name</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_TicketLess_CheckBox" Type="WebCheckBox">
+<Def Type="ChildObject">
+<Description>
+<name>ticketLess</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_BillAddress1_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>billAddress1</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_BillAddress2_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>billAddress2</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_BillCity_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>billCity</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_BillState_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>billState</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_BillZip_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>billZip</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_BillCountry_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>billCountry</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_TicketLess2_CheckBox" Type="WebCheckBox">
+<Def Type="ChildObject">
+<Description>
+<name>ticketLess</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_DelAddress1_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>delAddress1</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_DelAddress2_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>delAddress2</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_DelCity_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>delCity</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_DelState_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>delState</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_DelZip_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>delZip</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_DelCountry_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>delCountry</name>
+</Description>
+</Def>
+</Object>
+<Object Name="BookFlight_Purchase_Button" Type="Image">
+<Def Type="ChildObject">
+<Description>
+<file__XORSPACE__name>purchase.gif</file__XORSPACE__name>
+</Description>
+</Def>
+</Object>
+</Object>
+<Object Name="FlightConf" Type="Page">
+<Def Type="ChildObject">
+<Description>
+<title>Flight Confirmation: Mercury Tours</title>
+</Description>
+</Def>
+<Object Name="FlightConf_Logout_Button" Type="Image">
+<Def Type="ChildObject">
+<Description>
+<file__XORSPACE__name>Logout.gif</file__XORSPACE__name>
+</Description>
+</Def>
+</Object>
+</Object>
+  </Object>
+</Object_Repository>

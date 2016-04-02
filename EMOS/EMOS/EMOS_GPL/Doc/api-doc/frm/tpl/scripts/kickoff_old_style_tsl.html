@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TEST:	kickoff</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.4 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/23 19:31:51 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/TPL/Scripts/kickoff_old_style/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/***
+#* This is an example of a script that triggers the
+#* processing of a test suite table (hence "kickoff"). 
+#* &lt;p&gt;&lt;b&gt;IMPORTANT!&lt;/b&gt;&lt;/p&gt;
+#* By default this suite executes the table defined 
+#* in the script (you must read the code to find out 
+#* which one).
+#* Productive suites should be kept stable and under 
+#* version control (i.e. read-only). They should 
+#* define &lt;b&gt;the complete&lt;/b&gt; set of tests for the 
+#* particular test purpose. 
+#* Ensuring that suite tables are kept up to date 
+#* will allow you to see what was intended with the 
+#* test suite at any point in time.
+#* &lt;p&gt;
+#* During the development of the test suite or in a 
+#* multi-user environment it is however often needed 
+#* to execute only  portions of the whole test suite. 
+#* One way to achieve this is by creating individual 
+#* suite table and play with it instead of constantly
+#* changing the production suite.
+#* &lt;p&gt;
+#* You can redirect this script to use your private 
+#* table by allocating the environment variable 
+#* &lt;code&gt;MY_SUITE&lt;/code&gt; and assiging the appropriate
+#* value to it (the name of your suite table relative
+#* to the DATA_HOME directory, e.g. mysuite.xls). 
+#* You must remove the variable when you are ready to 
+#* execute the real suite. 
+#*/</font></i><font color=black>
+
+<b>static</b> tmpTable = getenv(</font><font color="#00bb00">"MY_SUITE"</font><font color=black>);
+<b>static</b> defTable = </font><font color="#00bb00">"suite1.xls"</font><font color=black>; 
+<b>static</b> suiteHdr = </font><font color="#00bb00">"run?,driver,table,testset,description"</font><font color=black>;
+
+</font><font color="#ff0000"><i># the following line would ensure the old driver logic (default for backward compatibility)</font></i><font color=black>
+FRM_DRV_set_new_test_driver( FALSE );
+
+wrlog_init_file_interface( getvar(</font><font color="#00bb00">"testname"</font><font color=black>), getenv(</font><font color="#00bb00">"USERNAME"</font><font color=black>), </font><font color="#00bb00">"txt"</font><font color=black> );
+FRM_RES_init_test_statistics();
+
+<b>call</b> </font><font color="#00bb00">"DRV/emos_testsuite_driver"</font><font color=black> ( TEST_HOME, DATA_HOME, (tmpTable==</font><font color="#00bb00">""</font><font color=black>? defTable : tmpTable), FALSE, suiteHdr );
+
+FRM_RES_report_test_statistics();
+wrlog_terminate_file_interface();
+
+</pre></body></html>

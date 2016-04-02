@@ -1,0 +1,107 @@
+################################################################################
+# LIBRARY:	drv1_lib
+################################################################################
+# $Revision: 1.4 $
+# $Author: drajovic $
+# $Date: 2005/01/23 19:31:51 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/TPL/Scripts/DRV/drv1_lib/script,v $
+# $NoKeywords: $
+################################################################################
+#/***
+#*	This main test implements a "dummy" step driver which you may use to
+#*	implement the real one.
+#*
+#*	The purpose of a step driver is to interpret the corresponding "Teststep"
+#*	cell of each test case. With "interpreting" we mean the process of splitting
+#*	the cell (Teststep) into individual steps and individually processing
+#*	each of them either by a built-in FRM functionality (e.g. LNK or EXE steps)
+#*	or by calling the specialised function.
+#*
+#*	This "dummy" template implements all the necessary interractions with the
+#*	emos_FRM_STP_lib and very carefully handles the return code in order to
+#*	produce correct WinRunner test results. All you need to do is to load the
+#*	apropriate libraries and handle the individual keywords (step names).
+#*
+#* <p>NOTE:
+#*	Do not rename the function names because tey are called from
+#*	the generic EMOS test driver
+#*
+#* <p>REQUIREMENTS/PREREQUISITES:
+#*	The rest of the test suite should be developed according to FRM-principles
+#*	in order to make any use of this script.
+#*
+#* <p>RETURN VALUE:
+#*	<ul>
+#*	<li><b>0</b>:		successfull completion</li>
+#*	<li><b>&gt;0</b>:		unsuccessfull comletion</li>
+#*	</ul>
+#*/
+
+#/**
+#* Implements the test reporting logic.
+#*/
+
+public function AUT_DRV_report ( in tid, in test )
+{
+	auto comment;
+	report_msg( "=====================" );
+	report_msg( "Table: " & FRM_get_name( tid ) );
+	report_msg( "Test: " & test );
+	if ( FRM_get_cell( tid, test, "Description", comment ) == E_OK )
+	{
+		wrlog_test_data( "DESCRIPTION", comment );
+		report_msg( "Description: " & comment );
+	}
+	report_msg( "=====================" );
+	return E_OK;
+}
+
+#/**
+#* Load the necessary LIBs & GUIs here
+#* <p>NOTE:
+#*	You should use FRM_load_XXX() instead of ordinry load().
+#*	This way you enable EMOS Framework to manage the libs and automatically
+#*	unload them when they are not needed any more.
+#*/
+
+public function AUT_DRV_load ( in tid, in test )
+{
+	auto rc = E_OK;
+	#rc+=FRM_load_gui( tid, GUI_HOME & "\\" & "???.gui" );
+	rc+=FRM_load_lib( tid, "LIB/FRM/frm_lib1_lib", 0, 1 );
+	return rc;
+}
+
+#/**
+#* Initialises the test steps.
+#* <p>NOTE:
+#*	Use the third parameter to customise the name of the Testsequence row.
+#*/
+
+public function AUT_DRV_init_steps( in tid, in test )
+{
+#	return FRM_STP_init_steps( tid, test ); # default = Testvorgang
+	return FRM_STP_init_steps( tid, test, "Testsequence" );
+}
+
+#/**
+#* Implements the test keywords, i.e. links the names of the test blocks
+#* with te corresponding block functions.
+#*/
+
+public function AUT_DRV_call_block( in tid, in test, in step, inout mode )
+{
+	auto rc;
+	switch( tolower( step ) )
+	{
+	case "testblock":
+		rc = FRM_testblock( tid, test, step, mode );	break;
+	# --default steps--
+	case "not-implemented-yet step":
+		rc = E_FRM_NOT_IMPLEMENTED; break;
+	default:
+		rc = E_FRM_UNKNOWN;
+	}
+	return rc;
+}
+

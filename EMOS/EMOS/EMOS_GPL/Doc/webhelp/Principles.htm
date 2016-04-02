@@ -1,0 +1,430 @@
+<HTML>
+ <HEAD>
+  <!-- $MVD$:app("RoboHELP HTML Edition by Blue Sky Software, portions by MicroVision Dev. Inc.","769") -->
+  <!-- $MVD$:template("","0","0") -->
+  <!-- $MVD$:fontset("Arial","Arial") -->
+  <TITLE>Principles</TITLE>
+  <META NAME="generator" CONTENT="RoboHELP by Blue Sky Software www.blue-sky.com HTML Edition">
+  <SCRIPT language="javascript">
+<!--
+if (navigator.appName=="Netscape")
+{   document.write("<LINK rel='StyleSheet' href='defa_ns.css'>");}
+else
+{   document.write("<LINK rel='StyleSheet' href='default.css'>");}
+//-->
+
+  </SCRIPT>
+  <SCRIPT language="JavaScript" src="bsscdht1.js">
+  </SCRIPT>
+  <SCRIPT language="JavaScript" src="bsscdht2.js">
+  </SCRIPT>
+  <SCRIPT language="JavaScript"><!-- 
+//////////BSSCDHTML Section Embedded Code//////////
+var s_strAgent = navigator.userAgent.toLowerCase();
+var s_nVer	   = parseInt(navigator.appVersion);
+
+var s_bIE  = (s_strAgent.indexOf('msie') != -1);
+var s_bNS  = (s_strAgent.indexOf('mozilla') != -1) && ((s_strAgent.indexOf('spoofer') == -1) && (s_strAgent.indexOf('compatible') == -1));
+var s_bOpera	= (s_strAgent.indexOf('opera') != -1);
+
+var s_bIE3Before = ((s_bIE) && (s_nVer <= 2));
+var s_bNS3Before = ((s_bNS) && (s_nVer <= 3));
+
+var s_bNS2		= ((s_bNS) && (s_nVer <= 2));
+var s_bNS3		= ((s_bNS) && (s_nVer == 3));
+var s_bIE300301	= ((s_bIE) && (s_nVer == 2) && ((s_strAgent.indexOf("3.00") != -1)||(s_strAgent.indexOf("3.0a") != -1)||(s_strAgent.indexOf("3.0b")!=-1)||(s_strAgent.indexOf("3.01")!=-1)));
+var s_bIE302	= ((s_bIE) && (s_nVer == 2) && (s_strAgent.indexOf("3.02") != -1));
+
+
+function HasExtJs()
+{
+	if (s_bIE3Before) { return false;}
+	if (s_bNS3Before) {	return false;}
+	if (typeof (_BSSCOnLoad) == "undefined"){ return false; }
+	return true;
+}
+
+function BSSCOnLoad()
+{
+	if (HasExtJs()) { _BSSCOnLoad(); }
+}
+
+function BSSCOnUnload()
+{
+	if (HasExtJs()) { _BSSCOnUnload(); }
+}
+
+function BSSCOnClick()
+{
+	if (HasExtJs()) { _BSSCOnClick(); }
+}
+
+function WritePopupMenuLayer()
+{
+	if (HasExtJs()) {_WritePopupMenuLayer();}
+}
+
+function BSSCCreatePopupDiv()
+{
+	if (HasExtJs()) {_BSSCCreatePopupDiv();	}
+}
+
+function BSSCPopup(strURL)
+{
+	if (HasExtJs())	{ 
+		_BSSCPopup(strURL);
+	}else{
+		//Create a temporary window first to ensure the real popup comes up on top
+		var wndTemp = null;
+		if (!s_bNS3) {
+			wndTemp = window.open("", "temp", "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=yes,height=3,width=4");
+		}
+		// Create the real popup window
+		var wndPopup = window.open(strURL, "PopupWindow", "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=yes,height=300,width=400");
+		// Close the temporary
+		if (!s_bNS3) {
+			wndTemp.close();
+		} else {
+			wndPopup.focus();
+		}
+	}
+}
+
+
+function PopupMenu_Invoke()
+{
+	if (HasExtJs()) {
+		return _PopupMenu_Invoke(PopupMenu_Invoke.arguments);
+	}
+	if (s_bNS3Before || s_bIE3Before )	{
+		var argLen 	= PopupMenu_Invoke.arguments.length;
+		if (argLen < 5) {
+			window.document.location.href = PopupMenu_Invoke.arguments[3];
+			return false;
+		}
+		var nHeight = argLen * 15;
+		var nWidth = 400;
+		var strParam = "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=auto";
+		strParam += ",height=" + nHeight + ",width=200,resizable";
+		
+		//Create a temporary window first to ensure the real popup comes up on top
+		var wndTemp = null;
+		if (!s_bNS3) {
+			wndTemp = window.open("", "temp", "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=yes,height=3,width=4");
+		}
+
+		var wndPopupLinks = window.open("", "popuplinks", strParam);
+		wndPopupLinks.document.open("text/html");
+		wndPopupLinks.document.write("<html><head>");
+		if (s_bNS2 || s_bOpera) {
+			wndPopupLinks.document.write("<base href=\"" + location +"\">");
+		} else {
+			//YJ: IE301,302 and NS3.x works fine
+			wndPopupLinks.document.write("<");
+			wndPopupLinks.document.write("script>");
+			wndPopupLinks.document.write("function gotoUrl(aUrl) {opener.window.location=aUrl; close();}");
+			wndPopupLinks.document.write("<");
+			wndPopupLinks.document.write("/script>");
+		}
+		wndPopupLinks.document.write("</head><body onBlur=\'self.focus();\'>");
+		var strParaLine = "";
+		for (var i = 0; i < (argLen - 2) / 2; i++) {
+			strParaLine = "";
+			if (s_bNS2 || s_bOpera){
+				strParaLine += "<a href=\"";
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 3];
+				strParaLine += "\">"
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 2];
+				strParaLine += "</a>";
+			} else {
+				strParaLine += "<a href=\"javascript:";
+				strParaLine += "gotoUrl(\'";
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 3];
+				strParaLine += "\');\"";
+				if (PopupMenu_Invoke.arguments[1] != '') {
+					strParaLine += " TARGET='" + PopupMenu_Invoke.arguments[1] + "'";
+				}
+				strParaLine += ">";
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 2];
+				strParaLine += "</a>";
+			}
+			strParaLine += "<br>";
+			wndPopupLinks.document.write(strParaLine);
+		}
+		wndPopupLinks.document.write("</body></html>");
+		wndPopupLinks.document.close();
+
+		// Close the temporary
+		if (!s_bNS3) {
+			wndTemp.close();
+		}else {
+			wndPopupLinks.focus();
+		}
+
+		return true;
+	}
+	return false;
+}
+  
+
+ 
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) >= 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+ 
+//-->
+  </SCRIPT></HEAD>
+  <BODY ONLOAD="BSSCOnLoad();" ONCLICK="BSSCOnClick();">
+  
+  <div id='NavBar' STYLE='position:relative;' align='right'><nobr><font size=1>
+   <script language="javascript"><!--
+ var bHomePage=false; if(document.all){if ((top)&&(top.frames)&&(top.frames.length<=1)) bHomePage=true;} if(document.layers){if((parent)&&(parent.top.frames)&&(parent.top.frames.length<=1)) bHomePage=true;}
+if (bHomePage){document.write("<a href='index.htm'><img src='bsscnav1.gif' width=53 height=18 border=no></a>");}
+//-->
+   </script><img src='bsscnav7.gif' width=22 height=18 border=no><img src='bsscnav8.gif' width=22 height=18 border=no><a href='javascript:document.ehelpform.submit()'><img src='bsscnav6.gif' width=37 height=18 border=no></a></font>&nbsp;&nbsp;&nbsp;</nobr>
+  </div>
+<H1>
+   Principles</H1>
+  <P>
+   As experienced consultants working in the field of business 
+   application development, in particular, <SPAN STYLE="font-style : italic;"><I>testing</I></SPAN> 
+   business applications, we are sad to report that we cannot recall a 
+   single project where we think we got involved on time.</P>
+  <P>
+   We, and most of all, the project could have been more effective if 
+   the testing (and other quality issues) had been concidered earlier, 
+   much earlier. Meanwhile, we have given up the illusion we could start 
+   on time. We learned to live with the fact we start late. We do it by 
+   building on strategies that take this into account and try to be as 
+   efficient as possible for the given situation. Please don't get it 
+   wrong. We are still the biggest proponents of the &quot;early 
+   start&quot;. Tought by experience we just take the worse case 
+   scenario as the one to start with.</P>
+  <P>
+   So what are the main concerns when you get called to automate testing 
+   at the point where practically no testing can help anyway?</P>
+  <P>
+   At this stage you are likely to find a development team that seems to 
+   have been chasing deadlines before the project even started, 
+   a&nbsp;hopelesly understuffed test &quot;team&quot; doing &quot;the 
+   best it can&quot;, an application in pieces changing unpredictably 
+   (from the testing perspective) and management that seems to prefer 
+   anything but quality issues. There is no time to preach about 
+   inspections, reviews, requirements management, modelling techniques, 
+   unit testing as a task for developers and all the other nice things. 
+   The natural reaction seems to be crying. However, as it does not look 
+   too professional, we try to follow different principles:</P>
+  <OL>
+   <LI CLASS="mvd-P">
+   <P STYLE="text-align : left;" Align="LEFT">
+    <SPAN STYLE="font-weight : bold;"><B>start from scratch</B></SPAN><BR>
+    <LI CLASS="mvd-P"><P STYLE="text-align : left;" Align="LEFT"><SPAN STYLE="font-weight : bold;"><B>use what you can</B></SPAN><BR>
+    <LI CLASS="mvd-P"><P STYLE="text-align : left;" Align="LEFT"><SPAN STYLE="font-weight : bold;"><B>do it fast</B></SPAN></P>
+   </OL>
+  <P>
+   Luckily, these principles work even better in less chaotic situations.</P>
+  <H2>
+   <A NAME="start_from_scratch"></A>Start from scratch</H2>
+  <P>
+   Clearly, the more organised the project the less re-work is needed. 
+   One must quickly identify whether the existing &quot;stuff&quot; is 
+   of much value or not. Test automation is a programming problem in the 
+   first place. It seems that as many people get involved in it, that 
+   many &quot;solutions&quot; come out. On the other hand the evolution 
+   path seems to be the same for most of them. It is characterised by 
+   the errors that people made along the way and the workarounds they 
+   build to overcome the problems. A typical scenario seems to be:</P>
+  <OL>
+   <LI CLASS="mvd-P">
+   <P>
+    capture &amp; replay (C&amp;R)<BR>
+    <LI CLASS="mvd-P"><P>C&amp;R enhanced with scripting<BR>
+    <LI CLASS="mvd-P"><P>simple data-driven techniques<BR>
+    <LI CLASS="mvd-P"><P>advanced data-driven techniques<BR>
+    <LI CLASS="mvd-P"><P>exotic techniques (test modelling/generation)</P>
+   </OL>
+  <P>
+   Each of the stages has some (at least technical) advantages over the 
+   previous one(s). It is desirable to apply techniques from the higher 
+   stages (4 or 5) because they are simply better. They always solve 
+   some problems encountered in earlier stages. We are not going to 
+   discuss the criteria for each stage because there are good books out 
+   there. Those who have tried the test automation with GUI-based tools 
+   and have not given it up quickly have probably found it out without 
+   books (at least up to the level 3). We assume you know something 
+   about it.</P>
+  <P>
+   The point we are making is that one does not have to go through all 
+   stages to reach a particular level. One can start at any level. 
+   Provided you one has the knowledge and the tools.</P>
+  <P>
+   When we say &quot;start from scratch&quot; we do not mean you should 
+   start with level 1 and go through all the pain. Test scrips from 
+   higher levels have very little in common with scripts from level 1 or 
+   2. Starting from scratch means that one should start with all that is 
+   necessary for the chosen (higher) level. This often means that one 
+   will have to re-implement something for the sake of things like 
+   easier maintenance, extensibility, understandability, etc.</P>
+  <P>
+   EMOS FRM utilises programming techniques that belong to level 4 and 
+   5. This document will show you how to apply these techniquies.</P>
+  <H2>
+   <A NAME="use_what_you_can"></A>Use what you can</H2>
+  <P>
+   We mentioned earlier that you are likely to find some sort of a 
+   testing team at this late stage. They have probably created and 
+   executed lots of manual tests already. They are hopefully sick and 
+   tired of executing them again and again.</P>
+  <P>
+   EMOS FRM is a technique capable of capturing most of those manual 
+   tests and executing them many times. The important part is that test 
+   capturing can be done by those manual testers with absolutely no 
+   knowledge (previous and future) of the testing tool. Morover, the 
+   scripts that are necessary to execute these tests are very well 
+   structured, small and easy to maintain.</P>
+  <P>
+   Another side-effect of starting late is the fact that you are likely 
+   to find '&quot;working&quot; bits of the application. Like in any 
+   other project, chaotic or beautifully managed, the ultimate truth 
+   lies in the code. This is what automated tests are going to be 
+   executing anyway. And since these &quot;working bits&quot; are 
+   available, why not using them to generate the tests?</P>
+  <P>
+   EMOS FRM can generate most of the test scripts and test data 
+   templates only by clicking on the application. One does not have to 
+   write a line of code. If the application is not available at the 
+   particular point in time, then one has to type it in herself.</P>
+  <P>
+   In this document we are not going to discuss <SPAN STYLE="font-style : italic;"><I>what</I></SPAN> 
+   to test and <SPAN STYLE="font-style : italic;"><I>why</I></SPAN> to test it. 
+   The purpose of this document is to show <SPAN STYLE="font-style : italic;"><I>how</I></SPAN> 
+   to test something that was for whatever reason selected to be tested. 
+   We will try to demonstrate that by knowing <SPAN STYLE="font-style : italic;"><I>how</I></SPAN> 
+   to test something one can influence the decision of <SPAN STYLE="font-style : italic;"><I>what</I></SPAN> 
+   to test. This is based on the fact of life which states that we 
+   cannot test everything we would like to because there is no time for 
+   it. However, if we can implement something &quot;easily&quot;, we are 
+   going to be tempted to do it simply because we <SPAN STYLE="font-style : italic;"><I>can</I></SPAN> 
+   do it.</P>
+  <P>
+   EMOS FRM is in our opinion amasing in its capability of expressing 
+   numerous <SPAN STYLE="font-style : italic;text-decoration : none;"><I>unrelated</I></SPAN> 
+   test cases without requiring a single change in the code base. We 
+   often talk about of playing LEGO<SUP>&reg;</SUP> when we perform 
+   testing with EMOS FRM. Indeed, if there is a metaphor that could 
+   express the idea of EMOS FRM, that it is LEGO - the game of building 
+   bigger objects by combining basic stones. When we talk about &quot;use
+    what you can&quot; the thing we <SPAN STYLE="font-style : italic;"><I>use</I></SPAN> 
+   most is our code itself. EMOS FRM is built on the idea of re-usability.
+    Based on only a few rules we are reusing the same test code for many 
+   different test cases.</P>
+  <H2>
+   <A NAME="do_it_fast"></A>Do it fast</H2>
+  <P>
+   Test automation has to pay for itself. To find out the point of 
+   rentability of a particular test case one typically adds the 
+   development time of an automated test case to its execution time and 
+   compares this to the time required for the equivalent manual 
+   procedure. Regardles of what this calculation really expresses (it 
+   can be easily misunderstood and/or misused; so we have our doubts), 
+   the simple rule is: the less time for the development, the higher the rentability.</P>
+  <P>
+   We have mentioned that with EMOS FRM one can generate most of the 
+   test code provided the application is available. The calculation is: 
+   the later we start with testing the less time we have for testing, 
+   however, the later we start the more we can generate. It might be 
+   worth a try. There is definitely a point in time when it is to late 
+   for anything. Until that point we could be quite productive.</P>
+  <P>
+   Another aspect of being fast is the time that is needed for 
+   maintenance of the test code. We mentioned that we are capable of 
+   reusing a lot of test code in many ways. The consequence is that 
+   there is not much test code. The smaller the code base the shorter 
+   the maintenance time.</P>
+  <P>
+   In addition to this, if done well, EMOS FRM produces code with very 
+   little redundance. For example accessing a particular edit field is 
+   typically done with one single line of code in the whole test suite. 
+   Regardless of the number of test cases that might affect this field, 
+   there is only one place in the code where it is being accessed. Even 
+   regardless of the type of operation performed (read or write), it is 
+   still this one single line of code.</P>
+  <H1>
+   Goals</H1>
+  <P>
+   Our goal is simple:</P>
+  <P>
+   <TABLE WIDTH="100%" CELLPADDING="2" CELLSPACING="1" BORDER="1">
+    <TR>
+     <TD WIDTH="100%" VALIGN="TOP" Align="CENTER">
+      <P STYLE="text-align : center;">
+       <SPAN STYLE="font-weight : bold;"><B>Automate as many tests as possible 
+       with </B></SPAN><SPAN STYLE="font-style : italic;font-weight : bold;text-decoration :underline;"><U><I><B>reasonable</B></I></U></SPAN><SPAN STYLE="font-weight : bold;"><B> effort.</B></SPAN></TD>
+    </TR>
+   </TABLE></P>
+  <P>
+   Our approach to achieve this goal is by <SPAN STYLE="font-weight : normal;text-decoration :underline;"><U>making
+    automated tests understandable to non-programmers</U></SPAN>. More than 
+   that. We want <SPAN STYLE="font-style : italic;font-weight : normal;"><I>them</I></SPAN> 
+   to write the automated tests.</P>
+  <P>
+   &quot;So what?&quot;, you may ask, &quot;With capture&amp;replay 
+   (record&amp;playback) anybody can write automated tests.&quot; Well, 
+   yes. Anybody can <SPAN STYLE="font-style : italic;"><I>write</I></SPAN> 
+   them. Unfortunately, nobody can <SPAN STYLE="font-style : italic;"><I>maintain</I></SPAN> 
+   them. Our aim is to develop automated test environment to be used 
+   over the long period of time. How do we do this?</P>
+  <P>
+   The <SPAN STYLE="font-weight : bold;"><B>test</B></SPAN> <SPAN STYLE="font-weight : bold;"><B>scripts</B></SPAN> 
+   we create are extremely compact and well structured. They can and 
+   should be maintained by experienced programmers as this is a 
+   programming task with all that comes with it such as design, testing, 
+   debugging, documentation, versioning, etc. Think of our techniques as 
+   a pattern language (a series of related patterns) to guide you as you 
+   develop and organise your automated test environment.</P>
+  <P>
+   The other, more important part of the testware we produce is <SPAN STYLE="font-weight : bold;"><B>test</B></SPAN> <SPAN STYLE="font-weight : bold;"><B>data</B></SPAN>.
+    Sure, we also cook with water. However, the way we structure the 
+   test data and link it to the test sripts is <SPAN STYLE="font-style : italic;"><I>the
+    key</I></SPAN> to our concept. Again, think of our techniques as 
+   patterns for structuring test data. This is not an easy task as our 
+   test data include the navigation as well as the data itself. Indeed, 
+   our aim is to design the test data that is capable of<SPAN STYLE="font-style : italic;"> <I></I></SPAN><SPAN STYLE="font-style : italic;text-decoration :underline;"><U><I>fully
+    excercising the application</I></U></SPAN> via it's GUI. Note that we said 
+   &quot;test data&quot; not &quot;test scripts&quot; as majority of 
+   other test automation aproaches would.</P>
+  <P>
+   For the sceptics let at this point just be said that beside test 
+   scripts and test data we also deal with concepts such as <SPAN STYLE="font-weight : bold;"><B>test
+    suites</B></SPAN>, <SPAN STYLE="font-weight : bold;"><B>test sets</B></SPAN>, <SPAN STYLE="font-weight : bold;"><B>test
+    cases</B></SPAN><SPAN STYLE="font-weight : normal;">. Just to keep the 
+   motivation high.</SPAN></P>
+  <P>
+   As we automate tests we usualy perform several important tasks such as:</P>
+  <OL>
+   <LI CLASS="mvd-P">
+   <P>
+    Find out <SPAN STYLE="font-style : italic;"><I>what</I></SPAN> needs to be 
+    tested, <SPAN STYLE="font-style : italic;"><I>why</I></SPAN> and <SPAN STYLE="font-style : italic;"><I>how</I></SPAN> 
+    it needs to be tested.<BR>
+    <LI CLASS="mvd-P"><P>Integrate automated testing into the (existing!) 
+    test process.<BR>
+    <LI CLASS="mvd-P"><P>Teach &amp; preach about test automation and its 
+    possible application.</P>
+   </OL>
+  <P>
+   We do not want to elaborate these activities any further since it is 
+   out of scope of this text.</P>
+  <P>
+   <!-- $MVD$:spaceretainer() -->&nbsp;
+ <form method="POST" action="http://www.eHelp.com/ehelpapi.asp?cmd=WebSave" name="ehelpform" target="_top">
+
+  <input type="hidden" name="data" value="2A0D020000000011020C00000055736572277320477569646512020A0000005072696E6369706C6573130208000000454D4F532046524D150209000000696E6465782E68746D17030000000018010400000002000000702A">
+ </form></BODY>
+</HTML>

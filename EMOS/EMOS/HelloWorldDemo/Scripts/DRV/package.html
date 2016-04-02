@@ -1,0 +1,49 @@
+<html>
+<title>Package: DRV</title>
+<body>
+This package contains all EMOS Framework <b>test drivers</b> for this project.
+An EMOS Framework test driver is a TSL library that implements a few specific 
+functions (they must have specified names). The purpose of this libraries is to
+match keywords used in data tables (Excel spreadsheets) with functions that reside in 
+LIB.FRM package.
+
+<h3>Directory Structure</h3>
+In addition to project-specific test drivers this package contains three special-
+purpose drivers provided by EMOS Framework which should not be modified or removed.
+<ul>
+  <li><b>emos_testsuite_driver</b> whose only purpose is the interface to standard
+  library EMOS_GPL/FRM/emos_frm_driver_lib that resides in WinRunner lib directory.</li>
+  <li><b>emos_testset_driver</b> whose primary purpose is to link EMOS Framework
+  tests with TestDirector</li>
+  <li><b>emos_test_driver</b> whose only purpose is to avoid yet another WinRunner's "feature"</li>
+</ul>
+<b>emos_testsuite_driver</b> is the replacement for <b>EMOS_GPL/FRM/emos_frm_driver</b>
+script.  By placing this script in project directory we assure that all test results are placed 
+in project directory and are not scattered all over the system (this has to deal with some 
+very dark corners of WinRunner's behavior concerning interactive and batch processing).
+<p>
+Therefore a warning to old friends of EMOS Framework: <b>Make sure your kickoff 
+scripts call DRV/emos_testsuite_driver instead of EMOS_GPL/FRM/emos_frm_driver.</b>
+
+<h3>Naming conventions</h3>
+There are no particular naming conventions other than the recommendation to keep
+driver names short which in turn makes Excel tables (where these drives are
+usually called) look a bit more elegant.
+<br><b>NOTE</b><br>
+As of release 7.01.00.04 we recomend the usage of new driver logic. This logic fixes
+the inherent TSL "feature" that makes it impossible to implement a clean return code 
+strategy for recursive main tests (due to fact that main tests cannot keep variables 
+local to the individual invocation of suc main tests). This has proved to be a signifficant
+problem with reporting tools such as WrLog which are capable of marking nested tests
+as "passed" or "failed".<br>
+The consequence of the new driver logic is that new test drivers are no more main 
+tests but libraries. For compatibility reasons we now introduce a naming convention 
+so that <u>all new test driver names must end with "_lib"</u>. <br>
+For example if your old test driver used to be called "main" and you desided
+to re-implement it with new logic, than you should name the new driver "main_lib".
+No other modifications anywhere else (in particularily in data tables) are necesary.
+
+<h3>Other conventions</h3>
+None.
+</body>
+</html>

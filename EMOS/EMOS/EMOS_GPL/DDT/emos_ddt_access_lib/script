@@ -1,0 +1,307 @@
+################################################################################
+# TSL-LIBRARY:	EMOS_DDT_ACCESS_lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.2 $
+# $Author: drajovic $
+# $Date: 2005/01/28 11:18:42 $
+# $Archive: /MERCURY/Projects/EMOS_GPL/DDT/emos_ddt_access_lib/script $
+# $NoKeywords: $
+################################################################################
+
+#**# 
+#*	This library defines a sequential forward "iterator" (as much as one can 
+#*	emulate a real iterator in a language such as TSL) for data tables 
+#*	(ddt-interface).
+#*	The main benefits of this iterator are:
+#*	   1.) you can loop through any table in an uniform way,
+#*	   2.) you can elegantly define a set of entries to be iterated through,
+#*	   3.) you can simultaneously have iterators for multiple data tables
+#*	       (ane at a time per table!)
+#*	   4.) you can use it to iterate anything, not only data tables.
+#*<p>NOTE!
+#*	To understand how this iterator works use the analogy of selecting pages to
+#*	be printed in a word-processing program. This sort of dialogs typically
+#*	allow you to specify the RANGE of pages by connecting a first and the last
+#*	page in the range with a hyphen (e.g. 3-9 ) and INDIVIDUAL pages by
+#*	separating them with commas (e.g. 1,5,9,15-17,20). Exactly the same syntax
+#*	is used with this iterator. So, if you call 
+#*<pre>		DDT_ACCESS_init( table, "1-3,7,9-11" );</pre>
+#*	the
+#*<pre>		DDT_ACCESS_get_next( table );</pre>
+#*	will return you the sequence 1,2,3,7,9,10,11.
+#*
+#*	This iterator also accepts non-numeric expressions such as
+#*<pre>		DDT_ACCESS_init( table, "foo,bar,anyway" );</pre>
+#*	Note however that this iterator does not read a data table in any way. So
+#*	if your table contains following five columns
+#*<pre>		aaa;foo;ccc;bar;eee</pre>
+#*	the expression
+#*<pre>		DDT_ACCESS_init( table, "foo-bar" );</pre>
+#*	will return you "foo-bar" instead of "foo", "ccc", "bar" as you might have
+#*	expected. If you use alpha names you, should know them in advance, i.e.
+#*<pre>		DDT_ACCESS_init( table, "foo,ccc,bar" );</pre>
+#*
+#*	You might think of this as a serious limitation, but once you learn how
+#*	EMOS uses data tables in its framework, you will probably apreciate the
+#*/
+
+#____________________________________________________
+# local variables
+#____________________________________________________
+
+static testNames[];
+static testCount[];
+static testIdx[];
+
+#**
+#*	Initialises the standard access algorithm. The <code>tests</code> can be specified 
+#*	with syntax described on library-level (e.g. "1-5,7,9,aaa,xxx,12-35).
+#* @param table (in)	unique name for the iterator (normaly, name of the data table)
+#* @param tests (in)	test names (e.g. "1-15" or "1-3,5,7" or "a,b,c", etc.)
+#* @return
+#*	E_OK:	initialisation succeeded
+#*	!E_OK:	invalid test set
+#*/
+
+public function DDT_ACCESS_init( in table, in tests )
+{
+	auto count = init_count( table, tests );
+	if ( count == 0 )
+		return E_ILLEGAL_PARAMETER;
+	testCount[table] = count;
+	testIdx[table] = 0;
+	return E_OK;
+}
+
+#**
+#*	Removes access for the given <code<table</code> name and frees the internal buffers.
+#* @param table (in)	the name od the iterator (data table)
+#*/
+
+public function DDT_ACCESS_clean ( in table )
+{
+	delete_dimension( testNames, table );
+	delete_dimension( testCount, table );
+	delete_dimension( testIdx, table );
+}
+
+#**
+#*	Indicates whether a subsequent call to DDT_ACCESS_get_next() is about to 
+#*	succeed or not.
+#* @param table (in)	the name od the iterator (data table)
+#* @return
+#*	TRUE:	there are still some tests left to be processed
+#*	FALSE:	all tests processed
+#*/
+
+public function DDT_ACCESS_has_more( in table )
+{
+	return testIdx[table] < testCount[table];
+}
+
+#**
+#*	Returns the name of the next test to be processed. More specifically, it
+#*	returns the next available name from the set of names that were specified 
+#*	by the DDT_ACCES_init() command.
+#* @param table (in)	the name od the iterator (data table)
+#* @return
+#*	!"":	a test name
+#*	"":		error ocurred
+#*/
+
+public function DDT_ACCESS_get_next( in table )
+{
+	if ( DDT_ACCESS_has_more( table ) )
+		return testNames[table, testIdx[table]++];
+	else
+		return "";
+}
+
+#**
+#*	Analyses the given string <code>tests</code> and builds an array that contains all
+#*	individual values that were specified.
+#* @param table (in)	table dimension
+#* @param tests (in)	test names in format (1,3-9) 
+#* @return
+#	number of tests to be processed
+#*/
+
+static function init_count( in table, in tests )
+{
+	auto i, j;
+	auto x, y, z, b;
+	auto t1, tests1[];
+	auto t2, tests2[];
+
+	delete_dimension( testNames, table );
+
+	t1 = split( tests, tests1, "," );
+
+	j = 0;
+	for( i=1; i <= t1; i++ )
+	{
+		t2 = split( tests1[i], tests2, "-" );
+		switch ( t2 ) 
+		{
+			case 0:
+				break;
+			case 1:
+				testNames[table, j++] = tests2[1];
+				break;
+			default:
+				if ( get_range( tests2[1], tests2[2], x, y, b ) != E_OK )
+				{
+					testNames[table, j++] = tests1[i];
+					break;
+				}
+				if ( x < y )
+					while ( x <= y )
+						testNames[table, j++] = b & x++;
+				else
+					while ( x >= y )
+						testNames[table, j++] = b & x--;
+				break;
+		}
+		for( z=1; z<=t2; z++ ) delete tests2[z];
+	}
+	return j;
+}
+
+static function get_range( in from, in to, out x, out y, out b )
+{
+	extern RSTART, RLENGTH;
+	
+	y = to*1;
+	if ( !y ) return E_OUT_OF_RANGE;
+
+	if ( match( from, "[0-9][0-9]*" ) )
+	{
+		if ( RSTART == 1 )
+		{
+			x = substr( from, RSTART, RLENGTH )*1;
+			b = substr( from, RSTART+RLENGTH );
+			return E_OK;
+		}
+		if ( RSTART+RLENGTH-1 == length( from ) )
+		{
+			b = substr( from, 1, RSTART-1 );
+			x = substr( from, RSTART )*1;
+			return E_OK;
+		}
+	}
+	return E_OUT_OF_RANGE;
+}
+
+#**
+#*	This function deletes a dimension from a multidimensional array.
+#*<p>WARNING!<p>
+#*	It will delete ALL dimensions with the same name. For example
+#*   assume your three-dimensional array "arr" has the following content:
+#*<pre>		arr["x",1,"x"] = "x1x";
+#*		arr["x",1,"y"] = "x1y";
+#*		arr["y",1,"x"] = "y1x";
+#*		arr["y",1,"y"] = "y1Y";
+#*</pre>
+#*	then the following command
+#*<pre>		delete_dimension( arr, "x" );</pre>
+#*	will delete everything BUT
+#*<pre>		arr["y",1,"y"] = "y1Y";</pre>
+#* @param arr (inout)	array to be processed
+#* @param dim (in)	dimension(s) to be removed
+#*/
+
+static function delete_dimension( inout arr[], in dim )
+{
+	auto i;
+	for ( i in arr )
+		if ( match (i, dim) )
+			delete arr[i];
+}
+
+#**
+#*	Test with valid values
+#*/
+
+static function col_test_valid()
+{
+	auto i, valid[], tab = "tab";
+	valid[0] = "1";
+	valid[1] = "1,2";
+	valid[2] = "1-3";
+	valid[3] = "1,3-5,7";
+	valid[4] = "30-33,40-42";
+	valid[5] = "abc";
+	valid[6] = "aaa,bbb,ccc";
+	valid[7] = "11-11";
+	valid[8] = "11-5";
+
+	for ( i = 0; i < 9; i++ )
+	{
+		print( "test: " & valid[i] );
+		DDT_ACCESS_init( tab, valid[i] );
+		while( DDT_ACCESS_has_more( tab ) )
+			print( "	" & DDT_ACCESS_get_next( tab ) );
+		DDT_ACCESS_clean( tab );
+	}
+}
+
+#**
+#*	Test with invalid values
+#*/
+
+static function col_test_invalid()
+{
+	auto i, invalid[], tab = "tab";
+	invalid[0] = "";
+	invalid[1] = ",-,";
+	invalid[2] = "-3";
+	invalid[3] = "1-, 3-5 ,-";
+	invalid[4] = "1-3-5,42";
+	invalid[5] = "abc-xxx";
+	invalid[6] = "3-1";
+
+	for ( i = 0; i < 7; i++ )
+	{
+		print( "test: " & invalid[i] );
+		DDT_ACCESS_init( tab, invalid[i] );
+		while( DDT_ACCESS_has_more( tab ) )
+			print( "	" & DDT_ACCESS_get_next( tab ) );
+		DDT_ACCESS_clean( tab );
+	}
+}
+
+# Uncomment the following lines to run the test
+
+#static const x = col_test_valid();
+#static const y = col_test_invalid();
+
+###########################################################################
+# TSL-LIBRARY:	EMOS_DDT_ACCESS_lib
+###########################################################################

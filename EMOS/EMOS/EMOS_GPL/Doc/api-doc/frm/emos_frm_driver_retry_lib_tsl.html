@@ -1,0 +1,294 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TEST:	EMOS_FRM_driver_retry_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.3 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/28 11:18:43 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/emos_frm_driver_retry_lib/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**#</font></i><font color=black>
+</font><font color="#ff0000"><i>#* The library containing routines that enable EMOS_FRM_driver to retry failed </font></i><font color=black>
+</font><font color="#ff0000"><i>#* tests. This is implemented by writing an execution log in a temporary file. </font></i><font color=black>
+</font><font color="#ff0000"><i>#* If the retry mode had been chosen (offered only in interactive mode), this </font></i><font color=black>
+</font><font color="#ff0000"><i>#* file is analysed by the succeeding run. If a failed or uncompleeted test is</font></i><font color=black>
+</font><font color="#ff0000"><i>#* detected, this test is reinvoked. All other tests are ignored.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Main flag that enables retry cabability [default=FALSE]. 
+#* Use FRM_DRV_enable_retry() to activate retry capability.
+#*/</font></i><font color=black>
+<b>static</b> retry_enabled = FALSE;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Once the retry_enabled is set to true this flag governs wheter it is
+#* possible to attempt a retry or not. 
+#*/</font></i><font color=black>
+<b>static</b> retry_flag = FALSE;
+
+<b>static</b> retry_log_file_name;
+<b>static</b> retry_log_table[];
+<b>static</b> retry_log_sep = </font><font color="#00bb00">"\t"</font><font color=black>;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Use this function to enable the retry capability. You should either enable
+#* retry generally for all test suites (i.e. the best place to call it is
+#* the startup test). Otherwise you can enable/disable retry for each individual
+#* test suite (make sure to call enable/disable in ALL your kickoff tests).
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_enable_retry()
+{
+	retry_enabled = TRUE;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Use this function to disable retry capability.
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_disable_retry()
+{
+	retry_enabled = FALSE;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Indicates wheter a retry is possible which is true if retry is generally
+#* enabled, test is running in interactive mode and there is an old log file
+#* that could govern the retry.
+#*@return TRUE: can attempt to retry, FALSE: a "normal" run will be attempted
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_can_retry()
+{
+	retry_flag = FALSE;
+	FRM_DRV_retry_set_log_file_name();
+	</font><font color="#ff0000"><i># retry disabled in general</font></i><font color=black>
+	<b>if</b> ( !retry_enabled )
+		<b>return</b> FALSE;
+	</font><font color="#ff0000"><i># retry is only possible in interactive mode </font></i><font color=black>
+	<b>switch</b> ( tolower( getvar( </font><font color="#00bb00">"batch"</font><font color=black> ) ) )
+	{
+	<b>case</b> 1:
+	<b>case</b> </font><font color="#00bb00">"on"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"true"</font><font color=black>:
+		<b>return</b> FALSE;
+	}
+	</font><font color="#ff0000"><i># make sure log file is there</font></i><font color=black>
+	<b>if</b> ( file_open( FRM_DRV_retry_get_log_file_name(), FO_MODE_READ ) == E_OK )
+	{
+		file_close( FRM_DRV_retry_get_log_file_name() );
+		<b>return</b> TRUE;
+	}
+    <b>return</b> FALSE;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Invokes a dialog which asks the user whether to retry the last run.
+#* An internal flag is set to indicate whether to retry or not.
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_ask_retry()
+{
+	<b>auto</b> rc;
+	
+	<b>if</b> ( !FRM_DRV_can_retry() )
+	{
+		retry_flag = FALSE;
+		<b>return</b>;
+	}
+	rc = pause_test( </font><font color="#00bb00">"Do you want to retry this run?"</font><font color=black>, </font><font color="#00bb00">"&amp;No"</font><font color=black>, </font><font color="#00bb00">"&amp;Yes"</font><font color=black> );
+	<b>if</b> ( rc )
+	{
+		retry_flag = TRUE;
+	}
+	<b>else</b>
+	{
+		retry_flag = FALSE;
+		FRM_DRV_retry_load_log_table();
+	}
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Indicates whether retry mode is active or not.
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_is_retry ()
+{
+    <b>return</b> retry_flag;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* You can define your own separator for entries in the log file [default=TAB].
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_retry_set_log_sep( <b>in</b> sep )
+{
+	retry_log_sep = sep;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns the log separator.
+#*@return the log separator
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_retry_get_log_sep()
+{
+	<b>return</b> retry_log_sep;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Defines the name of the log file [default=
+#* &amp;lt;WrTmpDir&amp;gt;&#92;&#92;&amp;lt;testName&amp;gt;_&amp;lt;resName&amp;gt;.log].
+#*@param file (in)	full path name of the log file (optional)
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_retry_set_log_file_name( <b>in</b> file )
+{
+	<b>auto</b> tmpDir;
+	<b>auto</b> tstName;
+	<b>auto</b> resName;
+	<b>auto</b> dummy;
+	
+	<b>if</b> ( file == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		tmpDir = getvar( </font><font color="#00bb00">"tempdir"</font><font color=black> );
+		split_path( getvar( </font><font color="#00bb00">"testname"</font><font color=black> ), dummy, tstName, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+		split_path( getvar( </font><font color="#00bb00">"result"</font><font color=black> ), dummy, resName, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+		retry_log_file_name = sprintf( </font><font color="#00bb00">"%s&#92;&#92;%s_%s.log"</font><font color=black>
+								 , tmpDir
+								 , tstName
+								 , resName );
+	}
+	<b>else</b>
+	{
+		retry_log_file_name = file;
+	}
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Retrieves the name of the active log file.
+#*@return log file name
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_retry_get_log_file_name()
+{
+	<b>return</b> retry_log_file_name;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Loads the log file into an internal array tho provide for a quick lookup.
+#*@return E_OK: load successful else failure
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_retry_load_log_table()
+{
+	<b>auto</b> line;
+	<b>auto</b> arr[], count, i;
+	<b>auto</b> rc;
+	
+	</font><font color="#ff0000"><i># clean the table</font></i><font color=black>
+	<b>for</b> ( i <b>in</b> retry_log_table )
+		delete retry_log_table[i];
+		
+	rc = file_open( FRM_DRV_retry_get_log_file_name(), FO_MODE_READ );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+		
+	<b>while</b> ( file_getline( FRM_DRV_retry_get_log_file_name(), line ) == E_OK )
+	{
+		count = split( line, arr, FRM_DRV_retry_get_log_sep() );
+		<b>if</b> ( count &lt; 3 )
+			<b>continue</b>;
+		retry_log_table[ arr[1], arr[2] ] = arr[3];
+	}
+	rc = file_close( FRM_DRV_retry_get_log_file_name() );
+	</font><font color="#ff0000"><i># delete the old log file</font></i><font color=black>
+	dos_system( </font><font color="#00bb00">"del "</font><font color=black> &amp; FRM_DRV_retry_get_log_file_name() );
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Retrieves an log entry. Empty stringis returned if entry is not found.
+#*@return the entry or empty string if no entry found
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_retry_lookup_log ( <b>in</b> table, <b>in</b> test )
+{
+	<b>return</b> retry_log_table[ table, test ];
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Appends the first part of the log entry. This part contains all information
+#* about a single test that is attempted with the exception of the return
+#* code returned by this test.
+#*@param table (in) name of the test table
+#*@param test (in) name of the test
+#*@return E_OK: success else failure 
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_retry_log_test1( <b>in</b> table, <b>in</b> test )
+{
+    <b>auto</b> rc;
+    <b>auto</b> logFile;
+    <b>if</b> ( !retry_enabled )
+        <b>return</b> E_OK;
+    logFile = FRM_DRV_retry_get_log_file_name();
+	rc+=file_open( logFile, FO_MODE_APPEND );
+	rc+=file_printf( logFile, </font><font color="#00bb00">"%s%s%s%s"</font><font color=black>
+	                        , table, FRM_DRV_retry_get_log_sep()
+	                        , test, FRM_DRV_retry_get_log_sep() );
+	rc+=file_close( logFile );
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Appends the second part of the log entry for the particular test. The second
+#* part contains the return code received from the test.
+#*@param test_rc (in) the rc returned by the test
+#*@return E_OK: success, else failure
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_retry_log_test2( <b>in</b> test_rc )
+{
+    <b>auto</b> rc;
+    <b>auto</b> logFile;
+    <b>if</b> ( !retry_enabled )
+        <b>return</b> E_OK;
+    logFile = FRM_DRV_retry_get_log_file_name();
+	rc+=file_open( logFile, FO_MODE_APPEND );
+	rc+=file_printf( logFile, </font><font color="#00bb00">"%s\r\n"</font><font color=black>, test_rc );
+	rc+=file_close( logFile );
+	<b>return</b> rc;
+}
+</pre></body></html>

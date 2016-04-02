@@ -1,0 +1,31 @@
+<?xml-stylesheet href='C:\QTPLog.XSL' type='text/xsl'?>
+<QTPLogs>
+  <QTPLog Start="2011-5-22 11:09:08" Status="Fail" TestName="ReporterManager_MyTest" End="2011-5-22 11:09:14">
+    <Iteration Status="Fail" Number="1" Start="2011-5-22 11:09:12">
+      <Step>
+        <Status><![CDATA[Pass]]></Status>
+        <StepName><![CDATA[Step 1]]></StepName>
+        <Expected><![CDATA[Window Should Open]]></Expected>
+        <Actual><![CDATA[All OK]]></Actual>
+        <Details><![CDATA[No Details]]></Details>
+        <Time><![CDATA[2011-5-22 11:09:12]]></Time>
+      </Step>
+      <Step>
+        <Status><![CDATA[Warning]]></Status>
+        <StepName><![CDATA[Step 2]]></StepName>
+        <Expected><![CDATA[Window Should Open]]></Expected>
+        <Actual><![CDATA[It Didn't]]></Actual>
+        <Details><![CDATA[Some Details]]></Details>
+        <Time><![CDATA[2011-5-22 11:09:13]]></Time>
+      </Step>
+      <Step>
+        <Status><![CDATA[Fail]]></Status>
+        <StepName><![CDATA[Step 3]]></StepName>
+        <Expected><![CDATA[Window Should Open]]></Expected>
+        <Actual><![CDATA[App. Crashed]]></Actual>
+        <Details><![CDATA[Bla Bla Bla]]></Details>
+        <Time><![CDATA[2011-5-22 11:09:13]]></Time>
+      </Step>
+    </Iteration>
+  </QTPLog>
+</QTPLogs>

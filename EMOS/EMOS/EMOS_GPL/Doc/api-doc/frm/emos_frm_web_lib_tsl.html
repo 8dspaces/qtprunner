@@ -1,0 +1,257 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_FRM_WEB_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.4 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/23 19:31:51 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/FRM/emos_frm_web_lib/script $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**#</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This library extends the functionality of EMOS_FRM_GUI_Lib with web </font></i><font color=black>
+</font><font color="#ff0000"><i>#* functionality.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* It provides "wrappers" for most frequently used "web" functions such</font></i><font color=black>
+</font><font color="#ff0000"><i>#* as web_image_click(), etc.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for web_image_click() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	You may use the function in two ways. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	1.) If you specify the &amp;lt;object&amp;gt;, then the value from the data table is </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	    evaluated. If the value resambles to Yes, the &amp;lt;object&amp;gt; is "pressed". </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	2.) If you do not provide the &amp;lt;object&amp;gt; parameter, then the value from the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	    data table is used as the name of the object to be "pressed".</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The second alternative is an elegant way of pressing on OK, Cancel and</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	similar buttons.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	navigation (read-only)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing either Y/YES/ON (or german equivalent J/JA/ON) or</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	the logical name of the image to be clicked.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function reads the value from the data table and uses it as a parameter</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	to a native web_image_click() function according to aforementioned description.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	There is nothing to be checked with web_image_click().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Behaves the same as the SET-mode! </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Ignores the cell (i.e. skips the cell).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	(optional) GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param x	(in)	(optional) x-coordinate relative to upper left corner</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param y	(in)	(optional) y-coordinate relative to upper left corner</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_web_image_click ( <b>in</b> table, <b>in</b> test, <b>in</b> object, <b>in</b> x, <b>in</b> y )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_SET_web_image_click( table, test, object, x, y ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_web_image_click( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_web_image_click</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_web_image_click ( <b>in</b> table, <b>in</b> test, <b>in</b> object, <b>in</b> x, <b>in</b> y )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	</font><font color="#ff0000"><i># if &lt;object&gt; not defined,then use &lt;val&gt; as object and just press</font></i><font color=black>
+	<b>if</b>( object == </font><font color="#00bb00">""</font><font color=black> )
+	{
+       	FRM_log_obj_info( val );
+		<b>return</b> FRM_rc2( web_image_click( val, x*1, y*1 ), val );
+	}
+	</font><font color="#ff0000"><i># else of &lt;object&gt; defined, then pres only if &lt;val&gt; == "ja" or "on"</font></i><font color=black>
+	<b>switch</b> ( tolower( val ) )
+	{
+		<b>case</b> </font><font color="#00bb00">"j"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"ja"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"y"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"yes"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"on"</font><font color=black>:	
+			<b>break</b>;
+		<b>default</b>:
+			<b>return</b> E_OK;
+	}
+   	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( web_image_click( object, x*1, y*1 ), object );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_web_image_click</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_web_image_click ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	FRM_skip( table );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for web_link_click() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	You may use the function in two ways. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	1.) If you specify the &amp;lt;object&amp;gt;, then the value from the data table is </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	    evaluated. If the value resambles to Yes, the &amp;lt;object&amp;gt; is "clicked". </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	2.) If you do not provide the &amp;lt;object&amp;gt; parameter, then the value from the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	    data table is used as the name of the object to be "clicked".</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The second alternative is an elegant way of clicking on OK, Cancel and</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	similar buttons.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	navigation (read-only)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing either Y/YES/ON (or german equivalent J/JA/ON) or</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	the logical name of the link to be clicked.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function reads the value from the data table and uses it as a parameter</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	to a native web_link_click() function according to aforementioned description.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	There is nothing to be checked with web_image_click().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Behaves the same as the SET-mode! </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Ignores the cell (i.e. skips the cell).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	(optional) GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_web_link_click ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_SET_web_link_click( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_web_link_click( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_web_link_click</font></i><font color=black>
+</font><font color="#ff0000"><i># changed to allow location: x</font></i><font color=black>
+</font><font color="#ff0000"><i># Change: !!RN Quickhack to allow addition physical parameters  </font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_web_link_click ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> len;
+	<b>auto</b> obj;
+
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	</font><font color="#ff0000"><i># if &lt;object&gt; not defined,then use &lt;val&gt; as object and just press</font></i><font color=black>
+	<b>if</b>( object == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		len=<b>length</b>( val );
+		<b>if</b>( substr( val, len, 1 ) == </font><font color="#00bb00">"}"</font><font color=black> )
+		{
+			</font><font color="#ff0000"><i># here we have multiple identical links in one page ( i.e. eMail </font></i><font color=black>
+			</font><font color="#ff0000"><i># it is asumed that this ends with location: x } </font></i><font color=black>
+			</font><font color="#ff0000"><i># "{class: object,MSW_class: html_text_link,html_name: eMail,location: 0 }"</font></i><font color=black>
+			obj = </font><font color="#00bb00">"{class: object, MSW_class: html_text_link, html_name: "</font><font color=black> &amp; val;
+           	FRM_log_obj_info( obj );
+			<b>return</b> FRM_rc2( web_link_click( obj  ), obj );
+		}
+		<b>else</b>
+		{		
+			obj = </font><font color="#00bb00">"{class: object, MSW_class: html_text_link, html_name: &#92;&#34;"</font><font color=black> &amp; val &amp; </font><font color="#00bb00">"&#92;&#34;}"</font><font color=black>;
+           	FRM_log_obj_info( obj );
+    		<b>return</b> FRM_rc2( web_link_click( obj ), obj );
+		}
+	}
+	</font><font color="#ff0000"><i># else of &lt;object&gt; defined, then pres only if &lt;val&gt; == "ja" or "on"</font></i><font color=black>
+	<b>switch</b> ( tolower( val ) )
+	{
+		<b>case</b> </font><font color="#00bb00">"j"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"ja"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"y"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"yes"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"on"</font><font color=black>:	
+			<b>break</b>;
+		<b>default</b>:
+			<b>return</b> E_OK;
+	}
+   	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( web_link_click( object ), object );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_web_link_click</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_web_link_click ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	FRM_skip( table );
+}
+
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_FRM_WEB_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</pre></body></html>

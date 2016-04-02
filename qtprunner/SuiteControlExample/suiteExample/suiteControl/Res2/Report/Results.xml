@@ -1,0 +1,502 @@
+﻿<?xml version="1.0"?>
+<!DOCTYPE Report
+[
+<!ELEMENT Report (General ,(Doc|BPT)) >
+<!ATTLIST Report ver CDATA #REQUIRED tmZone CDATA #REQUIRED>
+
+<!ELEMENT General ( DocLocation ) >
+<!ATTLIST General productName CDATA #REQUIRED productVer CDATA #REQUIRED os CDATA #REQUIRED host CDATA #REQUIRED>
+
+<!ELEMENT BPT (DName,Res,DVer?,TSet?,TInst?,NodeArgs,AdditionalInfo*,Doc*) >
+<!ATTLIST BPT rID ID #REQUIRED >
+
+<!ELEMENT Doc (DName,Res,DVer?,TSet?,TInst?,RunType?,DT?,AdditionalInfo*,Step*,DIter*,Action*,Summary?,NodeArgs?) >
+<!ATTLIST Doc rID ID #REQUIRED type (Test|BC) "Test" productName CDATA #REQUIRED BCIter CDATA #IMPLIED >
+
+<!ELEMENT RunType ( #PCDATA )>
+<!ATTLIST RunType fmStep (False|True) "False" batch (False|True) "False" upDesc (False|True) "False" upChk (False|True) "False" upAS (False|True) "False">
+
+<!ELEMENT DName ( #PCDATA ) >
+
+<!ELEMENT Res ( #PCDATA ) >
+
+<!ELEMENT AdditionalInfo (AdditionalDataName,AdditionalDataValue ) >
+
+<!ELEMENT AdditionalDataName ( #PCDATA ) >
+
+<!ELEMENT AdditionalDataValue ( #PCDATA ) >
+
+<!ELEMENT DVer ( #PCDATA ) >
+
+<!ELEMENT TSet ( #PCDATA ) >
+
+<!ELEMENT TInst ( #PCDATA ) >
+
+<!ELEMENT DIter (Step?,Action+,Summary?,NodeArgs)>
+<!ATTLIST DIter rID ID #REQUIRED iterID CDATA #REQUIRED>
+
+<!ELEMENT DocLocation ( #PCDATA )>
+
+<!ELEMENT Action (AName,AIter*,(Step|HtmlStep|Action)*,Summary,NodeArgs) >
+<!ATTLIST Action rID ID #REQUIRED>
+
+<!ELEMENT AIter ((Step|HtmlStep|Action)*,Summary?,NodeArgs) >
+<!ATTLIST AIter rID ID #REQUIRED iterID CDATA #REQUIRED>
+
+<!ELEMENT AName ( #PCDATA ) >
+
+<!ELEMENT Step (Obj,Details,Time,(Step|HtmlStep|Doc)*,NodeArgs) >
+<!ATTLIST Step rID ID #REQUIRED retval CDATA #IMPLIED>
+
+<!ELEMENT HtmlStep (HTML,(Step|HtmlStep|Doc)*,NodeArgs) >
+<!ATTLIST HtmlStep rID ID #REQUIRED >
+
+<!ELEMENT Obj ( #PCDATA ) >
+<!ATTLIST Obj plainTxt (False|True) "True">
+
+<!ELEMENT Details ( #PCDATA ) >
+<!ATTLIST Details plainTxt (False|True) "True">
+
+<!ELEMENT Time ( #PCDATA ) >
+
+<!ELEMENT HTML ( #PCDATA ) >
+
+<!ELEMENT Disp ( #PCDATA ) >
+
+<!ELEMENT NodeArgs (Disp,TopPane?,BtmPane?)>
+<!ATTLIST NodeArgs eType CDATA #REQUIRED icon CDATA #REQUIRED nRep CDATA #REQUIRED filter (False|True) "True">
+<!ATTLIST NodeArgs status (Passed|Failed|Done|Warning|Information) "Done">
+<!ATTLIST NodeArgs iconSel CDATA #IMPLIED nType CDATA #IMPLIED MovieMarker CDATA "">
+
+<!ELEMENT TopPane (Path)>
+
+<!ELEMENT BtmPane ( (Path|WR)?,ASHilite?)>
+<!ATTLIST BtmPane vType CDATA "HTML">
+
+<!ELEMENT Path ( #PCDATA ) >
+
+<!ELEMENT ASHilite ( #PCDATA ) >
+
+<!ELEMENT WR ( #PCDATA ) >
+
+<!ELEMENT DT (NodeArgs) >
+<!ATTLIST DT rID ID #REQUIRED>
+
+<!ELEMENT Summary (Param*)>
+<!ATTLIST Summary sTime CDATA #IMPLIED eTime CDATA #IMPLIED passed CDATA #IMPLIED failed CDATA #IMPLIED warnings CDATA #IMPLIED retval CDATA #IMPLIED stopped (False|True) "False" >
+
+<!ELEMENT Param (ParamName,ParamVal)+ >
+<!ATTLIST Param paramInOut (In|Out) "In">
+
+<!ELEMENT ParamName ( #PCDATA ) >
+
+<!ELEMENT ParamVal ( #PCDATA ) >
+
+]
+>
+<Report ver="2.0" tmZone="Eastern Standard Time">
+<General productName="QuickTest Professional" productVer="9.2" os="Windows XP" host="THORWATH"><DocLocation><![CDATA[C:\QTP\Scripts\dt2\BAT\suiteControl]]></DocLocation></General>
+<Doc rID="T1"   productName= "QuickTest Professional"  >
+<DName><![CDATA[suiteControl]]></DName>
+<Res><![CDATA[Res2]]></Res>
+<DT rID="T2">
+<NodeArgs eType="Table" icon="2" nRep="5" filter="False" >
+<Disp><![CDATA[Run-Time Data Table]]></Disp>
+<BtmPane vType="Table">
+<Path><![CDATA[Default.xls]]></Path>
+</BtmPane>
+</NodeArgs>
+</DT>
+<DIter rID="T3" iterID="1" >
+<Action rID="T4">
+<AName><![CDATA[main]]></AName>
+<Action rID="T5">
+<AName><![CDATA[main [Test005 Walk Screens]]]></AName>
+<Step rID="T6">
+<Obj plainTxt="False" ><![CDATA[Security]]></Obj>
+<Details plainTxt="False" ><![CDATA[Dialog]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:34]]></Time>
+<Step rID="T7">
+<Obj plainTxt="False" ><![CDATA[Security.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:34]]></Time>
+<NodeArgs eType="Replay" icon="6" nRep="12" >
+<Disp><![CDATA[Security.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<NodeArgs eType="Context" icon="6" nRep="11" >
+<Disp><![CDATA[Security]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T8">
+<Obj plainTxt="False" ><![CDATA[Exception]]></Obj>
+<Details plainTxt="False" ><![CDATA[SwfWindow]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:34]]></Time>
+<Step rID="T9">
+<Obj plainTxt="False" ><![CDATA[Exception.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:34]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="15" >
+<Disp><![CDATA[Exception.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<NodeArgs eType="Context" icon="7" nRep="14" >
+<Disp><![CDATA[Exception]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T10">
+<Obj plainTxt="False" ><![CDATA[dt2App]]></Obj>
+<Details plainTxt="False" ><![CDATA[SwfWindow]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:34]]></Time>
+<Step rID="T11">
+<Obj plainTxt="False" ><![CDATA[wAuthorize]]></Obj>
+<Details plainTxt="False" ><![CDATA[SwfWindow]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:34]]></Time>
+<Step rID="T12">
+<Obj plainTxt="False" ><![CDATA[wAuthorize.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:34]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="19" >
+<Disp><![CDATA[wAuthorize.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<NodeArgs eType="Context" icon="7" nRep="18" >
+<Disp><![CDATA[wAuthorize]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T13">
+<Obj plainTxt="False" ><![CDATA[wHelp.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:34]]></Time>
+<NodeArgs eType="Replay" icon="8" nRep="21" >
+<Disp><![CDATA[wHelp.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T14">
+<Obj plainTxt="False" ><![CDATA[dt2App.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object exists"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:34]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="22" >
+<Disp><![CDATA[dt2App.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T15">
+<Obj plainTxt="False" ><![CDATA[dt2App.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object exists"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:34]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="23" >
+<Disp><![CDATA[dt2App.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T16">
+<Obj plainTxt="False" ><![CDATA[pbMainWin.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object exists"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:34]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="24" >
+<Disp><![CDATA[pbMainWin.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T17">
+<Obj plainTxt="False" ><![CDATA[pbMainWin.WaitProperty]]></Obj>
+<Details plainTxt="False" ><![CDATA["enabled", True, True, 10000]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:35]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="28" >
+<Disp><![CDATA[pbMainWin.WaitProperty]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T18">
+<Obj plainTxt="False" ><![CDATA[pbMainWin.Click]]></Obj>
+<Details plainTxt="False" ><![CDATA[]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:35]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="30" >
+<Disp><![CDATA[pbMainWin.Click]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T19">
+<Obj plainTxt="False" ><![CDATA[pbWhatsNew.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object exists"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:35]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="31" >
+<Disp><![CDATA[pbWhatsNew.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T20">
+<Obj plainTxt="False" ><![CDATA[pbWhatsNew.WaitProperty]]></Obj>
+<Details plainTxt="False" ><![CDATA["enabled", True, True, 10000]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:36]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="35" >
+<Disp><![CDATA[pbWhatsNew.WaitProperty]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T21">
+<Obj plainTxt="False" ><![CDATA[pbWhatsNew.Click]]></Obj>
+<Details plainTxt="False" ><![CDATA[]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:36]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="37" >
+<Disp><![CDATA[pbWhatsNew.Click]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T22">
+<Obj plainTxt="False" ><![CDATA[pbExitDT2.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object exists"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:37]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="38" >
+<Disp><![CDATA[pbExitDT2.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T23">
+<Obj plainTxt="False" ><![CDATA[pbExitDT2.WaitProperty]]></Obj>
+<Details plainTxt="False" ><![CDATA["enabled", True, True, 10000]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:38]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="42" >
+<Disp><![CDATA[pbExitDT2.WaitProperty]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T24">
+<Obj plainTxt="False" ><![CDATA[pbExitDT2.Click]]></Obj>
+<Details plainTxt="False" ><![CDATA[]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:38]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="44" >
+<Disp><![CDATA[pbExitDT2.Click]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T25">
+<Obj plainTxt="False" ><![CDATA[dt2App.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object exists"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:38]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="45" >
+<Disp><![CDATA[dt2App.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T26">
+<Obj plainTxt="False" ><![CDATA[dt2App.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object exists"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:39]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="46" >
+<Disp><![CDATA[dt2App.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T27">
+<Obj plainTxt="False" ><![CDATA[dt2App.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object exists"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:40]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="47" >
+<Disp><![CDATA[dt2App.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T28">
+<Obj plainTxt="False" ><![CDATA[dt2App.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:42]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="49" >
+<Disp><![CDATA[dt2App.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<NodeArgs eType="Context" icon="7" nRep="17" >
+<Disp><![CDATA[dt2App]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T29">
+<Obj plainTxt="False" ><![CDATA[Security]]></Obj>
+<Details plainTxt="False" ><![CDATA[Dialog]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:42]]></Time>
+<Step rID="T30">
+<Obj plainTxt="False" ><![CDATA[Security.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:42]]></Time>
+<NodeArgs eType="Replay" icon="6" nRep="52" >
+<Disp><![CDATA[Security.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<NodeArgs eType="Context" icon="6" nRep="51" >
+<Disp><![CDATA[Security]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T31">
+<Obj plainTxt="False" ><![CDATA[Exception]]></Obj>
+<Details plainTxt="False" ><![CDATA[SwfWindow]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:42]]></Time>
+<Step rID="T32">
+<Obj plainTxt="False" ><![CDATA[Exception.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:42]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="55" >
+<Disp><![CDATA[Exception.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<NodeArgs eType="Context" icon="7" nRep="54" >
+<Disp><![CDATA[Exception]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T33">
+<Obj plainTxt="False" ><![CDATA[dt2App]]></Obj>
+<Details plainTxt="False" ><![CDATA[SwfWindow]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:42]]></Time>
+<Step rID="T34">
+<Obj plainTxt="False" ><![CDATA[wAuthorize]]></Obj>
+<Details plainTxt="False" ><![CDATA[SwfWindow]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:42]]></Time>
+<Step rID="T35">
+<Obj plainTxt="False" ><![CDATA[wAuthorize.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:42]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="60" >
+<Disp><![CDATA[wAuthorize.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<NodeArgs eType="Context" icon="7" nRep="59" >
+<Disp><![CDATA[wAuthorize]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T36">
+<Obj plainTxt="False" ><![CDATA[wHelp.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:42]]></Time>
+<NodeArgs eType="Replay" icon="8" nRep="63" >
+<Disp><![CDATA[wHelp.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T37">
+<Obj plainTxt="False" ><![CDATA[dt2App.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:43]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="65" >
+<Disp><![CDATA[dt2App.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T38">
+<Obj plainTxt="False" ><![CDATA[dt2App.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:43]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="67" >
+<Disp><![CDATA[dt2App.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T39">
+<Obj plainTxt="False" ><![CDATA[dt2App.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:44]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="69" >
+<Disp><![CDATA[dt2App.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T40">
+<Obj plainTxt="False" ><![CDATA[dt2App.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object does not exist"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:46]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="71" >
+<Disp><![CDATA[dt2App.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T41">
+<Obj plainTxt="False" ><![CDATA[dt2App.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object exists"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:47]]></Time>
+<NodeArgs eType="Replay" icon="7" nRep="72" >
+<Disp><![CDATA[dt2App.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<NodeArgs eType="Context" icon="7" nRep="58" >
+<Disp><![CDATA[dt2App]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T42">
+<Obj ><![CDATA[test005 closeButton(), nav.invokeScreen(), nav.InvokeDT2(), nav.OpenDT2()]]></Obj>
+<Details ><![CDATA[The DT2 application was successfully started]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:47]]></Time>
+<NodeArgs eType="User" icon="10" nRep="73" >
+<Disp><![CDATA[test005 closeButton(), nav.invokeScreen(), nav.InvokeDT2(), nav.OpenDT2()]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T43">
+<Obj plainTxt="False" ><![CDATA[dt2App]]></Obj>
+<Details plainTxt="False" ><![CDATA[SwfWindow]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:48]]></Time>
+<Step rID="T44">
+<Obj plainTxt="False" ><![CDATA[pbMainWin.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object exists"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:48]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="75" >
+<Disp><![CDATA[pbMainWin.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T45">
+<Obj plainTxt="False" ><![CDATA[pbMainWin.WaitProperty]]></Obj>
+<Details plainTxt="False" ><![CDATA["enabled", True, True, 10000]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:49]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="79" >
+<Disp><![CDATA[pbMainWin.WaitProperty]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T46">
+<Obj plainTxt="False" ><![CDATA[pbMainWin.Click]]></Obj>
+<Details plainTxt="False" ><![CDATA[]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:49]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="81" >
+<Disp><![CDATA[pbMainWin.Click]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T47">
+<Obj plainTxt="False" ><![CDATA[pbWhatsNew.Exist]]></Obj>
+<Details plainTxt="False" ><![CDATA["Object exists"]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:49]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="82" >
+<Disp><![CDATA[pbWhatsNew.Exist]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T48">
+<Obj plainTxt="False" ><![CDATA[pbWhatsNew.WaitProperty]]></Obj>
+<Details plainTxt="False" ><![CDATA["enabled", True, True, 10000]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:50]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="86" >
+<Disp><![CDATA[pbWhatsNew.WaitProperty]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T49">
+<Obj plainTxt="False" ><![CDATA[pbWhatsNew.Click]]></Obj>
+<Details plainTxt="False" ><![CDATA[]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:50]]></Time>
+<NodeArgs eType="Replay" icon="9" nRep="88" >
+<Disp><![CDATA[pbWhatsNew.Click]]></Disp>
+</NodeArgs>
+</Step>
+<NodeArgs eType="Context" icon="7" nRep="74" >
+<Disp><![CDATA[dt2App]]></Disp>
+</NodeArgs>
+</Step>
+<Summary sTime="5/1/2007 - 16:31:31" eTime="5/1/2007 - 16:31:50" passed="0" failed="0" warnings="0" ></Summary>
+<NodeArgs eType="StartAction" icon="5" nRep="9" >
+<Disp><![CDATA[main [Test005 Walk Screens] Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Step rID="T50">
+<Obj ><![CDATA[DT2 suiteControl]]></Obj>
+<Details ><![CDATA[Test main [Test005 Walk Screens] FAILED]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:50]]></Time>
+<NodeArgs eType="User" icon="10" nRep="90" status="Failed" >
+<Disp><![CDATA[DT2 suiteControl]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T51" retval=" ">
+<Obj plainTxt="False" ><![CDATA[Stop Run]]></Obj>
+<Details plainTxt="False" ><![CDATA[Run stopped by user.]]></Details>
+<Time><![CDATA[5/1/2007 - 16:31:50]]></Time>
+<NodeArgs eType="General" icon="11" nRep="91" >
+<Disp><![CDATA[Stop Run]]></Disp>
+</NodeArgs>
+</Step>
+<Summary sTime="5/1/2007 - 16:31:30" eTime="5/1/2007 - 16:31:50" passed="0" failed="1" warnings="0" ></Summary>
+<NodeArgs eType="StartAction" icon="4" nRep="8" status="Failed" >
+<Disp><![CDATA[main Summary]]></Disp>
+</NodeArgs>
+</Action>
+<NodeArgs eType="StartIteration" icon="3" nRep="7" status="Failed" >
+<Disp><![CDATA[suiteControl Iteration 1 (Row 1)]]></Disp>
+</NodeArgs>
+</DIter>
+<Summary sTime="5/1/2007 - 16:31:28" eTime="5/1/2007 - 16:31:50" passed="0" failed="1" warnings="0" ></Summary>
+<NodeArgs eType="StartTest" icon="1" nRep="4" status="Failed" >
+<Disp><![CDATA[Test suiteControl Summary]]></Disp>
+</NodeArgs>
+</Doc>
+</Report>

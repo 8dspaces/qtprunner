@@ -1,0 +1,272 @@
+################################################################################
+# TSL-LIBRARY:	EMOS_STD_err_lib
+################################################################################
+# Copyright (C) 2003  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.2 $
+# $Author: drajovic $
+# $Date: 2004/11/07 22:26:27 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/STD/emos_std_err_lib/script,v $
+# $NoKeywords: $
+################################################################################
+
+#/***
+#* This library implements an interface to descriptions of WinRunner errors.
+#* All information about error codes ant the corresponding descriptions are
+#* maintained in Excel table "default.xls". To keep this library up to date 
+#* some manual work is necessary. Our approach is two-fold:
+#* <ul>
+#*	<li>The "official" codes are collected from WinRunner on-line help 
+#*      as this seems to be the only place where Mercury keeps the up-to-date 
+#*		information. This codes are listed in Excel sheet named "documented codes".
+#*	</li>
+#*	<li>The list of additional (undocumented) codes is produced by searching
+#*		the WinRunner "lib" directory and merging the codes that we found into 
+#*		the official list. The merged list is kept in worksheet "all codes".
+#*	</li>
+#* </ul>
+#* By default "all codes" are activated. However you may change this by 
+#* setting the other sheet as default (note that the file is read-only).
+#* <h4>Language support</h4>
+#* Note that this library supports two languages so far: English and German.
+#* We use codes "EN" and "DE" respectively. We have decided to keep our own
+#* list of language codes (see err_get_supproted_languages()) because we cannot 
+#* rely on WinRunner's undocumented features such as get_lang() function 
+#* (which returns "DEU" for German and God knows what for other environments).
+#* <p>You are welcome to add additional languages. Please inform us about this
+#* so we can merge your language into our distribution.
+#* <h4>Typical usage</h4>
+#* This library is automatically loaded with EMOS Framework. By default english 
+#* texts are loaded. You would normally change this setting in your startup test, e.g.
+#* <pre>
+#*	    err_set_language( "DE" );
+#* </pre>
+#* To print formatted error descriptions you could do following in your code:
+#* <pre>
+#*	    rc = set_window( "some non-existing window" );
+#*	    if ( rc != E_OK )
+#*	    {
+#*	    	print( err_perror( rc ) );
+#*	    	tl_step( "Argh!", FAIL, "Have enough for today." );
+#*	    	treturn rc;
+#*	    }
+#* </pre>
+#* <h4>Acknowledgements</h4>
+#* We would especially like to thank Michael Skobowsky from DAT 
+#* (mailto:Michael.Skobowsky@dat.de) for his German translation and for 
+#* all his enthusiastic support and ideas.
+#*/
+
+static errCodeArr[];
+static errDescArr[];
+static langArr[] = { "EN", "DE" };
+static defLang = "EN";
+
+#/**
+#* Initialises the internal data structures from external table "default.xls".
+#* @return E_OK if initialisation OK, otherwise failure.
+#*/
+static function err_init()
+{
+	auto table = "default.xls";
+	auto errNr, errCode, errDesc;
+	auto lang, i;
+	auto rc; 
+	rc = ddt_open(table, DDT_MODE_READ);
+	if (rc!= E_OK && rc != E_FILE_OPEN)
+	{
+		debug_msg( "Cannot open table with error descriptions." );
+		debug_msg( "Not critical error. No error descriptions available." );
+		return rc;
+	}
+	while( rc == E_OK )
+	{
+		errNr = ddt_val(table, "ErrorNr");
+		errCode = ddt_val(table, "ErrorCode");
+		errCodeArr[ errNr ] = errCode;
+		for( i in langArr )
+		{
+			lang = langArr[i];
+			errDesc = ddt_val(table, "ErrorDesc_" & lang);
+			errDescArr[errNr, lang] = errDesc;
+		}
+		rc = ddt_next_row(table);
+	}
+	ddt_close(table);
+	return E_OK;
+}
+
+#/**
+#* Returns the comma-separated list of the supported languages for
+#* error descriptions.
+#*/
+public function err_get_supproted_languages()
+{
+	auto i, msg;
+	for ( i in langArr )
+		msg = msg & langArr[i] & ",";
+	return substr( msg, 1, (length( msg ) - 1) );
+}
+
+#/**
+#* Sets the default language to the given <code>lang</code> code.
+#* This function returns the code of the new default language.
+#* If invalid language code is given, no change is made and the old
+#* default code is returned. The available language codes are returned
+#* via err_get_supported_languages().
+#* @param lang language code 
+#*/
+public function err_set_language( in lang )
+{
+	auto i;
+	for ( i in langArr )
+		if ( lang == langArr[i] )
+			defLang = lang;
+	return defLang;
+}
+
+#/**
+#* Returns the code of the default language.
+#*/
+public function err_get_language()
+{
+	return defLang;
+}
+
+#/**
+#* Returns <code>TRUE</code> if given <code>errNr</code> is a known error code.
+#* Otherwise <code>FALSE</code> is returned.
+#* @param errNr error number 
+#*/
+public function err_is_error( in errNr )
+{
+	if ( errNr in errCodeArr )
+		return TRUE;
+	return FALSE;
+}
+
+#/**
+#* Returns the error description for the given error number and the langauge code.
+#* If no language code was given, the default language is taken.
+#* For non-existing error numbers an empty string is returned.
+#* @param errNr error number 
+#*/
+public function err_get_error_desc( in errNr, in lang )
+{
+#	auto lang;
+
+	if ( !err_is_error( errNr ) )
+		return "";
+		
+	if ( nargs() < 2 )
+		lang = err_get_language();
+	else if ( lang in langArr )
+		defLang = lang;
+	else
+		lang = err_get_language();
+		
+	return errDescArr[errNr, lang]; 
+}
+
+#/**
+#* Returns the error code as text for the given error number, e.g. "E_GENERAL_ERROR".
+#* For non-existing error numbers an empty string is returned.
+#* @param errNr error number 
+#*/
+public function err_get_error_code( in errNr )
+{
+	if ( !err_is_error( errNr ) )
+		return "";
+
+	return errCodeArr[errNr]; 
+}
+
+#/**
+#* Returns formatted error message, e.g. "[-10001] General error occurred. (E_GENERAL_ERROR)".
+#* The message is also printed out via debug_msg(). 
+#* <p>NOTE: This function only supports the default language.
+#* @param errNr error number 
+#*/
+public function err_perror( in errNr )
+{
+	auto msg;
+	if ( nargs() < 1 )
+		return "";
+	msg = sprintf( "[%s] %s (%s)", 
+		errNr, 
+		err_get_error_desc( errNr ),
+		err_get_error_code( errNr ) ); 
+	debug_msg( msg );
+	return msg;
+}
+
+#/**
+#* Triggers automatic initialisatation at the time when library is loaded.
+#* Also reports the status of the initialisation.
+#*/
+public const STD_ERR_INIT = err_init();
+
+#-------------------------------------------------------------------------
+
+# static function assert_equal( in expr1, in expr2 )
+# {
+# 	auto fmt = "%s: '%s' : '%s'";
+# 
+# 	if ( expr1 == expr2 )
+# 	{
+# 		printf( fmt, "OK", expr1, expr2 );
+# 		return TRUE;
+# 	}
+# 	else
+# 	{ 
+# 		printf( fmt, "ERR", expr1, expr2 );
+# 		return FALSE;
+# 	}
+# }
+# 
+# static function unit_test()
+# {
+# 	assert_equal( err_get_supproted_languages(), "EN" );
+# 	assert_equal( err_set_language(), "EN" );
+# 	assert_equal( err_set_language("xxx"), "EN" );
+# 	assert_equal( err_set_language("EN"), "EN" );
+# 	assert_equal( err_get_language(), "EN" );
+# 	assert_equal( err_is_error(), FALSE );
+# 	assert_equal( err_is_error( -123 ), FALSE );
+# 	assert_equal( err_is_error( -10001 ), TRUE );
+# 	assert_equal( err_get_error_desc(), "" );
+# 	assert_equal( err_get_error_desc( 123 ), "" );
+# 	assert_equal( err_get_error_desc( E_ILLEGAL_PARAMETER ), "Specified value for one or more parameters is invalid." );
+# 	assert_equal( err_get_error_desc( E_ILLEGAL_PARAMETER, "EN" ), "Specified value for one or more parameters is invalid." );
+# 	assert_equal( err_get_error_desc( E_ILLEGAL_PARAMETER, "xxx" ), "Specified value for one or more parameters is invalid." );
+# }
+# 
+# public function run_unit_test()
+# {
+# 	unit_test();
+# }

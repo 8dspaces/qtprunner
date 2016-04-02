@@ -1,0 +1,1942 @@
+################################################################################
+#*TSL-LIBRARY:	EMOS_FRM_Lib
+################################################################################
+#*Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+#*This library is free software; you can redistribute it and/or
+#*modify it under the terms of the GNU Lesser General Public
+#*License as published by the Free Software Foundation; either
+#*version 2.1 of the License, or (at your option) any later version.
+#
+#*This library is distributed in the hope that it will be useful,
+#*but WITHOUT ANY WARRANTY; without even the implied warranty of
+#*MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#*Lesser General Public License for more details.
+#
+#*You should have received a copy of the GNU Lesser General Public
+#*License along with this library; if not, write to the Free Software
+#*Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#*For further information please contact:
+#
+#*Dean Rajovic
+#*EMOS Computer Consulting GmbH
+#*Oskar-Messter-Straße 25
+#*85737 Ismaning
+#*Germany
+#*tel.: +49 89 608 765-0
+#*mailto:drajovic@emos.de
+#*http://www.emos.de
+################################################################################
+#*$Revision: 1.7 $
+#*$Author: drajovic $
+#*$Date: 2005/01/24 09:30:36 $
+#*$Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/FRM/emos_frm_lib/script $
+#*$NoKeywords: $
+################################################################################
+
+#**#
+#* This library provides the low-level interface to data tables. You can use the
+#* function from this library as replacement to standard ddt-functions even if
+#* you don't need other nice FRM feaures.<p>
+#* Here we implement our own ddt-interface and add plenty of other functions which
+#* make this interface very powerful. This library maintains a set of internal
+#* buffers which hold the table data and numerous other information. One of the
+#* "side-effects" (but since WR 6.0 one of the most important features) is the
+#* ability to use the same table from more than one main test within the same 
+#* chain.<p>
+#* The most important feature of this interface is that you may also index table
+#* rows by some unique name (very much the same as you index columns by defining
+#* their names in the first row). For this to work the table MUST contain two
+#* columns named "IDX" and "Name". To index a row you need to define some name
+#* in the Name-column and place an "x" in the IDX-column.<p>
+#* For example imagine a table "Tab.xls" with the following content:
+#* <table border>
+#*  <tr> <th>IDX</th> <th>Name</th><th>a</th><th>b</th><th>c</th><th>d</th> </tr>
+#*  <tr> <td>x</td> <td>Block1</td> <td>1</td> <td>2</td> <td>3</td> <td>4</td> </tr>
+#*  <tr> <td>&#160;</td> <td>1</td> <td>1x1</td> <td>1x2</td> <td>1x3</td> <td>1x4</td> </tr>
+#*  <tr> <td>&#160;</td> <td>2</td> <td>1x1</td> <td>2x2</td> <td>3x3</td> <td>4x4</td> </tr>
+#*  <tr> <td>x</td> <td>Block2</td> <td>x</td> <td>y</td> <td>z</td> <td>&#160;</td> </tr>
+#*  <tr> <td>&#160;</td> <td>a</td> <td>ax</td> <td>ay</td> <td>az</td> <td>&#160;</td> </tr>
+#*  <tr> <td>&#160;</td> <td>b</td> <td>bx</td> <td>by</td> <td>bz</td> <td>&#160;</td> </tr>
+#*  <tr> <td>&#160;</td> <td>c</td> <td>cx</td> <td>cy</td> <td>cz</td> <td>&#160;</td> </tr>
+#* </table>
+#* You could use functions such as<p>
+#* <code>FRM_get_cell( "Tab.xls", "b", "Block1", val );</code><p>
+#* to retreive <code>"2"</code> in variable <code>val</code> no matter what row
+#* used to be active before.<p>
+#* From then on you could use<p>
+#* <code>FRM_get_next( "Tab.xls", "b", val );</code><p>
+#* to retreive <code>"1x2"</code> in variable <code>val</code> and so on.
+#*<p> PUBLIC VARIABLES
+#*<ul>
+#* <li><b>FRM_UNKNOWN</b> Indicates an unknown value.</li>
+#* <li><b>E_FRM_SKIP</b> Indicates an empty table cell.</li>
+#* <li><b>FRM_SET_MODE</b> Indicates the SET modus (test data is to be entered).</li>
+#* <li><b>FRM_CHK_MODE</b> Indicates the CHECK modus (test data is to be verified).</li>
+#* <li><b>FRM_GEN_MODE</b> Indicates the GENERATE modus (test data is to be generated).</li>
+#* <li><b>FRM_COL_IDX</b> The default title of the INDEX column.</li>
+#* <li><b>FRM_COL_NAME</b> The default title of the NAME column.</li>
+#*</ul>
+#*/
+
+#**
+#* Indicates an unknown value. 
+#*/
+public const FRM_UNKNOWN = "???";
+#**
+#* Indicates an empty table cell. 
+#*/
+public const E_FRM_SKIP = -66601;
+#**
+#* Initialization of a test block failed. 
+#*/
+public const E_FRM_INIT_BLOCK = -66602;
+#**
+#* Initialization of a test block failed. 
+#*/
+public const E_FRM_ILLEGAL_MODE = -66603;
+#**
+#* Test block not implemented. 
+#*/
+public const E_FRM_NOT_IMPLEMENTED = -66604;
+#**
+#* Test block unknown. 
+#*/
+public const E_FRM_UNKNOWN = -66605;
+#**
+#* Stop further execution of current test case. 
+#*/
+public const E_FRM_TEST_STOP = -66606;
+#**
+#* Stop further execution of current test set. 
+#*/
+public const E_FRM_SET_STOP = -66607;
+#**
+#* Stop further execution of current test suite. 
+#*/
+public const E_FRM_SUITE_STOP = -66608;
+#**
+#* Continue execution of the current test case. 
+#*/
+public const E_FRM_CONTINUE = -66609;
+#**
+#* Retry execution of the current test block. 
+#*/
+public const E_FRM_RETRY = -66610;
+#**
+#* Indicates the SET modus (test data is to be entered). 
+#*/
+public const FRM_SET_MODE = 1;
+#**
+#* Indicates the CHECK modus (test data is to be verified). 
+#*/
+public const FRM_CHK_MODE = 2;
+#**
+#* Indicates the GENERATE modus (test data is to be generated). 
+#*/
+public const FRM_GEN_MODE = 3;
+#**
+#* Indicates the ATTRIBTE check modus. 
+#*/
+public const FRM_ATR_MODE = 4;
+#**
+#* The title of the INDEX column. This column is used to mark (x) important rows
+#* in the data table which can be accessed through their logical name (content
+#* of OBJECT column). 
+#*/
+public const FRM_COL_IDX = "IDX";
+#**
+#* The title of the NAME column. This column is used to define name of the
+#* particular row. It is used in conjunction with column IDX in the way that
+#* only the indexed rows must define the unique name. In all other rows (those
+#* not marked in IDX column) you can put anything you want (a comment, test
+#* data or nothing). 
+#*/
+public const FRM_COL_NAME = "Name";
+
+#**
+#* Global variable containing return code of the codeb lock executed via
+#* &lt;&amp;...&amp;&gt; expression.
+#*/
+public __evalRC;
+
+#____________________________________________________
+#*local constans
+#____________________________________________________
+
+static const IDX_CURROW   = 0;
+static const IDX_ROWCOUNT = 1;
+static const IDX_MODE     = 2;
+static const IDX_PARAMS   = 3;
+static const IDX_MODIFIED = 4;
+
+#____________________________________________________
+#*local variables
+#____________________________________________________
+
+#*wird inkrementiert für jeden neuen FRM_open()
+static tabCount = 0;
+
+#*Eindimensional, d.h. [ table ]
+#*1. Dimension:
+#* - table:	Tabellenname
+static tabs[];
+
+#*Zweidimensional, d.h. [ table, info ]
+#*1. Dimension:
+#* - tabidx:	Tabellenindex
+#*2. Dimension:
+#* - IDX_CURROW:	aktive Zeile
+#* - IDX_ROWCOUNT:	anzahl der Zeilen
+#* - IDX_MODE:	Modus
+#* - IDX_PARAMS:		Anzahl geladener Paramteres (d.h. Spalten)
+#* - IDX_MODIFIED:	Indicates whether table was modified or not
+static tabInfo[];
+
+#*Zweidimensional, d.h. [ table, info ]
+#*1. Dimension:
+#* - tabidx:	Tabellenindex
+#*2. Dimension:
+#* - 0..n:	Name des Paramters (Spalte) n=tabInfo[tid,IDX_PARAMS]-1
+static tabParam[];
+
+#*Dreidimensional, d.h. [ table, column, [0...n] ]
+#*1. Dimension:
+#* - tabidx:	Tabellenindex
+#*2. Dimension:
+#* - column:	Spaltenname
+#*3. Dimension:
+#* - 0..n:	Inhalt der einzelne Zelle im Zeile 0..n	
+static tabData[];
+
+#*Zweidimensional, d.h. [ table, index ]
+#*1. Dimension:
+#* - tabidx:	Tabellenindex
+#*2. Dimension:
+#* - index:	Index ( Inhalt der Spalte "Objekt", 
+#*			makiert mit "x" in Spalte "IDX"
+static tabIdx[];
+
+#*Zweidimensional, d.h. [ table, info ]
+#*1. Dimension:
+#* - tabidx:	Tabellenindex
+#*2. Dimension:
+#* - libname:	Name der geladener Bibliothek
+static tabLibs[];
+
+#*Zweidimensional, d.h. [ tid, info ]
+#*1. Dimension:
+#* - tabidx:	Tabellenindex
+#*2. Dimension:
+#* - GUIname:	Name der geladener GUI Map
+static tabGuis[];
+
+#*Zweidimensional, d.h. [ tid, info ]
+#*1. Dimension:
+#* - "":	for global variables
+#* - tabidx:	Tabellenindex
+#*2. Dimension:
+#* - VARname:	Name der Variable
+static tabVars[];
+
+#**
+#* Opens a data lt;table&gt; and loads the desired &lt;test&gt;s (columns).
+#* <p>NOTE<p>
+#*	This routine returns the <code>tid</code> (table ID). Unlike the ddt_
+#*	you have to use this id when calling other FRM functions.
+#*
+#*@param table	(in)	name of the data table
+#*@param tests	(in)	list of columns (comma-separated)
+#*@param tid	(out)	table ID
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+public function FRM_open( in table, in tests, out tid, in nameSep )
+{
+	auto rc, par, val, i;
+	auto name, nameArr[], count;
+	auto params, rows;
+	
+	#auto t1, t2;
+
+	count = split( table, nameArr, ddt_get_name_sep() );
+	switch (count)
+	{
+	case 1:
+		nameArr[1] = tolower( nameArr[1] );
+		name = nameArr[1];
+		break;
+	case 2:
+		nameArr[1] = tolower( nameArr[1] );
+		name = nameArr[1] & ddt_get_name_sep() & nameArr[2];
+		break;
+	default:
+		return E_ILLEGAL_PARAMETER;
+	}
+
+	# close table if already opened
+	FRM_close( FRM_get_tid( name ) );
+
+	rc = DDT_open_table( name );
+	if ( rc != E_OK )
+		return rc;
+
+	# neue Tabelle registrieren
+	tid = tabCount++;	
+	tabs[tid] = name;
+
+	# Tabellenformat prüfen
+	rc = build_params( tid, tests );
+	if ( rc != E_OK )
+	{
+		DDT_close_table( name );
+		FRM_close( tid );
+		return rc;
+	}
+
+	# etwas Info speichern
+	ddt_get_current_row( nameArr[1], val );
+	tabInfo[tid, IDX_CURROW] = val;
+	ddt_get_row_count( nameArr[1], val );
+	tabInfo[tid, IDX_ROWCOUNT] = val;
+	tabInfo[tid, IDX_MODE] = FRM_SET_MODE;
+	tabInfo[tid, IDX_MODIFIED] = FALSE;
+
+	# IDX aufbauen
+	rc = build_idx( tid );
+	if ( rc != E_OK )
+	{
+		DDT_close_table( name );
+		FRM_close( tid );
+		return rc;
+	}
+
+	params = tabInfo[tid,IDX_PARAMS];
+	rows = tabInfo[tid,IDX_ROWCOUNT];
+#*t1=get_time();
+	# interne Tabelle aufbauen
+	for( i=0; i < params; i++ )
+		load_column( tid, tabParam[tid,i], rows );
+#*t2=get_time();
+#*printf( "Tabelle %s bearbeitet in %s Sekundnen", name, t2-t1 );
+	DDT_close_table( name );
+	return E_OK;
+}
+
+#**
+#* Loads an individual column (test) into an already opened data table.
+#*
+#*@param tid	(in)	table ID
+#*@param test	(in)	column name to be loaded
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+public function FRM_load_test( in tid, in test )
+{
+	auto rc, table, file, params;
+	rc = FRM_is_parameter( tid, test );
+	if( rc != E_NOT_PARAMETER )
+		return rc;
+	table = FRM_get_name( tid );
+	file = FRM_get_filename( tid );
+	rc = DDT_open_table( table );
+	if ( rc != E_OK )
+		return rc;
+	rc = ddt_is_parameter( file, test );
+	if ( rc != E_OK )
+	{
+		DDT_close_table( file );
+		return rc;
+	}
+	params = tabInfo[tid,IDX_PARAMS];
+	tabParam[tid,params] = test;
+	tabInfo[tid,IDX_PARAMS] = params+1;
+	rc = load_column( tid, test, tabInfo[tid,IDX_ROWCOUNT] );
+	DDT_close_table( file );
+	return rc;
+}
+ 
+#**
+#* Saves the given table.
+#* <p>NOTE!
+#* This funtion only works with WR 6.0 or higher.
+#*
+#*@param tid	(in)	table ID
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+public function FRM_save( in tid )
+{
+	auto rc, table, file, params, par, rows, i;
+
+	if ( !FRM_is_modified( tid ) )
+		return E_OK;
+	table = FRM_get_name( tid );
+	file = FRM_get_filename( tid );
+	params = tabInfo[tid,IDX_PARAMS];
+	rows = tabInfo[tid,IDX_ROWCOUNT];
+
+	rc = DDT_open_table( table, DDT_MODE_READWRITE );
+	if ( rc != E_OK )
+		return rc;
+	for( i=0; !rc && i < params; i++ )
+	{
+		par = tabParam[tid,i];
+		if ( tabData[ tid, par, 0 ] )
+			rc = save_column( tid, par, rows );
+	}
+    if ( rc == E_OK )
+    {
+    	rc = ddt_save( file );
+		for( i=0; i < params; i++ )
+		{
+		    par = tabParam[tid,i];
+			if ( tabData[ tid, par, 0 ] )
+				tabData[ tid, par, 0 ] = FALSE;
+		}
+    	tabInfo[ tid, IDX_MODIFIED ] = FALSE;
+    }
+	DDT_close_table( file );
+	return rc;
+}
+ 
+#**
+#* Closes the given table and frees occupied memory.
+#* <p>NOTE!
+#* If table was modified, it is automatically saved before closing.
+#*
+#*@param tid	(in)	table ID
+#*@param drop	(in)	(optional) TRUE: do not save changes (default: FALSE)
+#*/
+
+public function FRM_close( in tid, in drop )
+{
+	auto i, idx, rc = 0;
+	if ( !FRM_is_open( tid ) )
+		return;
+	if ( !drop )
+		FRM_save( tid );
+
+	idx = tid & ARRSEP;
+	for ( i in tabInfo )
+		if ( match (i, idx) == 1 )
+			delete tabInfo[i];
+	for ( i in tabParam )
+		if ( match (i, idx) == 1 )
+			delete tabParam[i];
+	for ( i in tabData )
+		if ( match (i, idx) == 1 )
+			delete tabData[i];
+	for ( i in tabIdx )
+		if ( match (i, idx) == 1 )
+			delete tabIdx[i];
+	for ( i in tabLibs )
+		if ( match (i, idx) == 1 )
+		{
+			unload( tabLibs[i] );
+			delete tabLibs[i];
+		}
+	for ( i in tabGuis )
+		if ( match (i, idx) == 1 )
+		{
+			rc = GUI_close( tabGuis[i] );
+			delete tabGuis[i];
+		}
+	for ( i in tabVars )
+		if ( match (i, idx) == 1 )
+			delete tabVars[i];
+	delete tabs[ tid ];
+}
+
+#**
+#* Closes all open tables. By default it automatically saves the changes.
+#* You can override this by setting &lt;drop&gt; to TRUE.
+#*
+#*@param drop	(in)	(optional) TRUE: do not save changes (default: FALSE)
+#*/
+
+public function FRM_close_all( in drop )
+{
+	auto rc, i;
+	if ( drop )
+	{   # quick close
+		for ( i in tabInfo )
+			delete tabInfo[i];
+		for ( i in tabParam )
+			delete tabParam[i];
+		for ( i in tabData )
+			delete tabData[i];
+		for ( i in tabIdx )
+			delete tabIdx[i];
+		for ( i in tabLibs )
+		{
+			unload( tabLibs[i] );
+			delete tabLibs[i];
+		}
+		for ( i in tabGuis )
+		{
+			rc = GUI_close( tabGuis[i] );
+			delete tabGuis[i];
+		}
+		for ( i in tabs )
+			delete tabs[i];
+	}
+	else
+	{
+		for ( i in tabs )
+			FRM_close( i, drop );
+	}
+	for ( i in tabVars )
+		delete tabVars[i];
+}
+
+#**
+#* Closes all open tables except the specified ones. 
+#* By default it automatically saves the changes.
+#* You can override this by setting &lt;drop&gt; to TRUE.
+#*
+#*@param xtabs[]	(inout)	array of table names which are NOT to be closed
+#*@param drop	(in)	(optional) TRUE: do not save changes (default: FALSE)
+#*/
+
+public function FRM_close_all_except( inout xtabs[], in drop )
+{
+	auto i, j, x, xcount;
+	auto count, nameArr[];
+
+	# make it case-insensitive + count
+	xcount = 0;
+	for ( j in xtabs )
+	{
+		count = split( xtabs[j], nameArr, ddt_get_name_sep() );
+		switch (count)
+		{
+		case 1:
+			xtabs[j] = tolower( nameArr[1] );
+			break;
+		case 2:
+			xtabs[j] = tolower( nameArr[1] ) & ddt_get_name_sep() & nameArr[2];
+			break;
+		}
+		xcount++;
+	}
+	for ( i in tabs )
+	{
+		x = 0;
+		for ( j in xtabs )
+		{
+			#printf( "tabs[%s]=%s   xtabs[%s]=%s", i, tabs[i], j, xtabs[j] );
+			if ( tabs[i] == xtabs[j] )
+				break;
+			x++;
+		}
+		if ( x >= xcount )	 # not found
+			FRM_close( i, drop );
+	}
+}
+
+#**
+#* Reports whether a given table is open or not.
+#*
+#*@param table	(in)	table name
+#*@return
+#*	TRUE:	table is open
+#*	FALSE:	table is not open
+#*/
+
+public function FRM_is_table_open( in table, out tid )
+{
+	auto i;
+	for ( i in tabs )
+	{
+		if ( tabs[i] == tolower( table ) )
+		{
+			tid = i;
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+#**
+#* Reports whether a given table is open or not.
+#*
+#*@param tid	(in)	table ID
+#*@return
+#*	TRUE:	table is open
+#*	FALSE:	table is not open
+#*/
+
+public function FRM_is_open( in tid )
+{
+	return ( tid in tabs );
+}
+
+#**
+#* Returns the table ID of the corresponding table or empty string ("") if
+#* table unknown.
+#*
+#*@param table	(in)	table name
+#*@return table ID orempty string
+#*/
+
+public function FRM_get_tid( in table )
+{
+	auto i, name;
+	name = tolower( table );
+	for ( i in tabs )
+	{
+		if ( name == tabs[i] )
+			return i;
+	}
+	return "";
+}
+
+#**
+#* Returns the table name of the corresponding tid or empty string ("") if
+#* tid unknown. If sheet name was specified with FRM_open(),
+#* then the name returned includes the sheet name (e.g. c:\tab.xsl#sheet1).
+#*
+#*@param tid	(in)	table ID
+#*@return table name (including sheet name) or empty string
+#*/
+
+public function FRM_get_name( in tid )
+{
+	if ( tid in tabs )
+		return tabs[ tid ];
+	return "";
+}
+
+#**
+#* Returns the table name of the corresponding tid or empty string ("") if
+#* tid unknown. This function ensures that the sheet name is NOT returned.
+#* For example if FRM_open("c:\tab.xsl#sheet1") was specified, then
+#* only "c:\tab.xsl" is returned.
+#*
+#*@param tid	(in)	table ID
+#*@return table name (not including sheet name) or empty string
+#*/
+
+public function FRM_get_filename( in tid )
+{
+	auto nameArr[];
+	if ( tid in tabs )
+	{
+		split(tabs[ tid ], nameArr, ddt_get_name_sep() );
+		return nameArr[1];
+	}
+	return "";
+}
+
+#**
+#*	Reports whether a given table is modified or not.
+#*
+#*@param tid	(in)	table ID
+#*@return
+#*	TRUE:	table is modified
+#*	FALSE:	table is not modified
+#*/
+
+public function FRM_is_modified( in tid )
+{
+	if ( FRM_is_open( tid ) && tabInfo[ tid, IDX_MODIFIED ] )
+		return TRUE;
+	return FALSE;
+}
+
+#**
+#* Positions the focus to the row specified by its name &lt;idx&gt;. If successful,
+#* the &lt;row&gt; number is returned.
+#* <p> NOTE!
+#* The row must be indexed.
+#*
+#*@param tid	(in)	table ID
+#*@param idx	(in)	row name/index
+#*@param row	(out)	row number
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+public function FRM_idx( in tid, in idx, out row )
+{
+	if ( !FRM_is_open( tid ) )
+		return E_FILE_NOT_OPEN;
+	if ( !((tid,idx) in tabIdx) )
+		return E_ILLEGAL_PARAMETER;
+	row = tabIdx[tid, idx];
+	return E_OK;
+}
+
+#**
+#* Loads a library &lt;lib&gt; in scope of the specified &lt;tid&gt;.
+#* <p>NOTE!
+#* If table is closed, all libraries in its scope are automatically unloaded.
+#*
+#*@param tid	(in)	table ID
+#*@param lib	(in)	library name (full path)
+#*@param p1	(in)	(optional) first parameter to underlying reload statement
+#*@param p2	(in)	(optional) second parameter to underlying reload statement
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+public function FRM_load_lib( in tid, in lib, in p1, in p2 )
+{
+	auto rc;
+	if ( !FRM_is_open( tid ) )
+		return E_FILE_NOT_OPEN;
+	if ( (tid,lib) in tabLibs )
+		return E_OK; # schon geladen
+	rc = reload( lib, (p1==""?0:p1), (p2==""?0:p2) );
+	if ( rc ) 
+		return rc;
+	tabLibs[tid,lib]=lib;
+	return E_OK;
+}
+
+#**
+#* Loads a GUI map &lt;gui&gt; in scope of the specified &lt;tid&gt;.
+#* <p>NOTE!
+#* If table is closed, all GUI maps in its scope are automatically unloaded.
+#*
+#*@param tid	(in)	table ID
+#*@param gui	(in)	GUI map name (full path)
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+public function FRM_load_gui( in tid, in gui )
+{
+	auto rc;
+	if ( !FRM_is_open( tid ) )
+		return E_FILE_NOT_OPEN;
+	if ( (tid,gui) in tabGuis )
+		return E_OK; # schon geladen
+	rc = load_GUI( gui );
+	if ( rc ) 
+		return rc;
+	tabGuis[tid,gui]=gui;
+	return E_OK;
+}
+
+#**
+#* Allocates a new or overwrites an existing variable &lt;var&gt; 
+#* with the initial value &lt;val&gt;. A scope of the variable depends on the
+#* given &lt;tid&gt; name. 
+#* <p>NOTE!
+#* If it equals to "" the scope of the variable is is Frame-global.
+#* Otherwise the variable has table-scope. If table is closed, all variables in 
+#* its scope are automatically unloaded. Global varables are unloaded only with
+#* FRM_close_all().
+#*
+#*@param tid	(in)	table ID (scope) or "" for global variables
+#*@param var	(in)	variable name
+#*@param val	(in)	value to be saved
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+public function FRM_setvar( in tid, in var, in val )
+{
+	auto rc;
+	if ( tid == "" )
+	{
+		tabVars[ "", var ] = val;
+		return E_OK;
+	}
+	if ( !FRM_is_open( tid ) )
+		return E_FILE_NOT_OPEN;
+	tabVars[tid,var] = val;
+	return E_OK;
+}
+
+#**
+#* Retrieves the value of a given FRM variable &lt;var&gt;. 
+#* A scope of the variable depends on the given &lt;tid&gt; name. 
+#* <p>NOTE!
+#* If it equals to "" the scope of the variable is is Frame-global.
+#* Otherwise the variable has table-scope. If table is closed, all variables in 
+#* its scope are automatically unloaded. Global varables are unloaded only with
+#* FRM_close_all().
+#*
+#*@param tid	(in)	table ID (scope) or "" for global variables
+#*@param var	(in)	variable name
+#*@param val	(out)	value retrieved
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+public function FRM_getvar( in tid, in var, out val )
+{
+	auto rc;
+	if ( tid == "" )
+	{
+		if ( ("",var) in tabVars )
+		{
+			val = tabVars[ "", var ];
+			return E_OK;
+		}
+		return E_NOT_FOUND;
+	}
+	if ( !FRM_is_open( tid ) )
+		return E_FILE_NOT_OPEN;
+	if ( (tid,var) in tabVars )
+	{
+		val = tabVars[ tid, var ];
+		return E_OK;
+	}
+	return E_NOT_FOUND;
+}
+
+#**
+#* Returns the active frame mode.
+#*
+#*@param tid	(in)	table ID
+#*@return 
+#*	currently active mode (FRM_SET_MODE/FRM_CHK_MODE/FRM_ATR_MODE/FRM_GEN_MODE) or
+#*	E_FILE_NOT_OPEN: table not open
+#*/
+
+public function FRM_get_mode ( in tid )
+{
+	if ( !FRM_is_open( tid ) )
+		return E_FILE_NOT_OPEN;
+	return tabInfo[ tid,IDX_MODE ];
+}
+
+#**
+#* Sets the active frame mode.
+#*
+#*@param tid	(in)	table ID
+#*@param mode	(in)	either FRM_SET_MODE, FRM_CHK_MODE, FRM_ATR_MODE or FRM_GEN_MODE
+#*@return
+#*	E_OK:					mode successfully set
+#*	E_FILE_NOT_OPEN:		table not open
+#*	E_ILLEGAL_PARAMETER:	invalid mode (mode unchanged)
+#*/
+
+public function FRM_set_mode ( in tid, in mode )
+{
+	if ( !FRM_is_open( tid ) )
+		return E_FILE_NOT_OPEN;
+	switch ( mode )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+	case FRM_ATR_MODE:
+	case FRM_GEN_MODE:
+		tabInfo[ tid,IDX_MODE ] = mode;
+		return E_OK;
+	default:
+		return E_ILLEGAL_PARAMETER;
+	}
+}
+
+#**
+#* Convert the given <code>mode</code> from one representation to another
+#* (string2code and code2string). If none of the conversion succeeds, the
+#* the unchanged value is returned.
+#* @param mode (in)	mode to be converted (either format)
+#* @return converted mode or unchanged value if no conversion possible
+#*/
+public function FRM_convert_mode( in mode )
+{
+	auto m;
+	switch ( toupper(mode) )
+	{
+    	case FRM_SET_MODE: m = "SET"; break;
+	    case FRM_CHK_MODE: m = "CHK"; break;
+	    case FRM_ATR_MODE: m = "ATR"; break;
+	    case FRM_GEN_MODE: m = "GEN"; break;
+    	case "SET": m = FRM_SET_MODE; break;
+	    case "CHK": m = FRM_CHK_MODE; break;
+	    case "ATR": m = FRM_ATR_MODE; break;
+	    case "GEN": m = FRM_GEN_MODE; break;
+        default: m = mode;
+	}
+	return m;
+}
+
+#**
+#* Indicates whether the cell in the next row contains data or not. 
+#*
+#*@param tid	(in)	table ID
+#*@param test	(in)	test (column) name
+#*@return
+#*	TRUE:	next row contains data
+#*	FALSE:	next row contains no data
+#*/
+
+public function FRM_has_next ( in tid, in test )
+{
+	auto rc;
+	auto row, val;
+	rc = FRM_get_current_row ( tid, row );
+	if ( rc != E_OK )
+		return FALSE;
+	rc = FRM_get( tid, test, val, row+1 );
+	if ( rc == E_OK )
+		return TRUE;
+	return FALSE;
+}
+
+#**
+#* Returns the content of the cell from the given column (<code>test</code>) 
+#* and the row following the currently active row.
+#* <p>
+#* A cell which is supposed to be ignored (an empy cell, a cell that contains no
+#* data), is indicated with E_FRM_SKIP. If an empty string ("") needs to be used
+#* as test data, then the cell must contain one of the following two strings 
+#* &lt;&lt;cler&gt;&gt; or &lt;&lt;leer&gt;&gt; (including angle brackets).
+#* <p>NOTE!
+#* This routine modifies the currently active row. It does this before fetching
+#* the value. If an attemp is made to fatch the value beyond the last row,
+#* E_OUT_OF_RANGE is returned.
+#*
+#*@param tid	(in)	table ID
+#*@param test	(in)	test (column) name
+#*@param val	(out)	the fetched value
+#*@return
+#*	E_OK:			operation successful, value returned
+#*	E_FRM_SKIP:		operation successful, no value returned
+#*	anything else:	operation failed
+#*/
+
+public function FRM_get_next ( in tid, in test, out val )
+{
+	auto rc;
+	val = FRM_UNKNOWN;
+	rc = FRM_next_row( tid );
+	if ( rc != E_OK )
+	{
+		return FRM_rc( rc, "FRM_get_next", tid, test, val );
+	}
+	return FRM_get( tid, test, val );
+}
+
+#**
+#* Returns the content of the cell specified by the given row (<code>idx</code>) 
+#* and column (<code>test</code>) names.
+#* <p>
+#* A cell which is supposed to be ignored (an empy cell, a cell that contains no
+#* data), is indicated with E_FRM_SKIP. If an empty string ("") needs to be used
+#* as test data, then the cell must contain one of the following two strings 
+#* &lt;&lt;cler&gt;&gt; or &lt;&lt;leer&gt;&gt; (including angle brackets).
+#* <p>NOTE!
+#* For this to work the &lt;idx&gt; must be the content of some row in 
+#* FRM_COL_NAME marked with "x" in FRM_COL_IDX.
+#*
+#*@param tid	(in)	table ID
+#*@param test	(in)	test (column) name
+#*@param idx	(in)	row name (index)
+#*@param val	(out)	the fetched value
+#*@return
+#*	E_OK:			operation successful, value returned
+#*	E_FRM_SKIP:		operation successful, no value returned
+#*	anything else:	operation failed
+#*/
+
+public function FRM_get_cell ( in tid, in test, in idx, out val )
+{
+	auto rc, row;
+	rc = FRM_idx( tid, idx, row );
+	if ( rc ) return rc;
+	return FRM_get( tid, test, val, row );
+}
+
+#**
+#* Returns the content of the cell specified by the given column name and,
+#* optionally, with the row number.
+#* <p>
+#* A cell which is supposed to be ignored (an empy cell, a cell that contains no
+#* data), is indicated with E_FRM_SKIP. If an empty string ("") needs to be used
+#* as test data, then the cell must contain one of the following two strings 
+#* &lt;&lt;cler&gt;&gt; or &lt;&lt;leer&gt;&gt; (including angle brackets).
+#* <p>NOTE!
+#* If <code>row</code> is not defined, the current row is used.
+#*
+#*@param tid	(in)	table ID
+#*@param test	(in)	test (column) name
+#*@param val	(out)	the fetched value
+#*@param row	(in)	(optional) row number (default: current row)
+#*@return
+#*	E_OK:			operation successful, value returned
+#*	E_FRM_SKIP:		operation successful, no value returned
+#*	anything else:	operation failed
+#*/
+
+public function FRM_get ( in tid, in test, out val, in row )
+{
+	auto rc;
+	rc = FRM_is_parameter( tid, test );
+	if ( rc != E_OK ) return rc;
+	if ( row*1 == 0 )  # parameter nicht vorhanden
+	{
+		val = tabData[tid, test, tabInfo[tid, IDX_CURROW]];
+	}
+	else
+	{
+		rc = FRM_is_row( tid, row );
+		if ( rc != E_OK ) return rc; 
+		val = tabData[tid, test, row*1];
+	}
+	return FRM_parse_val( tid, val );
+}
+
+#/**
+#* Parses the given value and substitutes FRM keywords.
+#* If val is empty, then E_FRM_SKIP is returned and val is left unchanged.
+#* @param tid	(in)	table ID
+#* @param val	(inout) value to be parsed; eventually modifiedd by parsing
+#* @return E_OK + val in case of succesful parsing; E_FRM_SKIP in case of
+#* empty val
+#*/
+public function FRM_parse_val( in tid, inout val )
+{
+	extern __evalRC;
+	extern RSTART, RLENGTH;
+	auto t1, t2, t3;
+
+	if ( val == "" )
+	{
+		return E_FRM_SKIP;
+	}
+	if ( match( val, "<" ) )
+	{
+		if ( match( val, "<<[Ll][Ee][Ee][Rr]>>" ) )
+		{
+			val = "";
+			return E_OK;
+		}
+		if ( match( val, "<<[Cc][Ll][Ee][Aa][Rr]>>" ) )
+		{
+			val = "";
+			return E_OK;
+		}
+		while( match( val, "<<[Tt][Aa][Bb]>>" ) ) # tabulator
+		{
+			t1 = (RSTART>1 ? substr( val, 1, RSTART-1 ) : "" );
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 & "\t" & t3;
+		}
+		while( match( val, "<$..*$>" ) ) # FRM global-scope variable
+		{
+			t1 = (RSTART>1 ? substr( val, 1, RSTART-1 ) : "" );
+			FRM_getvar( "", substr( val, RSTART+2, RLENGTH-4 ), t2 );
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 & t2 & t3;
+		}
+		while( match( val, "<#..*#>" ) ) # FRM table-scope variable
+		{
+			t1 = (RSTART>1 ? substr( val, 1, RSTART-1 ) : "" );
+			FRM_getvar( tid, substr( val, RSTART+2, RLENGTH-4 ), t2 );
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 & t2 & t3;
+		}
+		while( match( val, "<%..*%>" ) ) # environment variable
+		{
+			t1 = (RSTART>1 ? substr( val, 1, RSTART-1 ) : "" );
+			t2 = getenv( substr( val, RSTART+2, RLENGTH-4 ) );
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 & t2 & t3;
+		}
+		while( match( val, "<!..*!>" ) ) # WinRunner variable
+		{
+			t1 = (RSTART>1 ? substr( val, 1, RSTART-1 ) : "" );
+			t2 = getvar( substr( val, RSTART+2, RLENGTH-4 ) );
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 & t2 & t3;
+		}
+		while( match( val, "<&..*&>" ) ) # arbitrary code (eval)
+		{
+			t1 = (RSTART>1 ? substr( val, 1, RSTART-1 ) : "" );
+			eval( "__evalRC = " & substr( val, RSTART+2, RLENGTH-4 ) & ";" ); 
+			t2 = __evalRC;
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 & t2 & t3;
+		}
+	}
+	return E_OK;
+}
+
+#**
+#* Saves the given value (<code>val</code>) in the cell specified by the column
+#* name (<code>test</code>) and, optinally, the <code>row</code> number.
+#* <p>NOTE!
+#* The change is not made permanent yet. You must call FRM_save() in order
+#* to transfer your changes back to the Excel table.
+#*
+#*@param tid	(in)	table ID
+#*@param test	(in)	test name (column)
+#*@param val	(in)	value to be saved
+#*@param row	(in)	(optional) row number (default: current row)
+#*@return
+#*E_OK:		operation successful
+#*!E_OK:		operation failed
+#*/
+
+public function FRM_set ( in tid, in test, in val, in row )
+{
+	auto rc, r;
+	rc = FRM_is_parameter( tid, test );
+	if ( rc != E_OK ) return rc;
+	
+	if ( row*1 == 0 )
+	{
+		r = tabInfo[tid, IDX_CURROW];
+	}
+	else
+	{
+		rc = FRM_is_row( tid, row );
+		if ( rc != E_OK ) return rc; 
+		r=row*1;
+	}
+	tabData[tid, test, r] = val;
+	# update modification flags
+	tabInfo[tid, IDX_MODIFIED] = TRUE;   # table-level
+	tabData[tid, test, 0] = TRUE;        # column-level
+	return E_OK;
+}
+
+#**
+#* Returns a two-dimensional block from the table as array. 
+#* <p>
+#* To define a block in the test table you must format it in a special way.
+#* An example of one such table follows.
+#* <table border>
+#*  <tr> <th>IDX</th> <th>Name</th><th>a</th><th>b</th><th>c</th><th>d</th> </tr>
+#*  <tr> <td>x</td> <td>Block1</td> <td>1</td> <td>2</td> <td>3</td> <td>4</td> </tr>
+#*  <tr> <td>&#160;</td> <td>1</td> <td>1x1</td> <td>1x2</td> <td>1x3</td> <td>1x4</td> </tr>
+#*  <tr> <td>&#160;</td> <td>2</td> <td>1x1</td> <td>2x2</td> <td>3x3</td> <td>4x4</td> </tr>
+#*  <tr> <td>&#160;</td> <td>&lt;&lt;END&gt;&gt</td> <td>&#160;</td> <td>&#160;</td> <td>&#160;</td> <td></td> </tr>
+#*  <tr> <td>x</td> <td>Block2</td> <td>x</td> <td>y</td> <td>z</td> <td>&#160;</td> </tr>
+#*  <tr> <td>&#160;</td> <td>a</td> <td>ax</td> <td>ay</td> <td>az</td> <td>&#160;</td> </tr>
+#*  <tr> <td>&#160;</td> <td>b</td> <td>bx</td> <td>by</td> <td>bz</td> <td>&#160;</td> </tr>
+#*  <tr> <td>&#160;</td> <td>c</td> <td>cx</td> <td>cy</td> <td>cz</td> <td>&#160;</td> </tr>
+#*  <tr> <td>&#160;</td> <td>&lt;&lt;END&gt;&gt</td> <td>&#160;</td> <td>&#160;</td> <td>&#160;</td> <td>&#160;</td> </tr>
+#* </table>
+#* 
+#* 
+#*@param tid	(in)	table ID
+#*@param idx	(in)	block index
+#*@param x	(out)	nomber of columns
+#*@param y	(out)	number of rows
+#*@param arr[]	(out)	values
+#*@return
+#*	E_OK:	operation succesfull, values returned
+#*	!E_OK:	operation failed
+#*/
+
+public function FRM_get_block ( in tid, in idx, out x, out y, out arr[] )
+{
+	auto rc, row, params, param[], count, val, i;
+	rc = FRM_idx( tid, idx, row );
+	if ( rc ) return rc;
+	rc = FRM_get_parameters( tid, params, count );
+	if ( rc ) return rc;
+	rc = FRM_get( tid, FRM_COL_NAME, val, row );
+	if ( rc ) return rc;
+
+	arr[0,0] = val;
+	count = split( params, param, "\t" );
+	for( x=1; x<=count; x++ )
+	{
+		val = FRM_val_by_row( tid, row, param[x] );
+		if ( val == "" )
+			break;
+		arr[0,x] = val;
+	}
+	y=1;
+	while( 1 )
+	{
+		row++;
+		rc = FRM_get( tid, FRM_COL_NAME, val, row );
+		if ( rc != E_OK && rc != E_FRM_SKIP )
+			break;
+		if ( rc == E_FRM_SKIP )
+			val = "";
+		if ( match( val, "<<[Ee][Nn][Dd][Ee]*>>" ) > 0 )
+			break;
+		arr[y,0] = val;
+		for( i=1; i<=count; i++ )
+		{
+			val = FRM_val_by_row( tid, row, param[i] );
+			arr[y,i] = val;
+		}
+		y++;
+	}
+	return rc;
+}
+
+#**
+#* Executes the content of the next cell.
+#*
+#*@param tid	(in)	table ID
+#*@param rows	(in)	column name
+#*/
+
+public function FRM_exec ( in tid, in test )
+{
+	auto val, cmd[], count, i;
+	auto rc = FRM_get_next( tid, test, val );
+	switch ( rc ) 
+	{
+	case E_OK:			break;
+	case E_FRM_SKIP:	return E_OK;
+	default:			return rc;
+	}
+	count = split( val, cmd, ";" );
+	for( i=1; i<=count; i++ )
+		eval( cmd[i] & ";" );
+}
+
+
+#**
+#* Skips the given number of rows. 
+#* <p>NOTE!
+#* If <code>rows</code> is not given, one row is skipped. Therefore 
+#* <code>FRM_skip( tab );</code> is equivalent to <code>FRM_skip( tab, 1 );</code>.
+#* <code>FRM_skip( tab, 0 );</code> also skips to next row because 0 is taken as
+#* the equivalent for "not given".
+#* <p>
+#* If <code>rows</code> is negative, the function skips backwards. Therefore 
+#* <code>FRM_skip( tab, -3 );</code> jumps for example from row 15 to row 12.
+#*
+#*@param tid	(in)	table ID
+#*@param rows	(in)	(optional) number of rows to skip, negative skips backwards
+#*@return
+#*	E_OK:	success
+#*	E_OUT_OF_RANGE:	skip beyond table bounaries attempted
+#*	!anything else:	other failure
+#*/
+
+public function FRM_skip ( in tid, in rows )
+{
+	switch ( FRM_get_mode( tid ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+	case FRM_ATR_MODE:
+	case FRM_GEN_MODE:
+		return FRM_SET_skip( tid, rows );
+#*case FRM_GEN_MODE:
+#*	return FRM_GEN_skip( tid, rows );
+	default:
+		return !E_OK;
+	}
+}
+
+static function FRM_SET_skip ( in tid, in rows )
+{
+	auto rc, curr_row;
+
+	if ( rows*1 == 0 )
+	{
+		return FRM_next_row( tid );
+	}
+	rc = FRM_get_current_row( tid, curr_row );
+	if ( rc != E_OK )
+		return rc;
+	else
+		return FRM_set_row( tid, curr_row + rows );
+}
+
+static function FRM_GEN_skip ( in tid, in rows )
+{
+	FRM_GEN_print( tid );
+}
+
+#**
+#* Performs the initialisation for the given test block.
+#* <p>NOTE<br>
+#* Important change since version 6.02.01.00: mode sent as parameter to
+#* this function takes presedence over the mode of the test block header.
+#*
+#*@param tid	(in)	table ID
+#*@param test	(in)	column name
+#*@param idx	(in)	block name (row index)
+#*@param mode	(in)	(optional) frame mode (default: FRM_SET_MODE)
+#*@return
+#*	E_OK:		success
+#*	E_FRM_SKIP:	block schould be ignored (valid only for FRM_GEN_MODE)
+#*	E_FRM_INIT_BLOCK:	idx not found
+#*  E_FRM_ILLEGAL_PARAMETER: idx found but mode could not be set
+#*/
+
+public function FRM_init_block ( in tid, in test, in idx, inout mode )
+{
+	auto rc, row, block, m;
+	if ( FRM_idx( tid, idx, row )
+	  || FRM_set_row( tid, row )
+	  || FRM_get( tid, FRM_COL_NAME, block ) )
+	{
+		return E_FRM_INIT_BLOCK;
+	}
+    # if mode parameter unspecified, then try to determine
+    # the mode from the header cell of the test block
+    if ( mode == "" )
+    {
+    	rc = FRM_get( tid, test, m );
+    	if ( rc != E_OK && rc != E_FRM_SKIP )
+    	{
+    		return E_FRM_INIT_BLOCK;
+    	}
+    	# if mode unspecified in both the parameter and
+    	# test block header, then use SET mode as default
+    	if ( rc == E_FRM_SKIP )
+    	{
+    		mode = FRM_SET_MODE;
+        }
+        # otherwise convert known modes to internal flags
+    	else
+    	{
+    		switch ( toupper( m ) )
+    		{
+    		case "SET": mode = FRM_SET_MODE; break;
+	    	case "CHK": mode = FRM_CHK_MODE; break;
+	    	case "ATR": mode = FRM_ATR_MODE; break;
+		    case "GEN": mode = FRM_GEN_MODE; break;
+            default:    mode = m;
+    		}
+        }
+	}
+	# GEN mode requires special treatment
+	if ( mode == FRM_GEN_MODE )
+	{
+		rc = pause_test( "Process block \"" & idx & "\" in GEN mode?",
+		                 "&Yes", "&No" );
+		if ( rc == 1 )
+			return E_FRM_SKIP;
+	}
+    # now try to set the mode
+	rc = FRM_set_mode( tid, mode );
+    wrlog_block_data( "MODE", FRM_convert_mode( mode ) );
+	tl_step( block, rc, "Block initialised in mode: " & FRM_convert_mode( mode ) );
+	return rc;
+}
+
+#**
+#* In case of &lt;rc&gt; != E_OK this function formats an <code>tl_step</code>-message
+#* from the given parameters. It automatically determines the current row number
+#* in the data table.
+#*
+#*@param rc	(in)	return code to be evaluated
+#*@param obj	(in)	logical name of the affected GUI-object
+#*@param tid	(in)	tid of the affected data table
+#*@param test	(in)	name of the test case from &lt;tid&gt;
+#*@param val	(in)	content of the affected cell from &lt;tid&gt;
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+public function FRM_rc ( in rc, in func, in tid, in test, in val, in obj )
+{
+	auto row = "";
+	auto name = "";
+	auto mode = "";
+	auto msg;
+	
+	FRM_get_current_row( tid, row );
+	name = FRM_val( tid, FRM_COL_NAME );
+	mode = FRM_convert_mode( FRM_get_mode( tid ) );
+
+   	msg = sprintf( "[%d] %s (%s) <%s>", row+1, name, mode, val );
+   	report_msg( msg );
+
+	if ( rc == E_OK )
+	{
+#		FRM_debug_obj_info( obj );
+#		FRM_debug_short_call_chain( 2 );
+	}
+	else
+	{
+		tl_step( sprintf("ERROR=%s", rc), rc, msg );
+		if ( err_is_error( rc ) )
+		{
+			err_perror( rc );
+		}
+#		FRM_debug_obj_info( obj );
+#	    FRM_debug_full_call_chain( 2 );
+		pause( sprintf( "ERROR=%s: %s", rc, msg ) );
+	}
+	return rc;
+}
+
+#**
+#* In case of &lt;rc&gt; != E_OK this function formats an <code>tl_step</code>-message
+#* from the given parameters. It automatically determines the current row number
+#* in the data table.
+#*
+#*@param rc	(in)	return code to be evaluated
+#*@param msg	(in)	message content
+#*@param title	(in)	[optional] message title (default: "MSG")
+#*@return echoed input variable <code>rc</code>
+#*/
+
+public function FRM_rc2 ( in rc, in msg, in title )
+{
+    auto func;
+    auto tit = (title=="" ? "MSG" : title );
+
+    wrlog_prim_data( tit, msg );
+	if ( rc == E_OK )
+	{
+		FRM_log_short_call_chain( 2 );
+	}
+	else
+	{
+	    call_chain_get_attr( "function", 1, func );
+	    tl_step( func, rc, sprintf( "%s=[%s] rc=[%s]", tit, msg, rc ) );
+		if ( err_is_error( rc ) )
+		{
+			wrlog_prim_data( "ERROR", err_perror( rc ) );
+		}
+		if ( get_log_call_level() > 0 )
+		{
+		    FRM_log_full_call_chain( 2 );
+		}
+		pause( sprintf( "ERROR rc=[%s] %s=%s", rc, tit, msg ) );
+	}
+	return rc;
+}
+
+public function FRM_log_frm_info( in tid, in test, in val )
+{
+	auto row = "";
+	auto name = "";
+	auto mode = "";
+	auto msg;
+	
+	FRM_get_current_row( tid, row );
+	name = FRM_val( tid, FRM_COL_NAME );
+	mode = FRM_convert_mode( FRM_get_mode( tid ) );
+	
+    wrlog_prim_frm_info( tid, test, row, name, mode, val );
+   	debug_msg( sprintf( "[%d] %s (%s) <%s>", row+1, name, mode, val ) );
+}
+
+public function FRM_log_obj_info( in obj )
+{
+    auto rc, msg;
+    auto win, desc, file, class;
+    
+    if ( obj == "" )
+        return;
+    win = GUI_get_window();
+    if ( obj == win )
+    {
+        GUI_map_get_desc( win, "", desc, file );
+        GUI_buf_get_desc_attr( file, win, "", "class", class );
+    }
+    else
+    {
+        GUI_map_get_desc( win, obj, desc, file );
+        GUI_buf_get_desc_attr( file, win, obj, "class", class );
+    }
+    wrlog_prim_obj_info( win, obj, class, desc, file );
+    debug_msg2( sprintf("WIN=%s: OBJ=%s: CLASS=%s DESC=%s FILE=%s", win, obj, class, desc, file ) );
+}
+
+#**
+#* Dumps the debug info for the 1 level deeper in the calling chain.
+#*/
+
+public function FRM_log_short_call_chain( in level )
+{
+    auto rc, msg;
+    auto test, type, func, line;
+	call_chain_get_attr( "testname", level, test );
+	call_chain_get_attr( "type", level, type );
+	call_chain_get_attr( "function", level, func );
+	call_chain_get_attr( "line_no", level, line );
+	wrlog_debug_call_info( test, (type=="function" ? func : ""), line );
+	debug_msg2( sprintf("LINE=%d: FUNC=%s: FILE=%s", line, (type=="function" ? func : ""), test ) );
+}
+
+#**
+#* Dumps the debug info for the calling chain starting with <code>depth_offset</code>.
+#* @param depth_offset (in) depth of the call chain to be dumped (0 = full chain, 1 = from the caller on, etc.)
+#*/
+
+public function FRM_log_full_call_chain( in depth_offset )
+{
+    auto rc, i, msg;
+    auto test, type, func, line;
+	for (i = depth_offset; i < call_chain_get_depth(); i++)
+	{
+		call_chain_get_attr( "testname", i, test );
+		call_chain_get_attr( "type", i, type );
+		call_chain_get_attr( "function", i, func );
+		call_chain_get_attr( "line_no", i, line );
+		wrlog_debug_call_info( test, (type=="function" ? func : ""), line );
+		debug_msg2( sprintf("LINE=%d: FUNC=%s: FILE=%s", line, (type=="function" ? func : ""), test ) );
+	}
+}
+
+#**
+#* This function was used for generating test data in GEN mode. It appends the
+#* test data into a file named "gen.txt" located in the WR temp directory.
+#* <p>NOTE!
+#* Since implementing the save capability for FRM-tables (effectively modifying
+#* test date in place) this function is not used any more.
+#*
+#*@param tid	(in)	table ID
+#*@param gui_obj (in)	name of the affected GUI object
+#*@param value	(in)	value contained in that object (test data)
+#*@param rc	(in)	return code received by retreiving the test date (if not
+#* E_OK, then a special message is formatted instead of the test data).
+#*/
+
+public function FRM_GEN_print ( in tid, in gui_obj, in val, in rc )
+{
+	auto test_obj = FRM_UNKNOWN;
+	auto row = FRM_UNKNOWN;
+	auto tmpdir = getvar( "tempdir" );
+	auto file = join_path( tmpdir, "gen.txt" );
+
+	FRM_next_row( tid );
+	FRM_get_current_row( tid, row );
+	test_obj = FRM_val( tid, FRM_COL_NAME );
+
+	if ( rc != E_OK )
+	{
+		val = "row=[" & row+1 & "] " &
+		      "obj=[" & test_obj & "] " &
+		      "GUI-obj=[" & gui_obj & "] " &
+			  "rc=[" & rc & "]";
+	}
+	file_open( file, FO_MODE_APPEND );
+	file_printf( file, "%s\n", val );
+	file_close( file );
+}
+
+#**
+#*#???#
+#*
+#*#???#
+#*@return
+#*#???#
+#*/
+
+public function FRM_GEN_set ( in tid, in test, in gui_obj, in val, in rc )
+{
+	FRM_next_row( tid );
+	if ( rc != E_OK )
+		val = "obj=[" & gui_obj & "] " & "rc=[" & rc & "]";
+    FRM_set( tid, test, val );
+}
+
+#**
+#* Indicates whether a given &lt;row&gt; exists in the given &lt;tid&gt;.
+#*
+#*@param tid	(in)	table ID
+#*@param row (in)	row number to be evaluated
+#*@return
+#*	E_OK: row number is valid
+#*	E_OUT_OF_RANGE: row number is invalid
+#*	else:	other error
+#*/
+
+public function FRM_is_row ( in tid, in row )
+{
+	auto rc, max;
+	rc = FRM_get_row_count( tid, max );
+	if ( rc != E_OK )
+		return rc;
+	if ( row*1 < 1 || row*1 > max )
+		return E_OUT_OF_RANGE;
+	return E_OK;
+}
+
+################################################################################
+#* From here on the implementation of the ddt-interface follows
+################################################################################
+
+#**
+#*Returns whether a parameter in a data table is valid.
+#*
+#*@param tid	(in)	table ID
+#*@param param (in)	The parameter name to check in the data table.
+#*@return
+#*	E_OK:	parameter is valid
+#*	E_NOT_PARAMETER:	parameter is invalid
+#*	else: other error
+#*/
+
+public function FRM_is_parameter( in tid, in param )
+{
+	auto i;
+	if ( !FRM_is_open( tid ) )
+		return E_FILE_NOT_OPEN;
+	for( i=0; i < tabInfo[tid,IDX_PARAMS]; i++)
+		if ( tabParam[tid,i] == param )
+			return E_OK;
+	return E_NOT_PARAMETER;
+}
+
+#**
+#* Returns a list of all loaded parameters in a FRM data table.
+#* <p>NOTE!<p>
+#* Does NOT return columns <code>IDX</code> and <code>name</code> because they
+#* are always there. For this reason the number returned is the number of all 
+#* (loaded) parameters minus 2.
+#*
+#*@param tid	(in)	table ID
+#*@param params (out)	column titles (tab-separated)
+#*@param count (out)	nomber of loaded columns (excluding IDX and Name)
+#*@return
+#*	E_OK:	success; <code>params</code> and <code>count</code> provided
+#*	!E_OK:	faliure; <code>params</code> and <code>count</code> not provided
+#*/
+
+public function FRM_get_parameters( in tid, out params, out count )
+{
+	auto i, param;
+	if ( !FRM_is_open( tid ) )
+		return E_FILE_NOT_OPEN;
+	count = 0;
+	for( i=0; i < tabInfo[tid,IDX_PARAMS]; i++)
+	{
+		param = tabParam[tid,i];
+		if ( param == FRM_COL_IDX || param == FRM_COL_NAME )
+			continue;
+		params = params & ((count)?"\t":"") & param;
+		count++;
+	}
+	return E_OK;
+}
+
+#**
+#* Retrieves the active row of a data table.
+#*
+#*@param tid	(in)	table ID
+#*@param row (out)	number of the active row (starting with 1)
+#*@return
+#*	E_OK:	success; active row returned
+#*	!E_OK:	failure; active row not returned
+#*/
+
+public function FRM_get_current_row ( in tid, out row )
+{
+	if ( !FRM_is_open( tid ) )
+		return E_FILE_NOT_OPEN;
+	row = tabInfo[ tid, IDX_CURROW ];
+	return E_OK;
+}
+
+#**
+#* Retrieves the number of rows in a data table.
+#*
+#*@param tid	(in)	table ID
+#*@param count (out)	number of rows in the data table
+#*@return
+#*	E_OK:	success; &lt;count&gt; returned
+#*	!E_OK:	failure; &lt;count&gt; not returned
+#*/
+
+public function FRM_get_row_count ( in tid, out count )
+{
+	if ( !FRM_is_open( tid ) )
+		return E_FILE_NOT_OPEN;
+	count = tabInfo[ tid, IDX_ROWCOUNT ];
+	return E_OK;
+}
+
+#**
+#* Sets the active row in a data table.
+#*
+#*@param tid	(in)	table ID
+#*@param row (in)	row to be set
+#*@return
+#*	E_OK:	success; &lt;row&gt; set
+#*	!E_OK:	failure; &lt;row&gt; not set
+#*/
+
+public function FRM_set_row ( in tid, in row )
+{
+	auto rc, max;
+	rc = FRM_is_row( tid, row );
+	if ( rc != E_OK )
+		return rc;
+	tabInfo[ tid, IDX_CURROW ] = row*1;
+	return E_OK;
+}
+
+#**
+#* Changes the active row in a data table to the next row.
+#*
+#*@param tid	(in)	table ID
+#*@return
+#*	E_OK:	success; active row changed
+#*	!E_OK:	failure; active row not changed
+#*/
+
+public function FRM_next_row ( in tid )
+{
+	auto rc, row;
+	rc = FRM_get_current_row( tid, row );
+	if ( rc != E_OK ) return rc;
+	return FRM_set_row( tid, ++row );
+}
+
+#**
+#* Returns the value of a parameter in the active row in a data table.
+#*
+#*@param tid	(in)	table ID
+#*@param param	(in)	column name
+#*@return
+#*	E_NOT_PARAMETER:	failure; invalid parameter (column) name
+#*	else:	value of the given cell
+#*/
+
+public function FRM_val ( in tid, in param )
+{
+	auto rc;
+	if ( FRM_is_parameter( tid, param ) != E_OK )
+		return E_NOT_PARAMETER;
+	return tabData[tid, param, tabInfo[tid, IDX_CURROW]];
+}
+
+#**
+#* Sets a value in the current row of the data table.
+#*
+#*@param tid	(in)	table ID
+#*@param val	(in)	value to be set
+#*@param param	(in)	column name
+#*@return
+#*	E_OK:	success; <code>val</code> set
+#*	E_NOT_PARAMETER:	failure; invalid parameter (column) name
+#*	else:	other error
+#*/
+
+public function FRM_set_val ( in tid, in param, in val )
+{
+	auto rc;
+	if ( FRM_is_parameter( tid, param ) != E_OK )
+		return E_NOT_PARAMETER;
+	return FRM_set( tid, param, val );
+}
+
+#**
+#* Returns the value of a parameter in the specified row in a data table.
+#*
+#*@param tid	(in)	table ID
+#*@param row	(in)	row number
+#*@param param	(in)	column name
+#*@return
+#*	E_NOT_PARAMETER:	failure; invalid parameter (column) name
+#*	else:	value of the given cell
+#*/
+
+public function FRM_val_by_row ( in tid, in row, in param )
+{
+	auto rc;
+	if ( FRM_is_parameter( tid, param ) != E_OK )
+		return E_NOT_PARAMETER;
+	rc = FRM_is_row( tid, row );
+	if ( rc != E_OK ) return rc;
+	return tabData[tid, param, row*1];
+}
+
+#**
+#* Sets a value in a specified row of the data table.
+#*
+#*@param tid	(in)	table ID
+#*@param row	(in)	row number
+#*@param param	(in)	column name
+#*@param val	(in)	the value to be set
+#*@return
+#*	E_OK:	success; <code>val</code> set
+#*	E_NOT_PARAMETER:	failure; invalid parameter (column) name
+#*	else:	other error
+#*/
+
+public function FRM_set_val_by_row ( in tid, in row, in param, in val )
+{
+	auto rc;
+	if ( FRM_is_parameter( tid, param ) != E_OK )
+		return E_NOT_PARAMETER;
+	rc = FRM_is_row( tid, row );
+	if ( rc != E_OK ) return rc;
+	return FRM_set( tid, param, val, row*1 );
+}
+
+#**
+#* Builds the internal data structure for (loaded) parameters (columns).
+#*
+#*@param tid (in) table ID
+#*@param tests (in)	list of tests (columns/parameters) to be loaded
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+static function build_params( in tid, in tests )
+{
+	auto rc, val, count, test, i, tmparr[], param[];
+	auto table, file;
+
+	table = FRM_get_name( tid );
+	file = FRM_get_filename( tid );
+	rc = ddt_get_parameters( file, val, count );
+	if ( rc != E_OK ) return rc;
+
+	count = split( val, tmparr, "\t" );
+	for ( i = 1; i <= count; i++ )
+		param[tmparr[i]] = 1;
+		
+	# check for Mandatory Params
+	if ( !(FRM_COL_IDX in param) || !(FRM_COL_NAME in param) )
+	{
+		rc = E_NOT_PARAMETER;
+		tl_step( "FRM_open", rc, 
+				 "invalid table format: " &
+				 "table=[" & table & "] " &
+				 "columns \"" & FRM_COL_IDX &
+				 "\" and/or \"" & FRM_COL_NAME & 
+				 "\" missing!" );
+		return rc;
+	}
+
+	if ( tolower(tests) == "<<all>>" )
+	{
+		for( i=1; i <= count; i++ )
+			tabParam[tid,i-1] = tmparr[i];
+	}
+	else
+	{
+		count = 0;
+		DDT_ACCESS_init( table, FRM_COL_IDX&","&FRM_COL_NAME&","&tests );
+		while ( DDT_ACCESS_has_more( table ) )
+		{
+			test = DDT_ACCESS_get_next( table );
+			if ( test in param )
+				tabParam[tid,count++] = test;
+		}
+		DDT_ACCESS_clean( table );
+	}
+	tabInfo[tid,IDX_PARAMS] = count;
+	return E_OK;	
+}
+
+#**
+#* Builds the internal index for marked rows. You can mark a row by placing an
+#* "x" in the IDX-column and defining the (uniquie!) name in the Name-column.
+#*
+#*@param tid (in) table ID
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+static function build_idx ( in tid )
+{
+	auto rc, idx, obj, rows, i;
+	auto table, file;
+	
+	table = FRM_get_name( tid );
+	file = FRM_get_filename( tid );
+	rows = tabInfo[tid, IDX_ROWCOUNT];
+	
+	rc = ddt_set_row( file, 1 );
+	for ( i = 1; !rc && i <= rows; i++ )
+	{
+		idx = ddt_val( file, FRM_COL_IDX );
+		if ( idx != "" )
+		{
+			obj = ddt_val( file, FRM_COL_NAME );
+			if ( (tid, obj) in tabIdx )
+			{
+				tl_step( "build_idx", 1, 
+						 "index repeated: " &
+						 "table=[" & table & "] " &
+	                     "column=[" & FRM_COL_NAME & "] " &
+	                     "row=[" & i & "] " &
+	                     "value=[" & obj & "] " &
+	                     "rc=[" & rc & "] " );
+				return E_ILLEGAL_PARAMETER;
+			}
+			tabIdx[tid, obj] = i;
+		}		
+		rc = ddt_next_row( file );
+	}
+	if ( rc == E_OUT_OF_RANGE )
+		return E_OK;
+	return rc;
+}
+
+#**
+#* Loads a given FRM-column from a data table. 
+#*
+#*@param tid	(in)	table ID
+#*@param par	(in)	column name
+#*@param rows	(in)	number of rows in a table (performance)
+#*@return
+#*	E_OK:		operation succesfull
+#*	!E_OK:		operation failed
+#*/
+
+static function load_column ( in tid, in par, in rows )
+{
+	auto rc, i, file;
+#*auto t1, t2;
+#*t1=get_time();
+
+	# first row indicates whether column has changed or not
+	tabData[tid, par, 0] = FALSE;
+	file = FRM_get_filename( tid );
+	rc = ddt_set_row( file, 1 );
+	for( i=1; !rc && i <= rows; i++ )
+	{
+		tabData[tid, par, i] = ddt_val( file, par );
+		rc = ddt_next_row( file );
+	}
+#*t2=get_time();
+#*printf( "Spalte %s bearbeitet in %s Sekundnen", par, t2-t1 );
+	return (rc==E_OUT_OF_RANGE) ? E_OK : rc;
+}
+
+#**
+#* Saves the FRM-column back to data table. 
+#*
+#*@param tid	(in)	table ID
+#*@param par	(in)	column name
+#*@param rows	(in)	number of rows in a table (performance)
+#*@return
+#*E_OK:		operation succesfull
+#*!E_OK:		operation failed
+#*/
+
+static function save_column ( in tid, in par, in rows )
+{
+	auto rc, i, file;
+#*auto t1, t2;
+#*t1=get_time();
+	file = FRM_get_filename( tid );
+	for( i=1; !rc && i <= rows; i++ )
+	{
+		rc = ddt_set_val_by_row( file, i, par, tabData[tid, par, i] );
+	}
+#*t2=get_time();
+#*printf( "Spalte %s bearbeitet in %s Sekundnen", par, t2-t1 );
+	return rc;
+}
+
+################################################################################
+#*TSL-LIBRARY:	EMOS_FRM_Lib
+################################################################################
+
+

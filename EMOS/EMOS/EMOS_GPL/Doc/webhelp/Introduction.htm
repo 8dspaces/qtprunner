@@ -1,0 +1,379 @@
+<HTML>
+ <HEAD>
+  <!-- $MVD$:app("RoboHELP HTML Edition by Blue Sky Software, portions by MicroVision Dev. Inc.","769") -->
+  <!-- $MVD$:template("","0","0") -->
+  <!-- $MVD$:fontset("Arial","Arial") -->
+  <TITLE>Introduction</TITLE>
+  <META NAME="generator" CONTENT="RoboHELP by Blue Sky Software www.blue-sky.com HTML Edition">
+  <SCRIPT language="javascript">
+<!--
+if (navigator.appName=="Netscape")
+{   document.write("<LINK rel='StyleSheet' href='defa_ns.css'>");}
+else
+{   document.write("<LINK rel='StyleSheet' href='default.css'>");}
+//-->
+
+  </SCRIPT>
+  <SCRIPT language="JavaScript" src="bsscdht1.js">
+  </SCRIPT>
+  <SCRIPT language="JavaScript" src="bsscdht2.js">
+  </SCRIPT>
+  <SCRIPT language="JavaScript"><!-- 
+//////////BSSCDHTML Section Embedded Code//////////
+var s_strAgent = navigator.userAgent.toLowerCase();
+var s_nVer	   = parseInt(navigator.appVersion);
+
+var s_bIE  = (s_strAgent.indexOf('msie') != -1);
+var s_bNS  = (s_strAgent.indexOf('mozilla') != -1) && ((s_strAgent.indexOf('spoofer') == -1) && (s_strAgent.indexOf('compatible') == -1));
+var s_bOpera	= (s_strAgent.indexOf('opera') != -1);
+
+var s_bIE3Before = ((s_bIE) && (s_nVer <= 2));
+var s_bNS3Before = ((s_bNS) && (s_nVer <= 3));
+
+var s_bNS2		= ((s_bNS) && (s_nVer <= 2));
+var s_bNS3		= ((s_bNS) && (s_nVer == 3));
+var s_bIE300301	= ((s_bIE) && (s_nVer == 2) && ((s_strAgent.indexOf("3.00") != -1)||(s_strAgent.indexOf("3.0a") != -1)||(s_strAgent.indexOf("3.0b")!=-1)||(s_strAgent.indexOf("3.01")!=-1)));
+var s_bIE302	= ((s_bIE) && (s_nVer == 2) && (s_strAgent.indexOf("3.02") != -1));
+
+
+function HasExtJs()
+{
+	if (s_bIE3Before) { return false;}
+	if (s_bNS3Before) {	return false;}
+	if (typeof (_BSSCOnLoad) == "undefined"){ return false; }
+	return true;
+}
+
+function BSSCOnLoad()
+{
+	if (HasExtJs()) { _BSSCOnLoad(); }
+}
+
+function BSSCOnUnload()
+{
+	if (HasExtJs()) { _BSSCOnUnload(); }
+}
+
+function BSSCOnClick()
+{
+	if (HasExtJs()) { _BSSCOnClick(); }
+}
+
+function WritePopupMenuLayer()
+{
+	if (HasExtJs()) {_WritePopupMenuLayer();}
+}
+
+function BSSCCreatePopupDiv()
+{
+	if (HasExtJs()) {_BSSCCreatePopupDiv();	}
+}
+
+function BSSCPopup(strURL)
+{
+	if (HasExtJs())	{ 
+		_BSSCPopup(strURL);
+	}else{
+		//Create a temporary window first to ensure the real popup comes up on top
+		var wndTemp = null;
+		if (!s_bNS3) {
+			wndTemp = window.open("", "temp", "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=yes,height=3,width=4");
+		}
+		// Create the real popup window
+		var wndPopup = window.open(strURL, "PopupWindow", "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=yes,height=300,width=400");
+		// Close the temporary
+		if (!s_bNS3) {
+			wndTemp.close();
+		} else {
+			wndPopup.focus();
+		}
+	}
+}
+
+
+function PopupMenu_Invoke()
+{
+	if (HasExtJs()) {
+		return _PopupMenu_Invoke(PopupMenu_Invoke.arguments);
+	}
+	if (s_bNS3Before || s_bIE3Before )	{
+		var argLen 	= PopupMenu_Invoke.arguments.length;
+		if (argLen < 5) {
+			window.document.location.href = PopupMenu_Invoke.arguments[3];
+			return false;
+		}
+		var nHeight = argLen * 15;
+		var nWidth = 400;
+		var strParam = "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=auto";
+		strParam += ",height=" + nHeight + ",width=200,resizable";
+		
+		//Create a temporary window first to ensure the real popup comes up on top
+		var wndTemp = null;
+		if (!s_bNS3) {
+			wndTemp = window.open("", "temp", "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=yes,height=3,width=4");
+		}
+
+		var wndPopupLinks = window.open("", "popuplinks", strParam);
+		wndPopupLinks.document.open("text/html");
+		wndPopupLinks.document.write("<html><head>");
+		if (s_bNS2 || s_bOpera) {
+			wndPopupLinks.document.write("<base href=\"" + location +"\">");
+		} else {
+			//YJ: IE301,302 and NS3.x works fine
+			wndPopupLinks.document.write("<");
+			wndPopupLinks.document.write("script>");
+			wndPopupLinks.document.write("function gotoUrl(aUrl) {opener.window.location=aUrl; close();}");
+			wndPopupLinks.document.write("<");
+			wndPopupLinks.document.write("/script>");
+		}
+		wndPopupLinks.document.write("</head><body onBlur=\'self.focus();\'>");
+		var strParaLine = "";
+		for (var i = 0; i < (argLen - 2) / 2; i++) {
+			strParaLine = "";
+			if (s_bNS2 || s_bOpera){
+				strParaLine += "<a href=\"";
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 3];
+				strParaLine += "\">"
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 2];
+				strParaLine += "</a>";
+			} else {
+				strParaLine += "<a href=\"javascript:";
+				strParaLine += "gotoUrl(\'";
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 3];
+				strParaLine += "\');\"";
+				if (PopupMenu_Invoke.arguments[1] != '') {
+					strParaLine += " TARGET='" + PopupMenu_Invoke.arguments[1] + "'";
+				}
+				strParaLine += ">";
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 2];
+				strParaLine += "</a>";
+			}
+			strParaLine += "<br>";
+			wndPopupLinks.document.write(strParaLine);
+		}
+		wndPopupLinks.document.write("</body></html>");
+		wndPopupLinks.document.close();
+
+		// Close the temporary
+		if (!s_bNS3) {
+			wndTemp.close();
+		}else {
+			wndPopupLinks.focus();
+		}
+
+		return true;
+	}
+	return false;
+}
+  
+
+ 
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) >= 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+ 
+//-->
+  </SCRIPT></HEAD>
+  <BODY ONLOAD="BSSCOnLoad();" ONCLICK="BSSCOnClick();">
+  
+  <div id='NavBar' STYLE='position:relative;' align='right'><nobr><font size=1>
+   <script language="javascript"><!--
+ var bHomePage=false; if(document.all){if ((top)&&(top.frames)&&(top.frames.length<=1)) bHomePage=true;} if(document.layers){if((parent)&&(parent.top.frames)&&(parent.top.frames.length<=1)) bHomePage=true;}
+if (bHomePage){document.write("<a href='index.htm'><img src='bsscnav1.gif' width=53 height=18 border=no></a>");}
+//-->
+   </script><img src='bsscnav7.gif' width=22 height=18 border=no><img src='bsscnav8.gif' width=22 height=18 border=no><a href='javascript:document.ehelpform.submit()'><img src='bsscnav6.gif' width=37 height=18 border=no></a></font>&nbsp;&nbsp;&nbsp;</nobr>
+  </div>
+<H1>
+   Introduction</H1>
+  <P>
+   EMOS FRM is a test framework that allows you to quickly develop a 
+   complex test automation environment. We have named this product 
+   &quot;framework&quot; as it consists of two main parts: the <SPAN STYLE="font-style : italic;"><I>methodology</I></SPAN> 
+   and the <SPAN STYLE="font-style : italic;"><I>tools</I></SPAN> that support 
+   the methodology.</P>
+  <P>
+   Our practice has repeatedly shown that a successful application of 
+   GUI-based test tools requires a systematic resolution of certain 
+   classes of problems. These problems seem to be independent of the 
+   application which is to be tested and of the project structure.</P>
+  <P>
+   In other words, no matter what system you test or what project you 
+   are in, if you are going to test it, you will be faced to similar 
+   problems in all of them. We distinguish two types of problems: <SPAN STYLE="font-style : italic;"><I>technical</I></SPAN> 
+   and <SPAN STYLE="font-style : italic;"><I>organisational</I></SPAN><SPAN STYLE="font-style : normal;"> (structural</SPAN>).</P>
+  <P>
+   Technically there are huge differences between the systems being 
+   developed. From the testing point of view the problem is always 
+   similar: 1) make sure you know <SPAN STYLE="font-style : italic;"><I>what</I></SPAN> 
+   you want to test and you know <SPAN STYLE="font-style : italic;"><I>how</I></SPAN> 
+   you want to do it, 2) <SPAN STYLE="font-style : italic;"><I>perform</I></SPAN> 
+   the necessary actions, 3) <SPAN STYLE="font-style : italic;font-weight : normal;"><I>check</I></SPAN> 
+   the necessary parts along the way and 4) <SPAN STYLE="font-style : italic;font-weight : normal;"><I>act</I></SPAN> 
+   upon unexpected differences. However, the technical differences 
+   between the tests of a graphical application, a text processor, a 
+   database or a business application full of simple forms will be in 
+   some (if not most) parts radically different. Not even mentioning the 
+   real-time systems, embedded systems and all sorts of other nice 
+   things out there.</P>
+  <P>
+   Don't worry! We are not going to try to convince you that we have 
+   found the holy grail. We are just trying to explain that if somebody 
+   is trying to find some &quot;generic&quot; solutions to 
+   &quot;generic&quot; problems, then she or he meets our focus. Our 
+   focus is:</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <SPAN STYLE="font-weight : bold;"><B>functional testing via the 
+   application's user interface</B></SPAN>.</P>
+  <P>
+   Why are we &quot;digging&quot; so much on our scope? It is because 
+   people apparently tend to forget important things about concepts over 
+   time with bizarre effects on the effectiveness of these very same 
+   concepts. We are exploiting the capabilities of the commercial 
+   of-the-shelf tools for performing functional testing. Nothing more, 
+   nothing less.</P>
+  <P>
+   Nothing spectacular, yet still we believe that with the simple means, 
+   cleverly organised, one can reach beyond many of the existing approaches.</P>
+  <H2>
+   The problems</H2>
+  <P>
+   So what are those technical and organisational problems with 
+   automated testing? Let us scratch the surface.</P>
+  <H3>
+   Limitations of test tools</H3>
+  <P>
+   One of the technical challenges is the support for &quot;custom&quot; 
+   graphical objects. These are the GUI elements deployed by the 
+   application which do not belong to the family of so called 
+   &quot;standard&quot; objects. All vendors of GUI test tools provide a 
+   built-in support for certain classes of GUI objects which are then 
+   called <SPAN STYLE="font-style : italic;"><I>standard</I></SPAN> objects. 
+   Typically, these are the elements of the most popular GUI libraries 
+   such as MFC, JFC, etc. If the particular tool does not support GUI 
+   objects of your application, you are left with several options:</P>
+  <UL>
+   <LI CLASS="mvd-P">
+   <P>
+    look for an apropriate &quot;add-on&quot; on on the market (ask your 
+    vendor first),</P>
+   <LI CLASS="mvd-P">
+   <P>
+    build the support for unsupported objects on your own (probably with 
+    vendor's help),</P>
+   <LI CLASS="mvd-P">
+   <P>
+    buy another tool,</P>
+   <LI CLASS="mvd-P">
+   <P>
+    redesign the application,</P>
+   <LI CLASS="mvd-P">
+   <P>
+    forget the automated testing (for some parts of the functionallity).</P>
+   </UL>
+  <P>
+   The literature is full of advises to carefully verify the test tools 
+   before deciding to use (i.e. pay for) them. No doubt these are good 
+   advises. The problem with it is that only a few do it properly. 
+   Assume for the moment you had done it well. The tool(s) you evaluated 
+   is so expensive that you will want to use them for many years and/or 
+   for different applications. There is always something you will 
+   overlook simply because you did not know at the time how you are 
+   really going to use the tool.</P>
+  <P>
+   Our advise is, of course, to check first. However, do not get upset 
+   when you experience problems. <SPAN STYLE="font-weight : normal;text-decoration :underline;"><U>Get
+    creative!</U></SPAN><SPAN STYLE="font-weight : bold;"> <B></B></SPAN>Remember, 
+   you are not testing because you have the tool - you are using the 
+   tool because you are testing. Look for the workarounds. There are so 
+   many ways you can go with testing - use them. We will show you some.</P>
+  <H3>
+   Complexity</H3>
+  <P>
+   When you automate your test you will soon realize how quickly 
+   testware grows. <SPAN STYLE="font-style : italic;"><I>Testware</I></SPAN> 
+   seems to be the established term for everything that you produce in 
+   order to run your automated tests - test scripts, test data, stubs, 
+   whatever. Managing the chaos of numerous test scipts acting on 
+   complex test data which is all being applicable only to a certan 
+   version(s) of tested software at some point in time is a nightmare. 
+   You should not get scared. But you should not ignore it either.</P>
+  <P>
+   The best way to cope with the complexity is to anticipate it and 
+   actively look for the solutions to reduce it. Some design techniques 
+   are superior to others in respect to complexity. Do not underestimate 
+   the benifits of such techniques. It is them that will make yout test 
+   automation a long lasting activity (from the technical point of view).</P>
+  <P>
+   One of the main design premisses for EMOS FRM is the reduction of complexity.</P>
+  <H3>
+   Testware is software</H3>
+  <P>
+   Many people seem to be easily trapped with nice words of skilled 
+   sales personell promissing that anybody can use their product. If not 
+   imediately, then with some training - and off they fly.</P>
+  <P>
+   Forget it!</P>
+  <P>
+   There is not a single GUI test tool in the market that is capable of 
+   testing complex GUIs and, at the same time, being easy to use. They 
+   are all complex. They may provide some &quot;simple&quot; means for 
+   capturing tests (busszord C/R - capture &amp; replay). What they 
+   produce in the background is unfortunately everything else but 
+   simple. If you never had to look at the code that was produced, this 
+   would never be a problem.</P>
+  <P>
+   A robust test can practically never be developed by just capturing 
+   some actions. You have to extend the code, write routines to handle 
+   different situations and do all sorts of other things to make good 
+   test scripts. Even if you could develop the robust test just by 
+   clicking around, it is intrinsic to testing to &quot;live with&quot; 
+   bugs. Within the tests itself and, of course, within the software 
+   that is being tested. Imagine your perfect test script one day 
+   suddenly fails just because the developers decided to remove or 
+   rename some graphical elements your script was using. No test scripts 
+   that we know of are able to &quot;fix&quot; themselves without 
+   requiring somebody to look into the code.</P>
+  <P>
+   It is not the coincidence why we address this issue after dicussing 
+   the complexity problem. Leave you test scripts in hands of 
+   non-programmers and your test automation will drown in complexity. 
+   Leave them to non-skilled programmers, the same will happen.</P>
+  <P>
+   Testautomation is primarily a programming task. If you do it 
+   cleverly, the test you produce can be understood, run or even created 
+   by non-programmers. But this is only because you had some programmers 
+   that made it possible.</P>
+  <P>
+   EMOS FRM gives you a great platform for separating the expertise. If 
+   you develop test scripts the way we do, then a single test programmer 
+   can provide material for many non-technical people. If they work 
+   closely together, you will be amased how much can be automated in a 
+   short time.</P>
+  <H3>
+   Moving targets</H3>
+  <P>
+   If the application you are trying to test does not show any stability 
+   in areas you are trying to automate, you will loose the game. No test 
+   tool in the world and no test programming guru can compensate for bad 
+   development processes.</P>
+  <P>
+   Do not waste money, time and people's nerves by asking or letting 
+   them write test scripts that cannot be run twice without having to be modified.</P>
+  <H3>
+   Wrong expectations</H3>
+  <P>
+   Test automation can do miracles but if you <SPAN STYLE="text-decoration :underline;"><U>expect</U></SPAN> 
+   them, you will be disapointed.</P>
+  <P>
+   <!-- $MVD$:spaceretainer() -->&nbsp;
+ <form method="POST" action="http://www.eHelp.com/ehelpapi.asp?cmd=WebSave" name="ehelpform" target="_top">
+
+  <input type="hidden" name="data" value="2A0D020000000011020000000012020C000000496E74726F64756374696F6E130208000000454D4F532046524D150209000000696E6465782E68746D17030000000018010400000002000000702A">
+ </form></BODY>
+</HTML>

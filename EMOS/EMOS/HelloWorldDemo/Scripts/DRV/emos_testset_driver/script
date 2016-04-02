@@ -1,0 +1,34 @@
+################################################################################
+# TEST:	emos_testset_driver
+################################################################################
+# $Revision: 1.5 $
+# $Author: drajovic $
+# $Date: 2005/01/27 08:53:54 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/TPL/Scripts/DRV/emos_testset_driver/script,v $
+# $NoKeywords: $
+################################################################################
+
+#/***
+#* A simple driver for a single test set. This driver was designed to be used
+#* with TestDirector. The idea is that we could create test sets in TestDirector
+#* and replace with them the Frameworks concept of "test suite". So a test set
+#* in TestDirector could act a counterpart of one test suite. What we need to do
+#* is create automate tests within the test subject tree that all prepare the
+#* required three parameters and call this test.
+#*/
+
+static rc;
+
+if ( arg_script == "" || arg_table == "" || arg_testset == "" )
+    treturn E_ILLEGAL_PARAMETER;
+
+wrlog_set_start( arg_testset );
+FRM_close_all();
+rc = FRM_DRV_test_set_driver( 
+        arg_script, 
+        join_path( DATA_HOME, arg_table, "\\" ),
+		arg_testset );
+FRM_close_all();
+wrlog_set_stop( arg_testset, rc );
+
+treturn rc;

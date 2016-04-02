@@ -1,0 +1,1945 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i>#*TSL-LIBRARY:	EMOS_FRM_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i>#*Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i>#*modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i>#*License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i>#*version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i>#*but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i>#*MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i>#*Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i>#*License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i>#*Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#*EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#*Oskar-Messter-Straße 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#*85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#*Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#*tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#*mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#*http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i>#*$Revision: 1.7 $</font></i><font color=black>
+</font><font color="#ff0000"><i>#*$Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i>#*$Date: 2005/01/24 09:30:36 $</font></i><font color=black>
+</font><font color="#ff0000"><i>#*$Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/FRM/emos_frm_lib/script $</font></i><font color=black>
+</font><font color="#ff0000"><i>#*$NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**#</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This library provides the low-level interface to data tables. You can use the</font></i><font color=black>
+</font><font color="#ff0000"><i>#* function from this library as replacement to standard ddt-functions even if</font></i><font color=black>
+</font><font color="#ff0000"><i>#* you don't need other nice FRM feaures.&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Here we implement our own ddt-interface and add plenty of other functions which</font></i><font color=black>
+</font><font color="#ff0000"><i>#* make this interface very powerful. This library maintains a set of internal</font></i><font color=black>
+</font><font color="#ff0000"><i>#* buffers which hold the table data and numerous other information. One of the</font></i><font color=black>
+</font><font color="#ff0000"><i>#* "side-effects" (but since WR 6.0 one of the most important features) is the</font></i><font color=black>
+</font><font color="#ff0000"><i>#* ability to use the same table from more than one main test within the same </font></i><font color=black>
+</font><font color="#ff0000"><i>#* chain.&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* The most important feature of this interface is that you may also index table</font></i><font color=black>
+</font><font color="#ff0000"><i>#* rows by some unique name (very much the same as you index columns by defining</font></i><font color=black>
+</font><font color="#ff0000"><i>#* their names in the first row). For this to work the table MUST contain two</font></i><font color=black>
+</font><font color="#ff0000"><i>#* columns named "IDX" and "Name". To index a row you need to define some name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* in the Name-column and place an "x" in the IDX-column.&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* For example imagine a table "Tab.xls" with the following content:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;table border&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;th&gt;IDX&lt;/th&gt; &lt;th&gt;Name&lt;/th&gt;&lt;th&gt;a&lt;/th&gt;&lt;th&gt;b&lt;/th&gt;&lt;th&gt;c&lt;/th&gt;&lt;th&gt;d&lt;/th&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;x&lt;/td&gt; &lt;td&gt;Block1&lt;/td&gt; &lt;td&gt;1&lt;/td&gt; &lt;td&gt;2&lt;/td&gt; &lt;td&gt;3&lt;/td&gt; &lt;td&gt;4&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;1&lt;/td&gt; &lt;td&gt;1x1&lt;/td&gt; &lt;td&gt;1x2&lt;/td&gt; &lt;td&gt;1x3&lt;/td&gt; &lt;td&gt;1x4&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;2&lt;/td&gt; &lt;td&gt;1x1&lt;/td&gt; &lt;td&gt;2x2&lt;/td&gt; &lt;td&gt;3x3&lt;/td&gt; &lt;td&gt;4x4&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;x&lt;/td&gt; &lt;td&gt;Block2&lt;/td&gt; &lt;td&gt;x&lt;/td&gt; &lt;td&gt;y&lt;/td&gt; &lt;td&gt;z&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;a&lt;/td&gt; &lt;td&gt;ax&lt;/td&gt; &lt;td&gt;ay&lt;/td&gt; &lt;td&gt;az&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;b&lt;/td&gt; &lt;td&gt;bx&lt;/td&gt; &lt;td&gt;by&lt;/td&gt; &lt;td&gt;bz&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;c&lt;/td&gt; &lt;td&gt;cx&lt;/td&gt; &lt;td&gt;cy&lt;/td&gt; &lt;td&gt;cz&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;/table&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* You could use functions such as&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;code&gt;FRM_get_cell( "Tab.xls", "b", "Block1", val );&lt;/code&gt;&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* to retreive &lt;code&gt;"2"&lt;/code&gt; in variable &lt;code&gt;val&lt;/code&gt; no matter what row</font></i><font color=black>
+</font><font color="#ff0000"><i>#* used to be active before.&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* From then on you could use&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;code&gt;FRM_get_next( "Tab.xls", "b", val );&lt;/code&gt;&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* to retreive &lt;code&gt;"1x2"&lt;/code&gt; in variable &lt;code&gt;val&lt;/code&gt; and so on.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt; PUBLIC VARIABLES</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;ul&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt;&lt;b&gt;FRM_UNKNOWN&lt;/b&gt; Indicates an unknown value.&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt;&lt;b&gt;E_FRM_SKIP&lt;/b&gt; Indicates an empty table cell.&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt;&lt;b&gt;FRM_SET_MODE&lt;/b&gt; Indicates the SET modus (test data is to be entered).&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt;&lt;b&gt;FRM_CHK_MODE&lt;/b&gt; Indicates the CHECK modus (test data is to be verified).&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt;&lt;b&gt;FRM_GEN_MODE&lt;/b&gt; Indicates the GENERATE modus (test data is to be generated).&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt;&lt;b&gt;FRM_COL_IDX&lt;/b&gt; The default title of the INDEX column.&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt;&lt;b&gt;FRM_COL_NAME&lt;/b&gt; The default title of the NAME column.&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;/ul&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Indicates an unknown value. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> FRM_UNKNOWN = </font><font color="#00bb00">"???"</font><font color=black>;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Indicates an empty table cell. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> E_FRM_SKIP = -66601;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Initialization of a test block failed. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> E_FRM_INIT_BLOCK = -66602;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Initialization of a test block failed. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> E_FRM_ILLEGAL_MODE = -66603;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Test block not implemented. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> E_FRM_NOT_IMPLEMENTED = -66604;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Test block unknown. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> E_FRM_UNKNOWN = -66605;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Stop further execution of current test case. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> E_FRM_TEST_STOP = -66606;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Stop further execution of current test set. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> E_FRM_SET_STOP = -66607;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Stop further execution of current test suite. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> E_FRM_SUITE_STOP = -66608;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Continue execution of the current test case. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> E_FRM_CONTINUE = -66609;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Retry execution of the current test block. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> E_FRM_RETRY = -66610;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Indicates the SET modus (test data is to be entered). </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> FRM_SET_MODE = 1;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Indicates the CHECK modus (test data is to be verified). </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> FRM_CHK_MODE = 2;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Indicates the GENERATE modus (test data is to be generated). </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> FRM_GEN_MODE = 3;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Indicates the ATTRIBTE check modus. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> FRM_ATR_MODE = 4;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* The title of the INDEX column. This column is used to mark (x) important rows</font></i><font color=black>
+</font><font color="#ff0000"><i>#* in the data table which can be accessed through their logical name (content</font></i><font color=black>
+</font><font color="#ff0000"><i>#* of OBJECT column). </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> FRM_COL_IDX = </font><font color="#00bb00">"IDX"</font><font color=black>;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* The title of the NAME column. This column is used to define name of the</font></i><font color=black>
+</font><font color="#ff0000"><i>#* particular row. It is used in conjunction with column IDX in the way that</font></i><font color=black>
+</font><font color="#ff0000"><i>#* only the indexed rows must define the unique name. In all other rows (those</font></i><font color=black>
+</font><font color="#ff0000"><i>#* not marked in IDX column) you can put anything you want (a comment, test</font></i><font color=black>
+</font><font color="#ff0000"><i>#* data or nothing). </font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>const</b> FRM_COL_NAME = </font><font color="#00bb00">"Name"</font><font color=black>;
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Global variable containing return code of the codeb lock executed via</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &amp;lt;&amp;amp;...&amp;amp;&amp;gt; expression.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> __evalRC;
+
+</font><font color="#ff0000"><i>#____________________________________________________</font></i><font color=black>
+</font><font color="#ff0000"><i>#*local constans</font></i><font color=black>
+</font><font color="#ff0000"><i>#____________________________________________________</font></i><font color=black>
+
+<b>static</b> <b>const</b> IDX_CURROW   = 0;
+<b>static</b> <b>const</b> IDX_ROWCOUNT = 1;
+<b>static</b> <b>const</b> IDX_MODE     = 2;
+<b>static</b> <b>const</b> IDX_PARAMS   = 3;
+<b>static</b> <b>const</b> IDX_MODIFIED = 4;
+
+</font><font color="#ff0000"><i>#____________________________________________________</font></i><font color=black>
+</font><font color="#ff0000"><i>#*local variables</font></i><font color=black>
+</font><font color="#ff0000"><i>#____________________________________________________</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#*wird inkrementiert für jeden neuen FRM_open()</font></i><font color=black>
+<b>static</b> tabCount = 0;
+
+</font><font color="#ff0000"><i>#*Eindimensional, d.h. [ table ]</font></i><font color=black>
+</font><font color="#ff0000"><i>#*1. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - table:	Tabellenname</font></i><font color=black>
+<b>static</b> tabs[];
+
+</font><font color="#ff0000"><i>#*Zweidimensional, d.h. [ table, info ]</font></i><font color=black>
+</font><font color="#ff0000"><i>#*1. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - tabidx:	Tabellenindex</font></i><font color=black>
+</font><font color="#ff0000"><i>#*2. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - IDX_CURROW:	aktive Zeile</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - IDX_ROWCOUNT:	anzahl der Zeilen</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - IDX_MODE:	Modus</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - IDX_PARAMS:		Anzahl geladener Paramteres (d.h. Spalten)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - IDX_MODIFIED:	Indicates whether table was modified or not</font></i><font color=black>
+<b>static</b> tabInfo[];
+
+</font><font color="#ff0000"><i>#*Zweidimensional, d.h. [ table, info ]</font></i><font color=black>
+</font><font color="#ff0000"><i>#*1. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - tabidx:	Tabellenindex</font></i><font color=black>
+</font><font color="#ff0000"><i>#*2. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - 0..n:	Name des Paramters (Spalte) n=tabInfo[tid,IDX_PARAMS]-1</font></i><font color=black>
+<b>static</b> tabParam[];
+
+</font><font color="#ff0000"><i>#*Dreidimensional, d.h. [ table, column, [0...n] ]</font></i><font color=black>
+</font><font color="#ff0000"><i>#*1. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - tabidx:	Tabellenindex</font></i><font color=black>
+</font><font color="#ff0000"><i>#*2. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - column:	Spaltenname</font></i><font color=black>
+</font><font color="#ff0000"><i>#*3. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - 0..n:	Inhalt der einzelne Zelle im Zeile 0..n	</font></i><font color=black>
+<b>static</b> tabData[];
+
+</font><font color="#ff0000"><i>#*Zweidimensional, d.h. [ table, index ]</font></i><font color=black>
+</font><font color="#ff0000"><i>#*1. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - tabidx:	Tabellenindex</font></i><font color=black>
+</font><font color="#ff0000"><i>#*2. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - index:	Index ( Inhalt der Spalte "Objekt", </font></i><font color=black>
+</font><font color="#ff0000"><i>#*			makiert mit "x" in Spalte "IDX"</font></i><font color=black>
+<b>static</b> tabIdx[];
+
+</font><font color="#ff0000"><i>#*Zweidimensional, d.h. [ table, info ]</font></i><font color=black>
+</font><font color="#ff0000"><i>#*1. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - tabidx:	Tabellenindex</font></i><font color=black>
+</font><font color="#ff0000"><i>#*2. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - libname:	Name der geladener Bibliothek</font></i><font color=black>
+<b>static</b> tabLibs[];
+
+</font><font color="#ff0000"><i>#*Zweidimensional, d.h. [ tid, info ]</font></i><font color=black>
+</font><font color="#ff0000"><i>#*1. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - tabidx:	Tabellenindex</font></i><font color=black>
+</font><font color="#ff0000"><i>#*2. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - GUIname:	Name der geladener GUI Map</font></i><font color=black>
+<b>static</b> tabGuis[];
+
+</font><font color="#ff0000"><i>#*Zweidimensional, d.h. [ tid, info ]</font></i><font color=black>
+</font><font color="#ff0000"><i>#*1. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - "":	for global variables</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - tabidx:	Tabellenindex</font></i><font color=black>
+</font><font color="#ff0000"><i>#*2. Dimension:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* - VARname:	Name der Variable</font></i><font color=black>
+<b>static</b> tabVars[];
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Opens a data lt;table&amp;gt; and loads the desired &amp;lt;test&amp;gt;s (columns).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This routine returns the &lt;code&gt;tid&lt;/code&gt; (table ID). Unlike the ddt_</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	you have to use this id when calling other FRM functions.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param table	(in)	name of the data table</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tests	(in)	list of columns (comma-separated)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(out)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_open( <b>in</b> table, <b>in</b> tests, <b>out</b> tid, <b>in</b> nameSep )
+{
+	<b>auto</b> rc, par, val, i;
+	<b>auto</b> name, nameArr[], count;
+	<b>auto</b> params, rows;
+	
+	</font><font color="#ff0000"><i>#auto t1, t2;</font></i><font color=black>
+
+	count = split( table, nameArr, ddt_get_name_sep() );
+	<b>switch</b> (count)
+	{
+	<b>case</b> 1:
+		nameArr[1] = tolower( nameArr[1] );
+		name = nameArr[1];
+		<b>break</b>;
+	<b>case</b> 2:
+		nameArr[1] = tolower( nameArr[1] );
+		name = nameArr[1] &amp; ddt_get_name_sep() &amp; nameArr[2];
+		<b>break</b>;
+	<b>default</b>:
+		<b>return</b> E_ILLEGAL_PARAMETER;
+	}
+
+	</font><font color="#ff0000"><i># close table if already opened</font></i><font color=black>
+	FRM_close( FRM_get_tid( name ) );
+
+	rc = DDT_open_table( name );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+
+	</font><font color="#ff0000"><i># neue Tabelle registrieren</font></i><font color=black>
+	tid = tabCount++;	
+	tabs[tid] = name;
+
+	</font><font color="#ff0000"><i># Tabellenformat prüfen</font></i><font color=black>
+	rc = build_params( tid, tests );
+	<b>if</b> ( rc != E_OK )
+	{
+		DDT_close_table( name );
+		FRM_close( tid );
+		<b>return</b> rc;
+	}
+
+	</font><font color="#ff0000"><i># etwas Info speichern</font></i><font color=black>
+	ddt_get_current_row( nameArr[1], val );
+	tabInfo[tid, IDX_CURROW] = val;
+	ddt_get_row_count( nameArr[1], val );
+	tabInfo[tid, IDX_ROWCOUNT] = val;
+	tabInfo[tid, IDX_MODE] = FRM_SET_MODE;
+	tabInfo[tid, IDX_MODIFIED] = FALSE;
+
+	</font><font color="#ff0000"><i># IDX aufbauen</font></i><font color=black>
+	rc = build_idx( tid );
+	<b>if</b> ( rc != E_OK )
+	{
+		DDT_close_table( name );
+		FRM_close( tid );
+		<b>return</b> rc;
+	}
+
+	params = tabInfo[tid,IDX_PARAMS];
+	rows = tabInfo[tid,IDX_ROWCOUNT];
+</font><font color="#ff0000"><i>#*t1=get_time();</font></i><font color=black>
+	</font><font color="#ff0000"><i># interne Tabelle aufbauen</font></i><font color=black>
+	<b>for</b>( i=0; i &lt; params; i++ )
+		load_column( tid, tabParam[tid,i], rows );
+</font><font color="#ff0000"><i>#*t2=get_time();</font></i><font color=black>
+</font><font color="#ff0000"><i>#*printf( "Tabelle %s bearbeitet in %s Sekundnen", name, t2-t1 );</font></i><font color=black>
+	DDT_close_table( name );
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Loads an individual column (test) into an already opened data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param test	(in)	column name to be loaded</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_load_test( <b>in</b> tid, <b>in</b> test )
+{
+	<b>auto</b> rc, table, file, params;
+	rc = FRM_is_parameter( tid, test );
+	<b>if</b>( rc != E_NOT_PARAMETER )
+		<b>return</b> rc;
+	table = FRM_get_name( tid );
+	file = FRM_get_filename( tid );
+	rc = DDT_open_table( table );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	rc = ddt_is_parameter( file, test );
+	<b>if</b> ( rc != E_OK )
+	{
+		DDT_close_table( file );
+		<b>return</b> rc;
+	}
+	params = tabInfo[tid,IDX_PARAMS];
+	tabParam[tid,params] = test;
+	tabInfo[tid,IDX_PARAMS] = params+1;
+	rc = load_column( tid, test, tabInfo[tid,IDX_ROWCOUNT] );
+	DDT_close_table( file );
+	<b>return</b> rc;
+}
+ 
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Saves the given table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This funtion only works with WR 6.0 or higher.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_save( <b>in</b> tid )
+{
+	<b>auto</b> rc, table, file, params, par, rows, i;
+
+	<b>if</b> ( !FRM_is_modified( tid ) )
+		<b>return</b> E_OK;
+	table = FRM_get_name( tid );
+	file = FRM_get_filename( tid );
+	params = tabInfo[tid,IDX_PARAMS];
+	rows = tabInfo[tid,IDX_ROWCOUNT];
+
+	rc = DDT_open_table( table, DDT_MODE_READWRITE );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	<b>for</b>( i=0; !rc &amp;&amp; i &lt; params; i++ )
+	{
+		par = tabParam[tid,i];
+		<b>if</b> ( tabData[ tid, par, 0 ] )
+			rc = save_column( tid, par, rows );
+	}
+    <b>if</b> ( rc == E_OK )
+    {
+    	rc = ddt_save( file );
+		<b>for</b>( i=0; i &lt; params; i++ )
+		{
+		    par = tabParam[tid,i];
+			<b>if</b> ( tabData[ tid, par, 0 ] )
+				tabData[ tid, par, 0 ] = FALSE;
+		}
+    	tabInfo[ tid, IDX_MODIFIED ] = FALSE;
+    }
+	DDT_close_table( file );
+	<b>return</b> rc;
+}
+ 
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Closes the given table and frees occupied memory.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* If table was modified, it is automatically saved before closing.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param drop	(in)	(optional) TRUE: do not save changes (default: FALSE)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_close( <b>in</b> tid, <b>in</b> drop )
+{
+	<b>auto</b> i, idx, rc = 0;
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b>;
+	<b>if</b> ( !drop )
+		FRM_save( tid );
+
+	idx = tid &amp; ARRSEP;
+	<b>for</b> ( i <b>in</b> tabInfo )
+		<b>if</b> ( match (i, idx) == 1 )
+			delete tabInfo[i];
+	<b>for</b> ( i <b>in</b> tabParam )
+		<b>if</b> ( match (i, idx) == 1 )
+			delete tabParam[i];
+	<b>for</b> ( i <b>in</b> tabData )
+		<b>if</b> ( match (i, idx) == 1 )
+			delete tabData[i];
+	<b>for</b> ( i <b>in</b> tabIdx )
+		<b>if</b> ( match (i, idx) == 1 )
+			delete tabIdx[i];
+	<b>for</b> ( i <b>in</b> tabLibs )
+		<b>if</b> ( match (i, idx) == 1 )
+		{
+			unload( tabLibs[i] );
+			delete tabLibs[i];
+		}
+	<b>for</b> ( i <b>in</b> tabGuis )
+		<b>if</b> ( match (i, idx) == 1 )
+		{
+			rc = GUI_close( tabGuis[i] );
+			delete tabGuis[i];
+		}
+	<b>for</b> ( i <b>in</b> tabVars )
+		<b>if</b> ( match (i, idx) == 1 )
+			delete tabVars[i];
+	delete tabs[ tid ];
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Closes all open tables. By default it automatically saves the changes.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* You can override this by setting &amp;lt;drop&amp;gt; to TRUE.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param drop	(in)	(optional) TRUE: do not save changes (default: FALSE)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_close_all( <b>in</b> drop )
+{
+	<b>auto</b> rc, i;
+	<b>if</b> ( drop )
+	{   </font><font color="#ff0000"><i># quick close</font></i><font color=black>
+		<b>for</b> ( i <b>in</b> tabInfo )
+			delete tabInfo[i];
+		<b>for</b> ( i <b>in</b> tabParam )
+			delete tabParam[i];
+		<b>for</b> ( i <b>in</b> tabData )
+			delete tabData[i];
+		<b>for</b> ( i <b>in</b> tabIdx )
+			delete tabIdx[i];
+		<b>for</b> ( i <b>in</b> tabLibs )
+		{
+			unload( tabLibs[i] );
+			delete tabLibs[i];
+		}
+		<b>for</b> ( i <b>in</b> tabGuis )
+		{
+			rc = GUI_close( tabGuis[i] );
+			delete tabGuis[i];
+		}
+		<b>for</b> ( i <b>in</b> tabs )
+			delete tabs[i];
+	}
+	<b>else</b>
+	{
+		<b>for</b> ( i <b>in</b> tabs )
+			FRM_close( i, drop );
+	}
+	<b>for</b> ( i <b>in</b> tabVars )
+		delete tabVars[i];
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Closes all open tables except the specified ones. </font></i><font color=black>
+</font><font color="#ff0000"><i>#* By default it automatically saves the changes.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* You can override this by setting &amp;lt;drop&amp;gt; to TRUE.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param xtabs[]	(inout)	array of table names which are NOT to be closed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param drop	(in)	(optional) TRUE: do not save changes (default: FALSE)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_close_all_except( <b>inout</b> xtabs[], <b>in</b> drop )
+{
+	<b>auto</b> i, j, x, xcount;
+	<b>auto</b> count, nameArr[];
+
+	</font><font color="#ff0000"><i># make it case-insensitive + count</font></i><font color=black>
+	xcount = 0;
+	<b>for</b> ( j <b>in</b> xtabs )
+	{
+		count = split( xtabs[j], nameArr, ddt_get_name_sep() );
+		<b>switch</b> (count)
+		{
+		<b>case</b> 1:
+			xtabs[j] = tolower( nameArr[1] );
+			<b>break</b>;
+		<b>case</b> 2:
+			xtabs[j] = tolower( nameArr[1] ) &amp; ddt_get_name_sep() &amp; nameArr[2];
+			<b>break</b>;
+		}
+		xcount++;
+	}
+	<b>for</b> ( i <b>in</b> tabs )
+	{
+		x = 0;
+		<b>for</b> ( j <b>in</b> xtabs )
+		{
+			</font><font color="#ff0000"><i>#printf( "tabs[%s]=%s   xtabs[%s]=%s", i, tabs[i], j, xtabs[j] );</font></i><font color=black>
+			<b>if</b> ( tabs[i] == xtabs[j] )
+				<b>break</b>;
+			x++;
+		}
+		<b>if</b> ( x &gt;= xcount )	 </font><font color="#ff0000"><i># not found</font></i><font color=black>
+			FRM_close( i, drop );
+	}
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Reports whether a given table is open or not.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	TRUE:	table is open</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	FALSE:	table is not open</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_is_table_open( <b>in</b> table, <b>out</b> tid )
+{
+	<b>auto</b> i;
+	<b>for</b> ( i <b>in</b> tabs )
+	{
+		<b>if</b> ( tabs[i] == tolower( table ) )
+		{
+			tid = i;
+			<b>return</b> TRUE;
+		}
+	}
+	<b>return</b> FALSE;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Reports whether a given table is open or not.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	TRUE:	table is open</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	FALSE:	table is not open</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_is_open( <b>in</b> tid )
+{
+	<b>return</b> ( tid <b>in</b> tabs );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Returns the table ID of the corresponding table or empty string ("") if</font></i><font color=black>
+</font><font color="#ff0000"><i>#* table unknown.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return table ID orempty string</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_get_tid( <b>in</b> table )
+{
+	<b>auto</b> i, name;
+	name = tolower( table );
+	<b>for</b> ( i <b>in</b> tabs )
+	{
+		<b>if</b> ( name == tabs[i] )
+			<b>return</b> i;
+	}
+	<b>return</b> </font><font color="#00bb00">""</font><font color=black>;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Returns the table name of the corresponding tid or empty string ("") if</font></i><font color=black>
+</font><font color="#ff0000"><i>#* tid unknown. If sheet name was specified with FRM_open(),</font></i><font color=black>
+</font><font color="#ff0000"><i>#* then the name returned includes the sheet name (e.g. c:\tab.xsl#sheet1).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return table name (including sheet name) or empty string</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_get_name( <b>in</b> tid )
+{
+	<b>if</b> ( tid <b>in</b> tabs )
+		<b>return</b> tabs[ tid ];
+	<b>return</b> </font><font color="#00bb00">""</font><font color=black>;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Returns the table name of the corresponding tid or empty string ("") if</font></i><font color=black>
+</font><font color="#ff0000"><i>#* tid unknown. This function ensures that the sheet name is NOT returned.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* For example if FRM_open("c:\tab.xsl#sheet1") was specified, then</font></i><font color=black>
+</font><font color="#ff0000"><i>#* only "c:\tab.xsl" is returned.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return table name (not including sheet name) or empty string</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_get_filename( <b>in</b> tid )
+{
+	<b>auto</b> nameArr[];
+	<b>if</b> ( tid <b>in</b> tabs )
+	{
+		split(tabs[ tid ], nameArr, ddt_get_name_sep() );
+		<b>return</b> nameArr[1];
+	}
+	<b>return</b> </font><font color="#00bb00">""</font><font color=black>;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Reports whether a given table is modified or not.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	TRUE:	table is modified</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	FALSE:	table is not modified</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_is_modified( <b>in</b> tid )
+{
+	<b>if</b> ( FRM_is_open( tid ) &amp;&amp; tabInfo[ tid, IDX_MODIFIED ] )
+		<b>return</b> TRUE;
+	<b>return</b> FALSE;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Positions the focus to the row specified by its name &amp;lt;idx&amp;gt;. If successful,</font></i><font color=black>
+</font><font color="#ff0000"><i>#* the &amp;lt;row&amp;gt; number is returned.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt; NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* The row must be indexed.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param idx	(in)	row name/index</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param row	(out)	row number</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_idx( <b>in</b> tid, <b>in</b> idx, <b>out</b> row )
+{
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b> E_FILE_NOT_OPEN;
+	<b>if</b> ( !((tid,idx) <b>in</b> tabIdx) )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+	row = tabIdx[tid, idx];
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Loads a library &amp;lt;lib&amp;gt; in scope of the specified &amp;lt;tid&amp;gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* If table is closed, all libraries in its scope are automatically unloaded.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param lib	(in)	library name (full path)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param p1	(in)	(optional) first parameter to underlying reload statement</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param p2	(in)	(optional) second parameter to underlying reload statement</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_load_lib( <b>in</b> tid, <b>in</b> lib, <b>in</b> p1, <b>in</b> p2 )
+{
+	<b>auto</b> rc;
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b> E_FILE_NOT_OPEN;
+	<b>if</b> ( (tid,lib) <b>in</b> tabLibs )
+		<b>return</b> E_OK; </font><font color="#ff0000"><i># schon geladen</font></i><font color=black>
+	rc = reload( lib, (p1==</font><font color="#00bb00">""</font><font color=black>?0:p1), (p2==</font><font color="#00bb00">""</font><font color=black>?0:p2) );
+	<b>if</b> ( rc ) 
+		<b>return</b> rc;
+	tabLibs[tid,lib]=lib;
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Loads a GUI map &amp;lt;gui&amp;gt; in scope of the specified &amp;lt;tid&amp;gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* If table is closed, all GUI maps in its scope are automatically unloaded.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param gui	(in)	GUI map name (full path)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_load_gui( <b>in</b> tid, <b>in</b> gui )
+{
+	<b>auto</b> rc;
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b> E_FILE_NOT_OPEN;
+	<b>if</b> ( (tid,gui) <b>in</b> tabGuis )
+		<b>return</b> E_OK; </font><font color="#ff0000"><i># schon geladen</font></i><font color=black>
+	rc = load_GUI( gui );
+	<b>if</b> ( rc ) 
+		<b>return</b> rc;
+	tabGuis[tid,gui]=gui;
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Allocates a new or overwrites an existing variable &amp;lt;var&amp;gt; </font></i><font color=black>
+</font><font color="#ff0000"><i>#* with the initial value &amp;lt;val&amp;gt;. A scope of the variable depends on the</font></i><font color=black>
+</font><font color="#ff0000"><i>#* given &amp;lt;tid&amp;gt; name. </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* If it equals to "" the scope of the variable is is Frame-global.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Otherwise the variable has table-scope. If table is closed, all variables in </font></i><font color=black>
+</font><font color="#ff0000"><i>#* its scope are automatically unloaded. Global varables are unloaded only with</font></i><font color=black>
+</font><font color="#ff0000"><i>#* FRM_close_all().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID (scope) or "" for global variables</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param var	(in)	variable name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param val	(in)	value to be saved</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_setvar( <b>in</b> tid, <b>in</b> var, <b>in</b> val )
+{
+	<b>auto</b> rc;
+	<b>if</b> ( tid == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		tabVars[ </font><font color="#00bb00">""</font><font color=black>, var ] = val;
+		<b>return</b> E_OK;
+	}
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b> E_FILE_NOT_OPEN;
+	tabVars[tid,var] = val;
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Retrieves the value of a given FRM variable &amp;lt;var&amp;gt;. </font></i><font color=black>
+</font><font color="#ff0000"><i>#* A scope of the variable depends on the given &amp;lt;tid&amp;gt; name. </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* If it equals to "" the scope of the variable is is Frame-global.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Otherwise the variable has table-scope. If table is closed, all variables in </font></i><font color=black>
+</font><font color="#ff0000"><i>#* its scope are automatically unloaded. Global varables are unloaded only with</font></i><font color=black>
+</font><font color="#ff0000"><i>#* FRM_close_all().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID (scope) or "" for global variables</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param var	(in)	variable name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param val	(out)	value retrieved</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_getvar( <b>in</b> tid, <b>in</b> var, <b>out</b> val )
+{
+	<b>auto</b> rc;
+	<b>if</b> ( tid == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		<b>if</b> ( (</font><font color="#00bb00">""</font><font color=black>,var) <b>in</b> tabVars )
+		{
+			val = tabVars[ </font><font color="#00bb00">""</font><font color=black>, var ];
+			<b>return</b> E_OK;
+		}
+		<b>return</b> E_NOT_FOUND;
+	}
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b> E_FILE_NOT_OPEN;
+	<b>if</b> ( (tid,var) <b>in</b> tabVars )
+	{
+		val = tabVars[ tid, var ];
+		<b>return</b> E_OK;
+	}
+	<b>return</b> E_NOT_FOUND;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Returns the active frame mode.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	currently active mode (FRM_SET_MODE/FRM_CHK_MODE/FRM_ATR_MODE/FRM_GEN_MODE) or</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_FILE_NOT_OPEN: table not open</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_get_mode ( <b>in</b> tid )
+{
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b> E_FILE_NOT_OPEN;
+	<b>return</b> tabInfo[ tid,IDX_MODE ];
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Sets the active frame mode.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param mode	(in)	either FRM_SET_MODE, FRM_CHK_MODE, FRM_ATR_MODE or FRM_GEN_MODE</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:					mode successfully set</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_FILE_NOT_OPEN:		table not open</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_ILLEGAL_PARAMETER:	invalid mode (mode unchanged)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_set_mode ( <b>in</b> tid, <b>in</b> mode )
+{
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b> E_FILE_NOT_OPEN;
+	<b>switch</b> ( mode )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+	<b>case</b> FRM_ATR_MODE:
+	<b>case</b> FRM_GEN_MODE:
+		tabInfo[ tid,IDX_MODE ] = mode;
+		<b>return</b> E_OK;
+	<b>default</b>:
+		<b>return</b> E_ILLEGAL_PARAMETER;
+	}
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Convert the given &lt;code&gt;mode&lt;/code&gt; from one representation to another</font></i><font color=black>
+</font><font color="#ff0000"><i>#* (string2code and code2string). If none of the conversion succeeds, the</font></i><font color=black>
+</font><font color="#ff0000"><i>#* the unchanged value is returned.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param mode (in)	mode to be converted (either format)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return converted mode or unchanged value if no conversion possible</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_convert_mode( <b>in</b> mode )
+{
+	<b>auto</b> m;
+	<b>switch</b> ( toupper(mode) )
+	{
+    	<b>case</b> FRM_SET_MODE: m = </font><font color="#00bb00">"SET"</font><font color=black>; <b>break</b>;
+	    <b>case</b> FRM_CHK_MODE: m = </font><font color="#00bb00">"CHK"</font><font color=black>; <b>break</b>;
+	    <b>case</b> FRM_ATR_MODE: m = </font><font color="#00bb00">"ATR"</font><font color=black>; <b>break</b>;
+	    <b>case</b> FRM_GEN_MODE: m = </font><font color="#00bb00">"GEN"</font><font color=black>; <b>break</b>;
+    	<b>case</b> </font><font color="#00bb00">"SET"</font><font color=black>: m = FRM_SET_MODE; <b>break</b>;
+	    <b>case</b> </font><font color="#00bb00">"CHK"</font><font color=black>: m = FRM_CHK_MODE; <b>break</b>;
+	    <b>case</b> </font><font color="#00bb00">"ATR"</font><font color=black>: m = FRM_ATR_MODE; <b>break</b>;
+	    <b>case</b> </font><font color="#00bb00">"GEN"</font><font color=black>: m = FRM_GEN_MODE; <b>break</b>;
+        <b>default</b>: m = mode;
+	}
+	<b>return</b> m;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Indicates whether the cell in the next row contains data or not. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param test	(in)	test (column) name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	TRUE:	next row contains data</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	FALSE:	next row contains no data</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_has_next ( <b>in</b> tid, <b>in</b> test )
+{
+	<b>auto</b> rc;
+	<b>auto</b> row, val;
+	rc = FRM_get_current_row ( tid, row );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> FALSE;
+	rc = FRM_get( tid, test, val, row+1 );
+	<b>if</b> ( rc == E_OK )
+		<b>return</b> TRUE;
+	<b>return</b> FALSE;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Returns the content of the cell from the given column (&lt;code&gt;test&lt;/code&gt;) </font></i><font color=black>
+</font><font color="#ff0000"><i>#* and the row following the currently active row.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* A cell which is supposed to be ignored (an empy cell, a cell that contains no</font></i><font color=black>
+</font><font color="#ff0000"><i>#* data), is indicated with E_FRM_SKIP. If an empty string ("") needs to be used</font></i><font color=black>
+</font><font color="#ff0000"><i>#* as test data, then the cell must contain one of the following two strings </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &amp;lt;&amp;lt;cler&amp;gt;&amp;gt; or &amp;lt;&amp;lt;leer&amp;gt;&amp;gt; (including angle brackets).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This routine modifies the currently active row. It does this before fetching</font></i><font color=black>
+</font><font color="#ff0000"><i>#* the value. If an attemp is made to fatch the value beyond the last row,</font></i><font color=black>
+</font><font color="#ff0000"><i>#* E_OUT_OF_RANGE is returned.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param test	(in)	test (column) name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param val	(out)	the fetched value</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:			operation successful, value returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_FRM_SKIP:		operation successful, no value returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	anything else:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_get_next ( <b>in</b> tid, <b>in</b> test, <b>out</b> val )
+{
+	<b>auto</b> rc;
+	val = FRM_UNKNOWN;
+	rc = FRM_next_row( tid );
+	<b>if</b> ( rc != E_OK )
+	{
+		<b>return</b> FRM_rc( rc, </font><font color="#00bb00">"FRM_get_next"</font><font color=black>, tid, test, val );
+	}
+	<b>return</b> FRM_get( tid, test, val );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Returns the content of the cell specified by the given row (&lt;code&gt;idx&lt;/code&gt;) </font></i><font color=black>
+</font><font color="#ff0000"><i>#* and column (&lt;code&gt;test&lt;/code&gt;) names.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* A cell which is supposed to be ignored (an empy cell, a cell that contains no</font></i><font color=black>
+</font><font color="#ff0000"><i>#* data), is indicated with E_FRM_SKIP. If an empty string ("") needs to be used</font></i><font color=black>
+</font><font color="#ff0000"><i>#* as test data, then the cell must contain one of the following two strings </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &amp;lt;&amp;lt;cler&amp;gt;&amp;gt; or &amp;lt;&amp;lt;leer&amp;gt;&amp;gt; (including angle brackets).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* For this to work the &amp;lt;idx&amp;gt; must be the content of some row in </font></i><font color=black>
+</font><font color="#ff0000"><i>#* FRM_COL_NAME marked with "x" in FRM_COL_IDX.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param test	(in)	test (column) name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param idx	(in)	row name (index)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param val	(out)	the fetched value</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:			operation successful, value returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_FRM_SKIP:		operation successful, no value returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	anything else:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_get_cell ( <b>in</b> tid, <b>in</b> test, <b>in</b> idx, <b>out</b> val )
+{
+	<b>auto</b> rc, row;
+	rc = FRM_idx( tid, idx, row );
+	<b>if</b> ( rc ) <b>return</b> rc;
+	<b>return</b> FRM_get( tid, test, val, row );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Returns the content of the cell specified by the given column name and,</font></i><font color=black>
+</font><font color="#ff0000"><i>#* optionally, with the row number.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* A cell which is supposed to be ignored (an empy cell, a cell that contains no</font></i><font color=black>
+</font><font color="#ff0000"><i>#* data), is indicated with E_FRM_SKIP. If an empty string ("") needs to be used</font></i><font color=black>
+</font><font color="#ff0000"><i>#* as test data, then the cell must contain one of the following two strings </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &amp;lt;&amp;lt;cler&amp;gt;&amp;gt; or &amp;lt;&amp;lt;leer&amp;gt;&amp;gt; (including angle brackets).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* If &lt;code&gt;row&lt;/code&gt; is not defined, the current row is used.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param test	(in)	test (column) name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param val	(out)	the fetched value</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param row	(in)	(optional) row number (default: current row)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:			operation successful, value returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_FRM_SKIP:		operation successful, no value returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	anything else:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_get ( <b>in</b> tid, <b>in</b> test, <b>out</b> val, <b>in</b> row )
+{
+	<b>auto</b> rc;
+	rc = FRM_is_parameter( tid, test );
+	<b>if</b> ( rc != E_OK ) <b>return</b> rc;
+	<b>if</b> ( row*1 == 0 )  </font><font color="#ff0000"><i># parameter nicht vorhanden</font></i><font color=black>
+	{
+		val = tabData[tid, test, tabInfo[tid, IDX_CURROW]];
+	}
+	<b>else</b>
+	{
+		rc = FRM_is_row( tid, row );
+		<b>if</b> ( rc != E_OK ) <b>return</b> rc; 
+		val = tabData[tid, test, row*1];
+	}
+	<b>return</b> FRM_parse_val( tid, val );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Parses the given value and substitutes FRM keywords.
+#* If val is empty, then E_FRM_SKIP is returned and val is left unchanged.
+#* @param tid	(in)	table ID
+#* @param val	(inout) value to be parsed; eventually modifiedd by parsing
+#* @return E_OK + val in case of succesful parsing; E_FRM_SKIP in case of
+#* empty val
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_parse_val( <b>in</b> tid, <b>inout</b> val )
+{
+	<b>extern</b> __evalRC;
+	<b>extern</b> RSTART, RLENGTH;
+	<b>auto</b> t1, t2, t3;
+
+	<b>if</b> ( val == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		<b>return</b> E_FRM_SKIP;
+	}
+	<b>if</b> ( match( val, </font><font color="#00bb00">"&lt;"</font><font color=black> ) )
+	{
+		<b>if</b> ( match( val, </font><font color="#00bb00">"&lt;&lt;[Ll][Ee][Ee][Rr]&gt;&gt;"</font><font color=black> ) )
+		{
+			val = </font><font color="#00bb00">""</font><font color=black>;
+			<b>return</b> E_OK;
+		}
+		<b>if</b> ( match( val, </font><font color="#00bb00">"&lt;&lt;[Cc][Ll][Ee][Aa][Rr]&gt;&gt;"</font><font color=black> ) )
+		{
+			val = </font><font color="#00bb00">""</font><font color=black>;
+			<b>return</b> E_OK;
+		}
+		<b>while</b>( match( val, </font><font color="#00bb00">"&lt;&lt;[Tt][Aa][Bb]&gt;&gt;"</font><font color=black> ) ) </font><font color="#ff0000"><i># tabulator</font></i><font color=black>
+		{
+			t1 = (RSTART&gt;1 ? substr( val, 1, RSTART-1 ) : </font><font color="#00bb00">""</font><font color=black> );
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 &amp; </font><font color="#00bb00">"\t"</font><font color=black> &amp; t3;
+		}
+		<b>while</b>( match( val, </font><font color="#00bb00">"&lt;$..*$&gt;"</font><font color=black> ) ) </font><font color="#ff0000"><i># FRM global-scope variable</font></i><font color=black>
+		{
+			t1 = (RSTART&gt;1 ? substr( val, 1, RSTART-1 ) : </font><font color="#00bb00">""</font><font color=black> );
+			FRM_getvar( </font><font color="#00bb00">""</font><font color=black>, substr( val, RSTART+2, RLENGTH-4 ), t2 );
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 &amp; t2 &amp; t3;
+		}
+		<b>while</b>( match( val, </font><font color="#00bb00">"&lt;#..*#&gt;"</font><font color=black> ) ) # FRM table-scope variable
+		{
+			t1 = (RSTART&gt;1 ? substr( val, 1, RSTART-1 ) : </font><font color="#00bb00">""</font><font color=black> );
+			FRM_getvar( tid, substr( val, RSTART+2, RLENGTH-4 ), t2 );
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 &amp; t2 &amp; t3;
+		}
+		<b>while</b>( match( val, </font><font color="#00bb00">"&lt;%..*%&gt;"</font><font color=black> ) ) </font><font color="#ff0000"><i># environment variable</font></i><font color=black>
+		{
+			t1 = (RSTART&gt;1 ? substr( val, 1, RSTART-1 ) : </font><font color="#00bb00">""</font><font color=black> );
+			t2 = getenv( substr( val, RSTART+2, RLENGTH-4 ) );
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 &amp; t2 &amp; t3;
+		}
+		<b>while</b>( match( val, </font><font color="#00bb00">"&lt;!..*!&gt;"</font><font color=black> ) ) </font><font color="#ff0000"><i># WinRunner variable</font></i><font color=black>
+		{
+			t1 = (RSTART&gt;1 ? substr( val, 1, RSTART-1 ) : </font><font color="#00bb00">""</font><font color=black> );
+			t2 = getvar( substr( val, RSTART+2, RLENGTH-4 ) );
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 &amp; t2 &amp; t3;
+		}
+		<b>while</b>( match( val, </font><font color="#00bb00">"&lt;&amp;..*&amp;&gt;"</font><font color=black> ) ) </font><font color="#ff0000"><i># arbitrary code (eval)</font></i><font color=black>
+		{
+			t1 = (RSTART&gt;1 ? substr( val, 1, RSTART-1 ) : </font><font color="#00bb00">""</font><font color=black> );
+			<b>eval</b>( </font><font color="#00bb00">"__evalRC = "</font><font color=black> &amp; substr( val, RSTART+2, RLENGTH-4 ) &amp; </font><font color="#00bb00">";"</font><font color=black> ); 
+			t2 = __evalRC;
+			t3 = substr( val, RSTART+RLENGTH );
+			val = t1 &amp; t2 &amp; t3;
+		}
+	}
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Saves the given value (&lt;code&gt;val&lt;/code&gt;) in the cell specified by the column</font></i><font color=black>
+</font><font color="#ff0000"><i>#* name (&lt;code&gt;test&lt;/code&gt;) and, optinally, the &lt;code&gt;row&lt;/code&gt; number.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* The change is not made permanent yet. You must call FRM_save() in order</font></i><font color=black>
+</font><font color="#ff0000"><i>#* to transfer your changes back to the Excel table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param val	(in)	value to be saved</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param row	(in)	(optional) row number (default: current row)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*E_OK:		operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*!E_OK:		operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_set ( <b>in</b> tid, <b>in</b> test, <b>in</b> val, <b>in</b> row )
+{
+	<b>auto</b> rc, r;
+	rc = FRM_is_parameter( tid, test );
+	<b>if</b> ( rc != E_OK ) <b>return</b> rc;
+	
+	<b>if</b> ( row*1 == 0 )
+	{
+		r = tabInfo[tid, IDX_CURROW];
+	}
+	<b>else</b>
+	{
+		rc = FRM_is_row( tid, row );
+		<b>if</b> ( rc != E_OK ) <b>return</b> rc; 
+		r=row*1;
+	}
+	tabData[tid, test, r] = val;
+	</font><font color="#ff0000"><i># update modification flags</font></i><font color=black>
+	tabInfo[tid, IDX_MODIFIED] = TRUE;   </font><font color="#ff0000"><i># table-level</font></i><font color=black>
+	tabData[tid, test, 0] = TRUE;        </font><font color="#ff0000"><i># column-level</font></i><font color=black>
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Returns a two-dimensional block from the table as array. </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* To define a block in the test table you must format it in a special way.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* An example of one such table follows.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;table border&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;th&gt;IDX&lt;/th&gt; &lt;th&gt;Name&lt;/th&gt;&lt;th&gt;a&lt;/th&gt;&lt;th&gt;b&lt;/th&gt;&lt;th&gt;c&lt;/th&gt;&lt;th&gt;d&lt;/th&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;x&lt;/td&gt; &lt;td&gt;Block1&lt;/td&gt; &lt;td&gt;1&lt;/td&gt; &lt;td&gt;2&lt;/td&gt; &lt;td&gt;3&lt;/td&gt; &lt;td&gt;4&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;1&lt;/td&gt; &lt;td&gt;1x1&lt;/td&gt; &lt;td&gt;1x2&lt;/td&gt; &lt;td&gt;1x3&lt;/td&gt; &lt;td&gt;1x4&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;2&lt;/td&gt; &lt;td&gt;1x1&lt;/td&gt; &lt;td&gt;2x2&lt;/td&gt; &lt;td&gt;3x3&lt;/td&gt; &lt;td&gt;4x4&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;&amp;lt;&amp;lt;END&amp;gt;&amp;gt&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;x&lt;/td&gt; &lt;td&gt;Block2&lt;/td&gt; &lt;td&gt;x&lt;/td&gt; &lt;td&gt;y&lt;/td&gt; &lt;td&gt;z&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;a&lt;/td&gt; &lt;td&gt;ax&lt;/td&gt; &lt;td&gt;ay&lt;/td&gt; &lt;td&gt;az&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;b&lt;/td&gt; &lt;td&gt;bx&lt;/td&gt; &lt;td&gt;by&lt;/td&gt; &lt;td&gt;bz&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;c&lt;/td&gt; &lt;td&gt;cx&lt;/td&gt; &lt;td&gt;cy&lt;/td&gt; &lt;td&gt;cz&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;&amp;lt;&amp;lt;END&amp;gt;&amp;gt&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;/table&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* </font></i><font color=black>
+</font><font color="#ff0000"><i>#* </font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param idx	(in)	block index</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param x	(out)	nomber of columns</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param y	(out)	number of rows</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param arr[]	(out)	values</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation succesfull, values returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_get_block ( <b>in</b> tid, <b>in</b> idx, <b>out</b> x, <b>out</b> y, <b>out</b> arr[] )
+{
+	<b>auto</b> rc, row, params, param[], count, val, i;
+	rc = FRM_idx( tid, idx, row );
+	<b>if</b> ( rc ) <b>return</b> rc;
+	rc = FRM_get_parameters( tid, params, count );
+	<b>if</b> ( rc ) <b>return</b> rc;
+	rc = FRM_get( tid, FRM_COL_NAME, val, row );
+	<b>if</b> ( rc ) <b>return</b> rc;
+
+	arr[0,0] = val;
+	count = split( params, param, </font><font color="#00bb00">"\t"</font><font color=black> );
+	<b>for</b>( x=1; x&lt;=count; x++ )
+	{
+		val = FRM_val_by_row( tid, row, param[x] );
+		<b>if</b> ( val == </font><font color="#00bb00">""</font><font color=black> )
+			<b>break</b>;
+		arr[0,x] = val;
+	}
+	y=1;
+	<b>while</b>( 1 )
+	{
+		row++;
+		rc = FRM_get( tid, FRM_COL_NAME, val, row );
+		<b>if</b> ( rc != E_OK &amp;&amp; rc != E_FRM_SKIP )
+			<b>break</b>;
+		<b>if</b> ( rc == E_FRM_SKIP )
+			val = </font><font color="#00bb00">""</font><font color=black>;
+		<b>if</b> ( match( val, </font><font color="#00bb00">"&lt;&lt;[Ee][Nn][Dd][Ee]*&gt;&gt;"</font><font color=black> ) &gt; 0 )
+			<b>break</b>;
+		arr[y,0] = val;
+		<b>for</b>( i=1; i&lt;=count; i++ )
+		{
+			val = FRM_val_by_row( tid, row, param[i] );
+			arr[y,i] = val;
+		}
+		y++;
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Executes the content of the next cell.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param rows	(in)	column name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_exec ( <b>in</b> tid, <b>in</b> test )
+{
+	<b>auto</b> val, cmd[], count, i;
+	<b>auto</b> rc = FRM_get_next( tid, test, val );
+	<b>switch</b> ( rc ) 
+	{
+	<b>case</b> E_OK:			<b>break</b>;
+	<b>case</b> E_FRM_SKIP:	<b>return</b> E_OK;
+	<b>default</b>:			<b>return</b> rc;
+	}
+	count = split( val, cmd, </font><font color="#00bb00">";"</font><font color=black> );
+	<b>for</b>( i=1; i&lt;=count; i++ )
+		<b>eval</b>( cmd[i] &amp; </font><font color="#00bb00">";"</font><font color=black> );
+}
+
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Skips the given number of rows. </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* If &lt;code&gt;rows&lt;/code&gt; is not given, one row is skipped. Therefore </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;code&gt;FRM_skip( tab );&lt;/code&gt; is equivalent to &lt;code&gt;FRM_skip( tab, 1 );&lt;/code&gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;code&gt;FRM_skip( tab, 0 );&lt;/code&gt; also skips to next row because 0 is taken as</font></i><font color=black>
+</font><font color="#ff0000"><i>#* the equivalent for "not given".</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* If &lt;code&gt;rows&lt;/code&gt; is negative, the function skips backwards. Therefore </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;code&gt;FRM_skip( tab, -3 );&lt;/code&gt; jumps for example from row 15 to row 12.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param rows	(in)	(optional) number of rows to skip, negative skips backwards</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OUT_OF_RANGE:	skip beyond table bounaries attempted</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!anything else:	other failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_skip ( <b>in</b> tid, <b>in</b> rows )
+{
+	<b>switch</b> ( FRM_get_mode( tid ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+	<b>case</b> FRM_ATR_MODE:
+	<b>case</b> FRM_GEN_MODE:
+		<b>return</b> FRM_SET_skip( tid, rows );
+</font><font color="#ff0000"><i>#*case FRM_GEN_MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	return FRM_GEN_skip( tid, rows );</font></i><font color=black>
+	<b>default</b>:
+		<b>return</b> !E_OK;
+	}
+}
+
+<b>static</b> <b>function</b> FRM_SET_skip ( <b>in</b> tid, <b>in</b> rows )
+{
+	<b>auto</b> rc, curr_row;
+
+	<b>if</b> ( rows*1 == 0 )
+	{
+		<b>return</b> FRM_next_row( tid );
+	}
+	rc = FRM_get_current_row( tid, curr_row );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	<b>else</b>
+		<b>return</b> FRM_set_row( tid, curr_row + rows );
+}
+
+<b>static</b> <b>function</b> FRM_GEN_skip ( <b>in</b> tid, <b>in</b> rows )
+{
+	FRM_GEN_print( tid );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Performs the initialisation for the given test block.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE&lt;br&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Important change since version 6.02.01.00: mode sent as parameter to</font></i><font color=black>
+</font><font color="#ff0000"><i>#* this function takes presedence over the mode of the test block header.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param test	(in)	column name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param idx	(in)	block name (row index)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param mode	(in)	(optional) frame mode (default: FRM_SET_MODE)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:		success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_FRM_SKIP:	block schould be ignored (valid only for FRM_GEN_MODE)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_FRM_INIT_BLOCK:	idx not found</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  E_FRM_ILLEGAL_PARAMETER: idx found but mode could not be set</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_init_block ( <b>in</b> tid, <b>in</b> test, <b>in</b> idx, <b>inout</b> mode )
+{
+	<b>auto</b> rc, row, block, m;
+	<b>if</b> ( FRM_idx( tid, idx, row )
+	  || FRM_set_row( tid, row )
+	  || FRM_get( tid, FRM_COL_NAME, block ) )
+	{
+		<b>return</b> E_FRM_INIT_BLOCK;
+	}
+    </font><font color="#ff0000"><i># if mode parameter unspecified, then try to determine</font></i><font color=black>
+    </font><font color="#ff0000"><i># the mode from the header cell of the test block</font></i><font color=black>
+    <b>if</b> ( mode == </font><font color="#00bb00">""</font><font color=black> )
+    {
+    	rc = FRM_get( tid, test, m );
+    	<b>if</b> ( rc != E_OK &amp;&amp; rc != E_FRM_SKIP )
+    	{
+    		<b>return</b> E_FRM_INIT_BLOCK;
+    	}
+    	</font><font color="#ff0000"><i># if mode unspecified in both the parameter and</font></i><font color=black>
+    	</font><font color="#ff0000"><i># test block header, then use SET mode as default</font></i><font color=black>
+    	<b>if</b> ( rc == E_FRM_SKIP )
+    	{
+    		mode = FRM_SET_MODE;
+        }
+        </font><font color="#ff0000"><i># otherwise convert known modes to internal flags</font></i><font color=black>
+    	<b>else</b>
+    	{
+    		<b>switch</b> ( toupper( m ) )
+    		{
+    		<b>case</b> </font><font color="#00bb00">"SET"</font><font color=black>: mode = FRM_SET_MODE; <b>break</b>;
+	    	<b>case</b> </font><font color="#00bb00">"CHK"</font><font color=black>: mode = FRM_CHK_MODE; <b>break</b>;
+	    	<b>case</b> </font><font color="#00bb00">"ATR"</font><font color=black>: mode = FRM_ATR_MODE; <b>break</b>;
+		    <b>case</b> </font><font color="#00bb00">"GEN"</font><font color=black>: mode = FRM_GEN_MODE; <b>break</b>;
+            <b>default</b>:    mode = m;
+    		}
+        }
+	}
+	</font><font color="#ff0000"><i># GEN mode requires special treatment</font></i><font color=black>
+	<b>if</b> ( mode == FRM_GEN_MODE )
+	{
+		rc = pause_test( </font><font color="#00bb00">"Process block &#92;&#34;"</font><font color=black> &amp; idx &amp; </font><font color="#00bb00">"&#92;&#34; in GEN mode?"</font><font color=black>,
+		                 </font><font color="#00bb00">"&amp;Yes"</font><font color=black>, </font><font color="#00bb00">"&amp;No"</font><font color=black> );
+		<b>if</b> ( rc == 1 )
+			<b>return</b> E_FRM_SKIP;
+	}
+    </font><font color="#ff0000"><i># now try to set the mode</font></i><font color=black>
+	rc = FRM_set_mode( tid, mode );
+    wrlog_block_data( </font><font color="#00bb00">"MODE"</font><font color=black>, FRM_convert_mode( mode ) );
+	<b>tl_step</b>( block, rc, </font><font color="#00bb00">"Block initialised in mode: "</font><font color=black> &amp; FRM_convert_mode( mode ) );
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* In case of &amp;lt;rc&amp;gt; != E_OK this function formats an &lt;code&gt;tl_step&lt;/code&gt;-message</font></i><font color=black>
+</font><font color="#ff0000"><i>#* from the given parameters. It automatically determines the current row number</font></i><font color=black>
+</font><font color="#ff0000"><i>#* in the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param rc	(in)	return code to be evaluated</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param obj	(in)	logical name of the affected GUI-object</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	tid of the affected data table</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param test	(in)	name of the test case from &amp;lt;tid&amp;gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param val	(in)	content of the affected cell from &amp;lt;tid&amp;gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_rc ( <b>in</b> rc, <b>in</b> func, <b>in</b> tid, <b>in</b> test, <b>in</b> val, <b>in</b> obj )
+{
+	<b>auto</b> row = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> name = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> mode = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> msg;
+	
+	FRM_get_current_row( tid, row );
+	name = FRM_val( tid, FRM_COL_NAME );
+	mode = FRM_convert_mode( FRM_get_mode( tid ) );
+
+   	msg = sprintf( </font><font color="#00bb00">"[%d] %s (%s) &lt;%s&gt;"</font><font color=black>, row+1, name, mode, val );
+   	<b>report_msg</b>( msg );
+
+	<b>if</b> ( rc == E_OK )
+	{
+</font><font color="#ff0000"><i>#		FRM_debug_obj_info( obj );</font></i><font color=black>
+</font><font color="#ff0000"><i>#		FRM_debug_short_call_chain( 2 );</font></i><font color=black>
+	}
+	<b>else</b>
+	{
+		<b>tl_step</b>( sprintf(</font><font color="#00bb00">"ERROR=%s"</font><font color=black>, rc), rc, msg );
+		<b>if</b> ( err_is_error( rc ) )
+		{
+			err_perror( rc );
+		}
+</font><font color="#ff0000"><i>#		FRM_debug_obj_info( obj );</font></i><font color=black>
+</font><font color="#ff0000"><i>#	    FRM_debug_full_call_chain( 2 );</font></i><font color=black>
+		pause( sprintf( </font><font color="#00bb00">"ERROR=%s: %s"</font><font color=black>, rc, msg ) );
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* In case of &amp;lt;rc&amp;gt; != E_OK this function formats an &lt;code&gt;tl_step&lt;/code&gt;-message</font></i><font color=black>
+</font><font color="#ff0000"><i>#* from the given parameters. It automatically determines the current row number</font></i><font color=black>
+</font><font color="#ff0000"><i>#* in the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param rc	(in)	return code to be evaluated</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param msg	(in)	message content</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param title	(in)	[optional] message title (default: "MSG")</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return echoed input variable &lt;code&gt;rc&lt;/code&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_rc2 ( <b>in</b> rc, <b>in</b> msg, <b>in</b> title )
+{
+    <b>auto</b> func;
+    <b>auto</b> tit = (title==</font><font color="#00bb00">""</font><font color=black> ? </font><font color="#00bb00">"MSG"</font><font color=black> : title );
+
+    wrlog_prim_data( tit, msg );
+	<b>if</b> ( rc == E_OK )
+	{
+		FRM_log_short_call_chain( 2 );
+	}
+	<b>else</b>
+	{
+	    call_chain_get_attr( </font><font color="#00bb00">"function"</font><font color=black>, 1, func );
+	    <b>tl_step</b>( func, rc, sprintf( </font><font color="#00bb00">"%s=[%s] rc=[%s]"</font><font color=black>, tit, msg, rc ) );
+		<b>if</b> ( err_is_error( rc ) )
+		{
+			wrlog_prim_data( </font><font color="#00bb00">"ERROR"</font><font color=black>, err_perror( rc ) );
+		}
+		<b>if</b> ( get_log_call_level() &gt; 0 )
+		{
+		    FRM_log_full_call_chain( 2 );
+		}
+		pause( sprintf( </font><font color="#00bb00">"ERROR rc=[%s] %s=%s"</font><font color=black>, rc, tit, msg ) );
+	}
+	<b>return</b> rc;
+}
+
+<b>public</b> <b>function</b> FRM_log_frm_info( <b>in</b> tid, <b>in</b> test, <b>in</b> val )
+{
+	<b>auto</b> row = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> name = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> mode = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> msg;
+	
+	FRM_get_current_row( tid, row );
+	name = FRM_val( tid, FRM_COL_NAME );
+	mode = FRM_convert_mode( FRM_get_mode( tid ) );
+	
+    wrlog_prim_frm_info( tid, test, row, name, mode, val );
+   	debug_msg( sprintf( </font><font color="#00bb00">"[%d] %s (%s) &lt;%s&gt;"</font><font color=black>, row+1, name, mode, val ) );
+}
+
+<b>public</b> <b>function</b> FRM_log_obj_info( <b>in</b> obj )
+{
+    <b>auto</b> rc, msg;
+    <b>auto</b> win, desc, file, class;
+    
+    <b>if</b> ( obj == </font><font color="#00bb00">""</font><font color=black> )
+        <b>return</b>;
+    win = GUI_get_window();
+    <b>if</b> ( obj == win )
+    {
+        GUI_map_get_desc( win, </font><font color="#00bb00">""</font><font color=black>, desc, file );
+        GUI_buf_get_desc_attr( file, win, </font><font color="#00bb00">""</font><font color=black>, </font><font color="#00bb00">"class"</font><font color=black>, class );
+    }
+    <b>else</b>
+    {
+        GUI_map_get_desc( win, obj, desc, file );
+        GUI_buf_get_desc_attr( file, win, obj, </font><font color="#00bb00">"class"</font><font color=black>, class );
+    }
+    wrlog_prim_obj_info( win, obj, class, desc, file );
+    debug_msg2( sprintf(</font><font color="#00bb00">"WIN=%s: OBJ=%s: CLASS=%s DESC=%s FILE=%s"</font><font color=black>, win, obj, class, desc, file ) );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Dumps the debug info for the 1 level deeper in the calling chain.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_log_short_call_chain( <b>in</b> level )
+{
+    <b>auto</b> rc, msg;
+    <b>auto</b> test, type, func, line;
+	call_chain_get_attr( </font><font color="#00bb00">"testname"</font><font color=black>, level, test );
+	call_chain_get_attr( </font><font color="#00bb00">"type"</font><font color=black>, level, type );
+	call_chain_get_attr( </font><font color="#00bb00">"function"</font><font color=black>, level, func );
+	call_chain_get_attr( </font><font color="#00bb00">"line_no"</font><font color=black>, level, line );
+	wrlog_debug_call_info( test, (type==</font><font color="#00bb00">"function"</font><font color=black> ? func : </font><font color="#00bb00">""</font><font color=black>), line );
+	debug_msg2( sprintf(</font><font color="#00bb00">"LINE=%d: FUNC=%s: FILE=%s"</font><font color=black>, line, (type==</font><font color="#00bb00">"function"</font><font color=black> ? func : </font><font color="#00bb00">""</font><font color=black>), test ) );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Dumps the debug info for the calling chain starting with &lt;code&gt;depth_offset&lt;/code&gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param depth_offset (in) depth of the call chain to be dumped (0 = full chain, 1 = from the caller on, etc.)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_log_full_call_chain( <b>in</b> depth_offset )
+{
+    <b>auto</b> rc, i, msg;
+    <b>auto</b> test, type, func, line;
+	<b>for</b> (i = depth_offset; i &lt; call_chain_get_depth(); i++)
+	{
+		call_chain_get_attr( </font><font color="#00bb00">"testname"</font><font color=black>, i, test );
+		call_chain_get_attr( </font><font color="#00bb00">"type"</font><font color=black>, i, type );
+		call_chain_get_attr( </font><font color="#00bb00">"function"</font><font color=black>, i, func );
+		call_chain_get_attr( </font><font color="#00bb00">"line_no"</font><font color=black>, i, line );
+		wrlog_debug_call_info( test, (type==</font><font color="#00bb00">"function"</font><font color=black> ? func : </font><font color="#00bb00">""</font><font color=black>), line );
+		debug_msg2( sprintf(</font><font color="#00bb00">"LINE=%d: FUNC=%s: FILE=%s"</font><font color=black>, line, (type==</font><font color="#00bb00">"function"</font><font color=black> ? func : </font><font color="#00bb00">""</font><font color=black>), test ) );
+	}
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This function was used for generating test data in GEN mode. It appends the</font></i><font color=black>
+</font><font color="#ff0000"><i>#* test data into a file named "gen.txt" located in the WR temp directory.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Since implementing the save capability for FRM-tables (effectively modifying</font></i><font color=black>
+</font><font color="#ff0000"><i>#* test date in place) this function is not used any more.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param gui_obj (in)	name of the affected GUI object</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param value	(in)	value contained in that object (test data)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param rc	(in)	return code received by retreiving the test date (if not</font></i><font color=black>
+</font><font color="#ff0000"><i>#* E_OK, then a special message is formatted instead of the test data).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_GEN_print ( <b>in</b> tid, <b>in</b> gui_obj, <b>in</b> val, <b>in</b> rc )
+{
+	<b>auto</b> test_obj = FRM_UNKNOWN;
+	<b>auto</b> row = FRM_UNKNOWN;
+	<b>auto</b> tmpdir = getvar( </font><font color="#00bb00">"tempdir"</font><font color=black> );
+	<b>auto</b> file = join_path( tmpdir, </font><font color="#00bb00">"gen.txt"</font><font color=black> );
+
+	FRM_next_row( tid );
+	FRM_get_current_row( tid, row );
+	test_obj = FRM_val( tid, FRM_COL_NAME );
+
+	<b>if</b> ( rc != E_OK )
+	{
+		val = </font><font color="#00bb00">"row=["</font><font color=black> &amp; row+1 &amp; </font><font color="#00bb00">"] "</font><font color=black> &amp;
+		      </font><font color="#00bb00">"obj=["</font><font color=black> &amp; test_obj &amp; </font><font color="#00bb00">"] "</font><font color=black> &amp;
+		      </font><font color="#00bb00">"GUI-obj=["</font><font color=black> &amp; gui_obj &amp; </font><font color="#00bb00">"] "</font><font color=black> &amp;
+			  </font><font color="#00bb00">"rc=["</font><font color=black> &amp; rc &amp; </font><font color="#00bb00">"]"</font><font color=black>;
+	}
+	file_open( file, FO_MODE_APPEND );
+	file_printf( file, </font><font color="#00bb00">"%s\n"</font><font color=black>, val );
+	file_close( file );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*#???#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*#???#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*#???#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_GEN_set ( <b>in</b> tid, <b>in</b> test, <b>in</b> gui_obj, <b>in</b> val, <b>in</b> rc )
+{
+	FRM_next_row( tid );
+	<b>if</b> ( rc != E_OK )
+		val = </font><font color="#00bb00">"obj=["</font><font color=black> &amp; gui_obj &amp; </font><font color="#00bb00">"] "</font><font color=black> &amp; </font><font color="#00bb00">"rc=["</font><font color=black> &amp; rc &amp; </font><font color="#00bb00">"]"</font><font color=black>;
+    FRM_set( tid, test, val );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Indicates whether a given &amp;lt;row&amp;gt; exists in the given &amp;lt;tid&amp;gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param row (in)	row number to be evaluated</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK: row number is valid</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OUT_OF_RANGE: row number is invalid</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	else:	other error</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_is_row ( <b>in</b> tid, <b>in</b> row )
+{
+	<b>auto</b> rc, max;
+	rc = FRM_get_row_count( tid, max );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	<b>if</b> ( row*1 &lt; 1 || row*1 &gt; max )
+		<b>return</b> E_OUT_OF_RANGE;
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i>#* From here on the implementation of the ddt-interface follows</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*Returns whether a parameter in a data table is valid.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param param (in)	The parameter name to check in the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	parameter is valid</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_NOT_PARAMETER:	parameter is invalid</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	else: other error</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_is_parameter( <b>in</b> tid, <b>in</b> param )
+{
+	<b>auto</b> i;
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b> E_FILE_NOT_OPEN;
+	<b>for</b>( i=0; i &lt; tabInfo[tid,IDX_PARAMS]; i++)
+		<b>if</b> ( tabParam[tid,i] == param )
+			<b>return</b> E_OK;
+	<b>return</b> E_NOT_PARAMETER;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Returns a list of all loaded parameters in a FRM data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Does NOT return columns &lt;code&gt;IDX&lt;/code&gt; and &lt;code&gt;name&lt;/code&gt; because they</font></i><font color=black>
+</font><font color="#ff0000"><i>#* are always there. For this reason the number returned is the number of all </font></i><font color=black>
+</font><font color="#ff0000"><i>#* (loaded) parameters minus 2.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param params (out)	column titles (tab-separated)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param count (out)	nomber of loaded columns (excluding IDX and Name)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success; &lt;code&gt;params&lt;/code&gt; and &lt;code&gt;count&lt;/code&gt; provided</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	faliure; &lt;code&gt;params&lt;/code&gt; and &lt;code&gt;count&lt;/code&gt; not provided</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_get_parameters( <b>in</b> tid, <b>out</b> params, <b>out</b> count )
+{
+	<b>auto</b> i, param;
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b> E_FILE_NOT_OPEN;
+	count = 0;
+	<b>for</b>( i=0; i &lt; tabInfo[tid,IDX_PARAMS]; i++)
+	{
+		param = tabParam[tid,i];
+		<b>if</b> ( param == FRM_COL_IDX || param == FRM_COL_NAME )
+			<b>continue</b>;
+		params = params &amp; ((count)?</font><font color="#00bb00">"\t"</font><font color=black>:</font><font color="#00bb00">""</font><font color=black>) &amp; param;
+		count++;
+	}
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Retrieves the active row of a data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param row (out)	number of the active row (starting with 1)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success; active row returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure; active row not returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_get_current_row ( <b>in</b> tid, <b>out</b> row )
+{
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b> E_FILE_NOT_OPEN;
+	row = tabInfo[ tid, IDX_CURROW ];
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Retrieves the number of rows in a data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param count (out)	number of rows in the data table</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success; &amp;lt;count&amp;gt; returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure; &amp;lt;count&amp;gt; not returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_get_row_count ( <b>in</b> tid, <b>out</b> count )
+{
+	<b>if</b> ( !FRM_is_open( tid ) )
+		<b>return</b> E_FILE_NOT_OPEN;
+	count = tabInfo[ tid, IDX_ROWCOUNT ];
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Sets the active row in a data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param row (in)	row to be set</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success; &amp;lt;row&amp;gt; set</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure; &amp;lt;row&amp;gt; not set</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_set_row ( <b>in</b> tid, <b>in</b> row )
+{
+	<b>auto</b> rc, max;
+	rc = FRM_is_row( tid, row );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	tabInfo[ tid, IDX_CURROW ] = row*1;
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Changes the active row in a data table to the next row.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success; active row changed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure; active row not changed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_next_row ( <b>in</b> tid )
+{
+	<b>auto</b> rc, row;
+	rc = FRM_get_current_row( tid, row );
+	<b>if</b> ( rc != E_OK ) <b>return</b> rc;
+	<b>return</b> FRM_set_row( tid, ++row );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Returns the value of a parameter in the active row in a data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param param	(in)	column name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_NOT_PARAMETER:	failure; invalid parameter (column) name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	else:	value of the given cell</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_val ( <b>in</b> tid, <b>in</b> param )
+{
+	<b>auto</b> rc;
+	<b>if</b> ( FRM_is_parameter( tid, param ) != E_OK )
+		<b>return</b> E_NOT_PARAMETER;
+	<b>return</b> tabData[tid, param, tabInfo[tid, IDX_CURROW]];
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Sets a value in the current row of the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param val	(in)	value to be set</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param param	(in)	column name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success; &lt;code&gt;val&lt;/code&gt; set</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_NOT_PARAMETER:	failure; invalid parameter (column) name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	else:	other error</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_set_val ( <b>in</b> tid, <b>in</b> param, <b>in</b> val )
+{
+	<b>auto</b> rc;
+	<b>if</b> ( FRM_is_parameter( tid, param ) != E_OK )
+		<b>return</b> E_NOT_PARAMETER;
+	<b>return</b> FRM_set( tid, param, val );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Returns the value of a parameter in the specified row in a data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param row	(in)	row number</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param param	(in)	column name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_NOT_PARAMETER:	failure; invalid parameter (column) name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	else:	value of the given cell</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_val_by_row ( <b>in</b> tid, <b>in</b> row, <b>in</b> param )
+{
+	<b>auto</b> rc;
+	<b>if</b> ( FRM_is_parameter( tid, param ) != E_OK )
+		<b>return</b> E_NOT_PARAMETER;
+	rc = FRM_is_row( tid, row );
+	<b>if</b> ( rc != E_OK ) <b>return</b> rc;
+	<b>return</b> tabData[tid, param, row*1];
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Sets a value in a specified row of the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param row	(in)	row number</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param param	(in)	column name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param val	(in)	the value to be set</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success; &lt;code&gt;val&lt;/code&gt; set</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_NOT_PARAMETER:	failure; invalid parameter (column) name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	else:	other error</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_set_val_by_row ( <b>in</b> tid, <b>in</b> row, <b>in</b> param, <b>in</b> val )
+{
+	<b>auto</b> rc;
+	<b>if</b> ( FRM_is_parameter( tid, param ) != E_OK )
+		<b>return</b> E_NOT_PARAMETER;
+	rc = FRM_is_row( tid, row );
+	<b>if</b> ( rc != E_OK ) <b>return</b> rc;
+	<b>return</b> FRM_set( tid, param, val, row*1 );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Builds the internal data structure for (loaded) parameters (columns).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid (in) table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tests (in)	list of tests (columns/parameters) to be loaded</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> build_params( <b>in</b> tid, <b>in</b> tests )
+{
+	<b>auto</b> rc, val, count, test, i, tmparr[], param[];
+	<b>auto</b> table, file;
+
+	table = FRM_get_name( tid );
+	file = FRM_get_filename( tid );
+	rc = ddt_get_parameters( file, val, count );
+	<b>if</b> ( rc != E_OK ) <b>return</b> rc;
+
+	count = split( val, tmparr, </font><font color="#00bb00">"\t"</font><font color=black> );
+	<b>for</b> ( i = 1; i &lt;= count; i++ )
+		param[tmparr[i]] = 1;
+		
+	</font><font color="#ff0000"><i># check for Mandatory Params</font></i><font color=black>
+	<b>if</b> ( !(FRM_COL_IDX <b>in</b> param) || !(FRM_COL_NAME <b>in</b> param) )
+	{
+		rc = E_NOT_PARAMETER;
+		<b>tl_step</b>( </font><font color="#00bb00">"FRM_open"</font><font color=black>, rc, 
+				 </font><font color="#00bb00">"invalid table format: "</font><font color=black> &amp;
+				 </font><font color="#00bb00">"table=["</font><font color=black> &amp; table &amp; </font><font color="#00bb00">"] "</font><font color=black> &amp;
+				 </font><font color="#00bb00">"columns &#92;&#34;"</font><font color=black> &amp; FRM_COL_IDX &amp;
+				 </font><font color="#00bb00">"&#92;&#34; and/or &#92;&#34;"</font><font color=black> &amp; FRM_COL_NAME &amp; 
+				 </font><font color="#00bb00">"&#92;&#34; missing!"</font><font color=black> );
+		<b>return</b> rc;
+	}
+
+	<b>if</b> ( tolower(tests) == </font><font color="#00bb00">"&lt;&lt;all&gt;&gt;"</font><font color=black> )
+	{
+		<b>for</b>( i=1; i &lt;= count; i++ )
+			tabParam[tid,i-1] = tmparr[i];
+	}
+	<b>else</b>
+	{
+		count = 0;
+		DDT_ACCESS_init( table, FRM_COL_IDX&amp;</font><font color="#00bb00">","</font><font color=black>&amp;FRM_COL_NAME&amp;</font><font color="#00bb00">","</font><font color=black>&amp;tests );
+		<b>while</b> ( DDT_ACCESS_has_more( table ) )
+		{
+			test = DDT_ACCESS_get_next( table );
+			<b>if</b> ( test <b>in</b> param )
+				tabParam[tid,count++] = test;
+		}
+		DDT_ACCESS_clean( table );
+	}
+	tabInfo[tid,IDX_PARAMS] = count;
+	<b>return</b> E_OK;	
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Builds the internal index for marked rows. You can mark a row by placing an</font></i><font color=black>
+</font><font color="#ff0000"><i>#* "x" in the IDX-column and defining the (uniquie!) name in the Name-column.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid (in) table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> build_idx ( <b>in</b> tid )
+{
+	<b>auto</b> rc, idx, obj, rows, i;
+	<b>auto</b> table, file;
+	
+	table = FRM_get_name( tid );
+	file = FRM_get_filename( tid );
+	rows = tabInfo[tid, IDX_ROWCOUNT];
+	
+	rc = ddt_set_row( file, 1 );
+	<b>for</b> ( i = 1; !rc &amp;&amp; i &lt;= rows; i++ )
+	{
+		idx = ddt_val( file, FRM_COL_IDX );
+		<b>if</b> ( idx != </font><font color="#00bb00">""</font><font color=black> )
+		{
+			obj = ddt_val( file, FRM_COL_NAME );
+			<b>if</b> ( (tid, obj) <b>in</b> tabIdx )
+			{
+				<b>tl_step</b>( </font><font color="#00bb00">"build_idx"</font><font color=black>, 1, 
+						 </font><font color="#00bb00">"index repeated: "</font><font color=black> &amp;
+						 </font><font color="#00bb00">"table=["</font><font color=black> &amp; table &amp; </font><font color="#00bb00">"] "</font><font color=black> &amp;
+	                     </font><font color="#00bb00">"column=["</font><font color=black> &amp; FRM_COL_NAME &amp; </font><font color="#00bb00">"] "</font><font color=black> &amp;
+	                     </font><font color="#00bb00">"row=["</font><font color=black> &amp; i &amp; </font><font color="#00bb00">"] "</font><font color=black> &amp;
+	                     </font><font color="#00bb00">"value=["</font><font color=black> &amp; obj &amp; </font><font color="#00bb00">"] "</font><font color=black> &amp;
+	                     </font><font color="#00bb00">"rc=["</font><font color=black> &amp; rc &amp; </font><font color="#00bb00">"] "</font><font color=black> );
+				<b>return</b> E_ILLEGAL_PARAMETER;
+			}
+			tabIdx[tid, obj] = i;
+		}		
+		rc = ddt_next_row( file );
+	}
+	<b>if</b> ( rc == E_OUT_OF_RANGE )
+		<b>return</b> E_OK;
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Loads a given FRM-column from a data table. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param par	(in)	column name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param rows	(in)	number of rows in a table (performance)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:		operation succesfull</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:		operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> load_column ( <b>in</b> tid, <b>in</b> par, <b>in</b> rows )
+{
+	<b>auto</b> rc, i, file;
+</font><font color="#ff0000"><i>#*auto t1, t2;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*t1=get_time();</font></i><font color=black>
+
+	</font><font color="#ff0000"><i># first row indicates whether column has changed or not</font></i><font color=black>
+	tabData[tid, par, 0] = FALSE;
+	file = FRM_get_filename( tid );
+	rc = ddt_set_row( file, 1 );
+	<b>for</b>( i=1; !rc &amp;&amp; i &lt;= rows; i++ )
+	{
+		tabData[tid, par, i] = ddt_val( file, par );
+		rc = ddt_next_row( file );
+	}
+</font><font color="#ff0000"><i>#*t2=get_time();</font></i><font color=black>
+</font><font color="#ff0000"><i>#*printf( "Spalte %s bearbeitet in %s Sekundnen", par, t2-t1 );</font></i><font color=black>
+	<b>return</b> (rc==E_OUT_OF_RANGE) ? E_OK : rc;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Saves the FRM-column back to data table. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param tid	(in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param par	(in)	column name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param rows	(in)	number of rows in a table (performance)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*E_OK:		operation succesfull</font></i><font color=black>
+</font><font color="#ff0000"><i>#*!E_OK:		operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> save_column ( <b>in</b> tid, <b>in</b> par, <b>in</b> rows )
+{
+	<b>auto</b> rc, i, file;
+</font><font color="#ff0000"><i>#*auto t1, t2;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*t1=get_time();</font></i><font color=black>
+	file = FRM_get_filename( tid );
+	<b>for</b>( i=1; !rc &amp;&amp; i &lt;= rows; i++ )
+	{
+		rc = ddt_set_val_by_row( file, i, par, tabData[tid, par, i] );
+	}
+</font><font color="#ff0000"><i>#*t2=get_time();</font></i><font color=black>
+</font><font color="#ff0000"><i>#*printf( "Spalte %s bearbeitet in %s Sekundnen", par, t2-t1 );</font></i><font color=black>
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i>#*TSL-LIBRARY:	EMOS_FRM_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+
+</pre></body></html>

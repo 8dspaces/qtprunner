@@ -1,0 +1,63 @@
+################################################################################
+# TEST:	kickoff
+################################################################################
+# $Revision: 1.5 $
+# $Author: drajovic $
+# $Date: 2005/01/23 19:31:51 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/TPL/Scripts/kickoff_new_style/script,v $
+# $NoKeywords: $
+################################################################################
+
+#/**
+#* A simple driver for the complete test suite. All it does is specify some
+#* suite table to be processed and calls the emos_frm_driver to do the rest.
+#* If you need more sophisticated logic, do whatever you want and then call
+#* the driver.
+#*
+#* The new driver invokes the new logic implanted into generic EMOS driver
+#* which simplifies the test driver and finaly corrects a very subtle bug
+#* that we had to live with for long time. The new driver logic now 
+#* guarntees to return the corect return codes from all called functions
+#* irrespectvely of the depth of the call chain. This feature is very
+#* for proper test logging.
+#*/
+
+static const TEST_PATH = TEST_HOME;
+static const DATA_PATH = DATA_HOME;
+static const SUITE_HDR = "run?,driver,table,testset,description";
+static const SUITE_TABLE = "suite1.xls"; 
+
+# during development use the following environment variable 
+# to redirect the suite to some temporary suite table
+
+static table = getenv("MY_SUITE");
+
+# activates the new driver logic
+
+FRM_DRV_set_new_test_driver( TRUE );
+
+# load your driver libraries here, in startup script or where you like it
+# we prefer startup scrip if there are only a few drivers (which is usualy the case)
+# we load them from kickoff scripts when there are plenty of drivers
+
+reload( "DRV/drv1_lib", 0, 0 );
+
+# Set the default behaviour in case of errors. Possible values are: 
+#         E_FRM_CONTINUE [default] 
+#         E_FRM_TEST_STOP 
+#         E_FRM_SET_STOP 
+#         E_FRM_SUITE_STOP 
+# Also set the text for interactive mode (default: German labels).
+# Make sure to preserve the numbering, meaning and no blanks after comma! 
+
+FRM_DRV_set_default_error_mode ( E_FRM_SET_STOP, 
+"1 - Continue,2 - Stop test,3 - Stop test set,4 - Stop test suite,5 - Retry block" );
+
+wrlog_init_file_interface( getvar("testname"), getenv("USERNAME"), "txt" );
+FRM_RES_init_test_statistics();
+
+call "DRV/emos_testsuite_driver" ( TEST_PATH, DATA_PATH, (table==""? SUITE_TABLE : table), FALSE, SUITE_HDR );
+
+FRM_RES_report_test_statistics();
+wrlog_terminate_file_interface();
+

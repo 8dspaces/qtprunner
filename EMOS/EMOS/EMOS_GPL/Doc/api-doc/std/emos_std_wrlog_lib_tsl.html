@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_wrlog_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.4 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/23 19:22:20 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/STD/emos_std_wrlog_lib/script $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/***
+#* This library implements the dummy interface to EMOS remote logging functionallity for WinRunner.
+#* The real interface is available through a product EMOS WrLog.
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> wrlog_init_tcp_interface( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_init_file_interface( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_init_pipe_interface( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_terminate_tcp_interface( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_terminate_file_interface( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_terminate_pipe_interface( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> log_txt( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> log_cmd( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_print ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_println ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_suite_start ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_suite_data ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_suite_stop ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_suite_tick ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_set_start ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_set_data ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_set_stop ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_test_start ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_test_data ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_test_stop ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_block_start ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_block_data ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_block_stop ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_prim_start ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_prim_data ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_prim_stop ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_prim_obj_info ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_prim_frm_info ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_debug_call_info ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_timer_start ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_timer_data ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_timer_stop ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+<b>public</b> <b>function</b> wrlog_timer_tick ( <b>in</b> dummy1, <b>in</b> dummy2, <b>in</b> dummy3, <b>in</b> dummy4, <b>in</b> dummy5, <b>in</b> dummy6 ){}
+</pre></body></html>

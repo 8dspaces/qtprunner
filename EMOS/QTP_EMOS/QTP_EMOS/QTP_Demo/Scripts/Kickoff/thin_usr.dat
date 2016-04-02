@@ -1,0 +1,38 @@
+[General]
+Type=VB-Web
+RunType=ActiveScript
+DefaultCfg=default.cfg
+ParamRightBrace=}
+ParamLeftBrace={
+NewFunctionHeader=1
+MinorVersion=0
+MajorVersion=6	
+ParameterFile=default.prm
+
+[Actions]
+Kickoff=Action1\Kickoff.vbs
+DRV=Action2\DRV.vbs
+FRM=Action3\FRM.vbs
+AUT=Action4\AUT.vbs
+
+[VuserProfiles]
+Profiles=Default Profile
+
+[CfgFiles]
+Default Profile=default.cfg
+
+[RunLogicFiles]
+Default Profile=default.usp
+
+[Rendezvous]
+
+[Transactions]
+
+[ActiveScript]
+Lang=VBScript
+
+[ExtraFiles]
+Action1\Kickoff.vbs=
+Action2\DRV.vbs=
+Action3\FRM.vbs=
+Action4\AUT.vbs=

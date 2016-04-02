@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>######################## RE function library ############################################</font></i><font color=black>
+</font><font color="#ff0000"><i># LIB: misha_std_re_func_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.2 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2004/11/07 22:26:27 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/STD/misha_std_re_func_lib/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/***
+#* Regular expression functions search and match for WinRunner.
+#*&lt;p&gt;
+#* Copyright (c) 2003 Misha Verplak
+#*&lt;p&gt;
+#* Supporting regex++ c++ library at www.boost.org:
+#* Copyright (c) 1998-2001 Dr John Maddock
+#*&lt;p&gt;
+#* Permission is granted to use, modify and redistribute this
+#* software provided both copyrights appear in all copies.
+#*&lt;p&gt;
+#* This script and dll provides WinRunner with perl-like
+#* regular expression search and match functions, to supplement
+#* the limited builtin function match() and add GUI properties
+#* "label_like" and "id_like" for window recognition.
+#*&lt;p&gt;
+#* Known bugs:
+#* &lt;ul&gt;
+#* &lt;li&gt; Garbage in re can cause regex library to crash&lt;/li&gt;
+#* &lt;/ul&gt;
+#* @author Misha Verplack
+#* @version  0.2  2003-01-21
+#*
+#* @see &lt;a href="readme.txt"&gt;Readme&lt;/a&gt;
+#* @see &lt;a href="re_sample.tsl"&gt;sample&lt;/a&gt;
+#* @see &lt;a href="re_startup.tsl"&gt;startup&lt;/a&gt;
+#* @see &lt;a href="syntax.html"&gt;Regex syntax description&lt;/a&gt;
+#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i># regular expressions from DLL</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Match a regular expression to a whole string.
+#* Submatch results in 'detail', use re_get_details() or re_get_match().
+#* @param str string to search
+#* @param re regular expression
+#* @param m_pos matched position
+#* @param m_len matched length
+#* @param detail detail
+#* @return 0 = no match, 1 = found match, gets position and length
+#*/</font></i><font color=black>
+<b>extern</b> <b>int</b> re_match(<b>string</b> str, <b>string</b> re, <b>out</b> <b>int</b> m_pos, <b>out</b> <b>int</b> m_len, <b>inout</b> <b>string</b> detail &lt;252&gt;);
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Search a string for a regular expression.
+#* Submatch results in 'detail', use re_get_details() or re_get_match().
+#* @param str string to search
+#* @param re regular expression
+#* @param m_pos matched position
+#* @param m_len matched length
+#* @param detail detail
+#* @return 0 = no match, 1 = found match, gets position and length
+#*/</font></i><font color=black>
+<b>extern</b> <b>int</b> re_search(<b>string</b> str, <b>string</b> re, <b>out</b> <b>int</b> m_pos, <b>out</b> <b>int</b> m_len, <b>inout</b> <b>string</b> detail &lt;252&gt;);
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* initialises the re_func
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> re_func_init()
+{
+	<b>auto</b> re_func_dll;
+
+	</font><font color="#ff0000"><i># replace with location of dll</font></i><font color=black>
+	re_func_dll = getvar(</font><font color="#00bb00">"testname"</font><font color=black>) &amp; </font><font color="#00bb00">"&#92;&#92;re_func.dll"</font><font color=black>;
+
+	</font><font color="#ff0000"><i># to access exported functions</font></i><font color=black>
+	load_dll(re_func_dll);
+
+	</font><font color="#ff0000"><i># to use re's in a GUI property</font></i><font color=black>
+	add_record_attr(</font><font color="#00bb00">"label_like"</font><font color=black>, re_func_dll, </font><font color="#00bb00">"re_query_label"</font><font color=black>, </font><font color="#00bb00">"re_verify_label"</font><font color=black>);
+	add_record_attr(</font><font color="#00bb00">"id_like"</font><font color=black>, re_func_dll, </font><font color="#00bb00">"re_query_id"</font><font color=black>, </font><font color="#00bb00">"re_verify_id"</font><font color=black>);
+
+
+	</font><font color="#ff0000"><i># function generator declarations</font></i><font color=black>
+
+	generator_add_function(</font><font color="#00bb00">"re_search"</font><font color=black>,</font><font color="#00bb00">"Search a string for a regular expression.\n"</font><font color=black>&amp;
+	</font><font color="#00bb00">"Returns 0 no match, 1 found match, gets position and length.\n"</font><font color=black>&amp;
+	</font><font color="#00bb00">"Submatch results in 'detail', use re_get_details() or re_get_match()."</font><font color=black>,5,
+	</font><font color="#00bb00">"search_string"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"&#92;&#34;string to search&#92;&#34;"</font><font color=black>,
+	</font><font color="#00bb00">"regular_expression"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"&#92;&#34;regexp&#92;&#34;"</font><font color=black>, </font><font color="#00bb00">"Out position"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"position"</font><font color=black>,
+	</font><font color="#00bb00">"Out length"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"len"</font><font color=black>, </font><font color="#00bb00">"Out detail"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"detail"</font><font color=black>);
+	generator_add_category(</font><font color="#00bb00">"regex"</font><font color=black>);
+	generator_add_function_to_category(</font><font color="#00bb00">"regex"</font><font color=black>,</font><font color="#00bb00">"re_search"</font><font color=black>);
+	generator_set_default_function(</font><font color="#00bb00">"regex"</font><font color=black>,</font><font color="#00bb00">"re_search"</font><font color=black>);
+
+	generator_add_function(</font><font color="#00bb00">"re_match"</font><font color=black>,</font><font color="#00bb00">"Match a regular expression to a whole string.\n"</font><font color=black>&amp;
+	</font><font color="#00bb00">"Returns 0 no match, 1 found match, gets position and length.\n"</font><font color=black>&amp;
+	</font><font color="#00bb00">"Submatch results in 'detail', use re_get_details() or re_get_match()."</font><font color=black>,5,
+	</font><font color="#00bb00">"match_string"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"&#92;&#34;string to match&#92;&#34;"</font><font color=black>,
+	</font><font color="#00bb00">"regular_expression"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"&#92;&#34;regexp&#92;&#34;"</font><font color=black>, </font><font color="#00bb00">"Out position"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"position"</font><font color=black>,
+	</font><font color="#00bb00">"Out length"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"len"</font><font color=black>, </font><font color="#00bb00">"Out detail"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"detail"</font><font color=black>);
+	generator_add_function_to_category(</font><font color="#00bb00">"regex"</font><font color=black>,</font><font color="#00bb00">"re_match"</font><font color=black>);
+
+	generator_add_function(</font><font color="#00bb00">"re_get_detail"</font><font color=black>,</font><font color="#00bb00">"Get the (sub)match position and length from the detail.\n"</font><font color=black>&amp;
+	</font><font color="#00bb00">"Typically used after re_search() or re_match()\nsubmatch can be 0 for whole match"</font><font color=black>,6,
+	</font><font color="#00bb00">"detail"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"detail"</font><font color=black>, </font><font color="#00bb00">"submatch"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"0"</font><font color=black>, </font><font color="#00bb00">"Out nsubs"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"nsubs"</font><font color=black>,
+	</font><font color="#00bb00">"Out line"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"line"</font><font color=black>, </font><font color="#00bb00">"Out position"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"position"</font><font color=black>, </font><font color="#00bb00">"Out length"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"len"</font><font color=black>);
+	generator_add_function_to_category(</font><font color="#00bb00">"regex"</font><font color=black>,</font><font color="#00bb00">"re_get_detail"</font><font color=black>);
+
+	generator_add_function(</font><font color="#00bb00">"re_get_match"</font><font color=black>,</font><font color="#00bb00">"Get the (sub)matched string from the detail.\n"</font><font color=black>&amp;
+	</font><font color="#00bb00">"Typically used after re_search() or re_match()\nsubmatch can be 0 for whole match"</font><font color=black>,4,
+	</font><font color="#00bb00">"original_string"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"orig_str"</font><font color=black>, </font><font color="#00bb00">"detail"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"detail"</font><font color=black>,
+	</font><font color="#00bb00">"submatch"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"0"</font><font color=black>, </font><font color="#00bb00">"Out match_str"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"match_str"</font><font color=black>);
+	generator_add_function_to_category(</font><font color="#00bb00">"regex"</font><font color=black>,</font><font color="#00bb00">"re_get_match"</font><font color=black>);
+
+	generator_add_function(</font><font color="#00bb00">"re_print_detail"</font><font color=black>,</font><font color="#00bb00">"Print the re match details to the debug window.\n"</font><font color=black>&amp;
+	</font><font color="#00bb00">"Typically used after re_search() or re_match()."</font><font color=black>,1, </font><font color="#00bb00">"detail"</font><font color=black>,</font><font color="#00bb00">"type_edit"</font><font color=black>,</font><font color="#00bb00">"detail"</font><font color=black>);
+	generator_add_function_to_category(</font><font color="#00bb00">"regex"</font><font color=black>,</font><font color="#00bb00">"re_print_detail"</font><font color=black>);
+
+}
+
+</font><font color="#ff0000"><i># internal function to decode detail from DLL</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* @param detail 
+#* @param position
+#* @param nbytes
+#* @return 
+#*/</font></i><font color=black>
+<b>static</b> <b>function</b> _detail_decode(detail, position, nbytes)
+{
+	<b>auto</b> v, v_hi;
+	v = <b>int</b>(ascii(substr(detail, position, 1))/2);
+	<b>if</b>(nbytes == 2)
+	{
+		v_hi = <b>int</b>(ascii(substr(detail, position+1, 1))/2);
+		v += v_hi*256;
+	}
+	<b>return</b> v;
+}
+
+</font><font color="#ff0000"><i># dump the detail to WinRunner's debug window</font></i><font color=black>
+</font><font color="#ff0000"><i># structure of the detail string:</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Print the re match details to the debug window.
+#* Typically used after re_search() or re_match().
+#* @param detail
+#*  (1 byte ) size of this detail, ie. number of submatches + 1
+#*  (2 bytes) line number where match occurred, counting from 1
+#* [(2 bytes) position of (sub)match, 0-th submatch is whole match
+#* [(2 bytes) length of (sub)match
+#* [--------- repeated to a maximum of 50 submatches ---]
+#* @return 
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> re_print_detail(detail)
+{
+	<b>auto</b> size, line, i, pos, len, s;
+
+	size = _detail_decode(detail, 1, 1);
+	print </font><font color="#00bb00">"size "</font><font color=black> &amp; size;
+	<b>if</b> (size == 0) <b>return</b> E_OK;
+	print </font><font color="#00bb00">"submatches "</font><font color=black> &amp; (size-1);
+	line = _detail_decode(detail, 2, 2);
+	print </font><font color="#00bb00">"line "</font><font color=black> &amp; line;
+
+	<b>for</b> (s=0; s&lt;size; s++)
+	{
+		pos = _detail_decode(detail, s*4+4, 2);
+		len = _detail_decode(detail, s*4+6, 2);
+		print </font><font color="#00bb00">"sub("</font><font color=black> &amp; s &amp; </font><font color="#00bb00">") pos: "</font><font color=black> &amp; pos &amp; </font><font color="#00bb00">" len: "</font><font color=black> &amp; len;
+	}
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i># get the (sub)match position and length from the detail</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Get the (sub)match position and length from the detail.
+#* Typically used after re_search() or re_match()\nsubmatch can be 0 for whole match.
+#*
+#* @param detail
+#* @param submatch
+#* @param nsubs
+#* @param line
+#* @param position
+#* @param len
+#* @return 
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> re_get_detail(<b>in</b> detail, <b>in</b> submatch, <b>out</b> nsubs, <b>out</b> line, <b>out</b> position, <b>out</b> len)
+{
+	<b>auto</b> size;
+
+	nsubs = 0;
+	position = 0;
+	len = 0;
+	line = 0;
+
+	size = _detail_decode(detail, 1, 1);
+	<b>if</b> (size == 0) <b>return</b> E_NOT_FOUND;
+	nsubs = size-1;
+	<b>if</b> (submatch &lt; 0) <b>return</b> E_OUT_OF_RANGE;
+	<b>if</b> (submatch+1 &gt; size) <b>return</b> E_OUT_OF_RANGE;
+
+	line = _detail_decode(detail, 2, 2);
+	position = _detail_decode(detail, submatch*4+4, 2);
+	len = _detail_decode(detail, submatch*4+6, 2);
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i># get the (sub)matched string from the detail</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Get the (sub)matched string from the detail.
+#* Typically used after re_search() or re_match()\nsubmatch can be 0 for whole match.
+#* @param orig_str 
+#* @param detail 
+#* @param submatch
+#* @param match_str
+#* @return 
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> re_get_match(<b>in</b> orig_str, <b>in</b> detail, <b>in</b> submatch, <b>out</b> match_str)
+{
+	<b>auto</b> rc, nsubs, position, len, line;
+
+	match_str = </font><font color="#00bb00">""</font><font color=black>;
+
+	rc = re_get_detail(detail, submatch, nsubs, line, position, len);
+	<b>if</b> (rc != E_OK) <b>return</b> rc;
+
+	match_str = substr(orig_str, position+1, len);
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#------------------------------------------------------</font></i><font color=black>
+</pre></body></html>

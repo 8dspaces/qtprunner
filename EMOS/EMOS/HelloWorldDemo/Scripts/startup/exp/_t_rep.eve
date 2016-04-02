@@ -1,0 +1,11 @@
+49
+1 2 <---> <C:\WORK\FRAMEWORK\TPL\Scripts\startup> 55 1106818451 0
+25 155 <set searchpath : .;..;C:\WORK\FRAMEWORK\TPL\Scripts;C:\Programme\Mercury Interactive\WinRunner\lib;C:\Programme\Mercury Interactive\WinRunner\lib\EMOS_GPL;> <C:\WORK\FRAMEWORK\TPL\Scripts\startup> 84 1106818451 0
+7 1 <C:\Programme\Mercury Interactive\WinRunner\lib\EMOS_GPL\emosinit> <C:\WORK\FRAMEWORK\TPL\Scripts\startup> 90 1106818451 0
+25 15 <set timeout : 1> <C:\Programme\Mercury Interactive\WinRunner\lib\EMOS_GPL\STD\EMOS_STD_misc_lib> 203 1106818451 0
+25 21 <set timeout_msec : 10> <C:\Programme\Mercury Interactive\WinRunner\lib\EMOS_GPL\STD\EMOS_STD_misc_lib> 205 1106818451 0
+7 1 <C:\Programme\Mercury Interactive\WinRunner\lib\EMOS_GPL\FRM\EMOS_FRM_GUI_funcs> <C:\Programme\Mercury Interactive\WinRunner\lib\EMOS_GPL\emosinit> 55 1106818454 0
+11 1 <C:\Programme\Mercury Interactive\WinRunner\lib\EMOS_GPL\emosinit> <C:\Programme\Mercury Interactive\WinRunner\lib\EMOS_GPL\FRM\EMOS_FRM_GUI_funcs> 507 1106818454 0
+11 1 <C:\WORK\FRAMEWORK\TPL\Scripts\startup> <C:\Programme\Mercury Interactive\WinRunner\lib\EMOS_GPL\emosinit> 135 1106818454 0
+25 16 <set timeout : 10> <C:\WORK\FRAMEWORK\TPL\Scripts\startup> 93 1106818454 0
+2 21 <---> <C:\WORK\FRAMEWORK\TPL\Scripts\startup> 113 1106818454 0

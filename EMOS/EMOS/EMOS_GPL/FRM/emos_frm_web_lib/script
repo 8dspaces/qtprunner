@@ -1,0 +1,254 @@
+################################################################################
+# TSL-LIBRARY:	EMOS_FRM_WEB_Lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.4 $
+# $Author: drajovic $
+# $Date: 2005/01/23 19:31:51 $
+# $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/FRM/emos_frm_web_lib/script $
+# $NoKeywords: $
+################################################################################
+
+#**#
+#* This library extends the functionality of EMOS_FRM_GUI_Lib with web 
+#* functionality.
+#* It provides "wrappers" for most frequently used "web" functions such
+#* as web_image_click(), etc.
+#*/
+
+#**
+#*	A standard "wrapper" for web_image_click() function.
+#*	You may use the function in two ways. 
+#*	1.) If you specify the &lt;object&gt;, then the value from the data table is 
+#*	    evaluated. If the value resambles to Yes, the &lt;object&gt; is "pressed". 
+#*	2.) If you do not provide the &lt;object&gt; parameter, then the value from the
+#*	    data table is used as the name of the object to be "pressed".
+#*	The second alternative is an elegant way of pressing on OK, Cancel and
+#*	similar buttons.
+#* <p>FRM-GUI-TYPE:
+#*	navigation (read-only)
+#* <p>TEST DATA FORMAT:
+#*	String containing either Y/YES/ON (or german equivalent J/JA/ON) or
+#*	the logical name of the image to be clicked.
+#* <p>SET-MODE:
+#*	The function reads the value from the data table and uses it as a parameter
+#*	to a native web_image_click() function according to aforementioned description.
+#* <p>CHK-MODE:
+#*	Not supported for type: navigation!
+#*	There is nothing to be checked with web_image_click().
+#*	Behaves the same as the SET-mode! 
+#* <p>GEN-MODE:
+#*	Not supported for type: navigation!
+#*	Ignores the cell (i.e. skips the cell).
+#*
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	(optional) GUI-object where actions are to be performed
+#* @param x	(in)	(optional) x-coordinate relative to upper left corner
+#* @param y	(in)	(optional) y-coordinate relative to upper left corner
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+
+public function FRM_web_image_click ( in table, in test, in object, in x, in y )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+		rc = FRM_SET_web_image_click( table, test, object, x, y ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_web_image_click( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_web_image_click
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_web_image_click ( in table, in test, in object, in x, in y )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK )
+		return rc;
+	FRM_log_frm_info( table, test, val );
+	# if <object> not defined,then use <val> as object and just press
+	if( object == "" )
+	{
+       	FRM_log_obj_info( val );
+		return FRM_rc2( web_image_click( val, x*1, y*1 ), val );
+	}
+	# else of <object> defined, then pres only if <val> == "ja" or "on"
+	switch ( tolower( val ) )
+	{
+		case "j":
+		case "ja":
+		case "y":
+		case "yes":
+		case "on":	
+			break;
+		default:
+			return E_OK;
+	}
+   	FRM_log_obj_info( object );
+	return FRM_rc2( web_image_click( object, x*1, y*1 ), object );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_web_image_click
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_web_image_click ( in table, in test, in object )
+{
+	FRM_skip( table );
+}
+
+#**
+#*	A standard "wrapper" for web_link_click() function.
+#*	You may use the function in two ways. 
+#*	1.) If you specify the &lt;object&gt;, then the value from the data table is 
+#*	    evaluated. If the value resambles to Yes, the &lt;object&gt; is "clicked". 
+#*	2.) If you do not provide the &lt;object&gt; parameter, then the value from the
+#*	    data table is used as the name of the object to be "clicked".
+#*	The second alternative is an elegant way of clicking on OK, Cancel and
+#*	similar buttons.
+#* <p>FRM-GUI-TYPE:
+#*	navigation (read-only)
+#* <p>TEST DATA FORMAT:
+#*	String containing either Y/YES/ON (or german equivalent J/JA/ON) or
+#*	the logical name of the link to be clicked.
+#* <p>SET-MODE:
+#*	The function reads the value from the data table and uses it as a parameter
+#*	to a native web_link_click() function according to aforementioned description.
+#* <p>CHK-MODE:
+#*	Not supported for type: navigation!
+#*	There is nothing to be checked with web_image_click().
+#*	Behaves the same as the SET-mode! 
+#* <p>GEN-MODE:
+#*	Not supported for type: navigation!
+#*	Ignores the cell (i.e. skips the cell).
+#*
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	(optional) GUI-object where actions are to be performed
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+
+public function FRM_web_link_click ( in table, in test, in object )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+		rc = FRM_SET_web_link_click( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_web_link_click( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_web_link_click
+# changed to allow location: x
+# Change: !!RN Quickhack to allow addition physical parameters  
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_web_link_click ( in table, in test, in object )
+{
+	auto val;
+	auto len;
+	auto obj;
+
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK )
+		return rc;
+	FRM_log_frm_info( table, test, val );
+	# if <object> not defined,then use <val> as object and just press
+	if( object == "" )
+	{
+		len=length( val );
+		if( substr( val, len, 1 ) == "}" )
+		{
+			# here we have multiple identical links in one page ( i.e. eMail 
+			# it is asumed that this ends with location: x } 
+			# "{class: object,MSW_class: html_text_link,html_name: eMail,location: 0 }"
+			obj = "{class: object, MSW_class: html_text_link, html_name: " & val;
+           	FRM_log_obj_info( obj );
+			return FRM_rc2( web_link_click( obj  ), obj );
+		}
+		else
+		{		
+			obj = "{class: object, MSW_class: html_text_link, html_name: \"" & val & "\"}";
+           	FRM_log_obj_info( obj );
+    		return FRM_rc2( web_link_click( obj ), obj );
+		}
+	}
+	# else of <object> defined, then pres only if <val> == "ja" or "on"
+	switch ( tolower( val ) )
+	{
+		case "j":
+		case "ja":
+		case "y":
+		case "yes":
+		case "on":	
+			break;
+		default:
+			return E_OK;
+	}
+   	FRM_log_obj_info( object );
+	return FRM_rc2( web_link_click( object ), object );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_web_link_click
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_web_link_click ( in table, in test, in object )
+{
+	FRM_skip( table );
+}
+
+################################################################################
+# TSL-LIBRARY:	EMOS_FRM_WEB_Lib
+################################################################################

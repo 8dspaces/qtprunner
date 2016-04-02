@@ -1,0 +1,21 @@
+#! asci,100,100,Test Header,Mon Jan 22 20:40:39 2001
+
+[General]
+TDDB_ID=0
+NAME=D:\Programme\Mercury\WinRunner\lib\emosinit
+TYPE=TP
+AUTHOR=Adrian
+DATE=976274029
+FUNCTION=
+SPEC=
+FSEARCH=
+TSEARCH=
+SUM_DESCRIPTION=
+DESCRIPTION=
+COMMENTS=
+ADDONS=
+DATA_TBL=default.xls
+VERSION=6.02
+
+[Params]
+PARAM_CNT=0

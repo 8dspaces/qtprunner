@@ -1,0 +1,102 @@
+################################################################################
+# TSL-LIBRARY:	EMOS_ATTR_Lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.2 $
+# $Author: drajovic $
+# $Date: 2004/11/07 22:26:27 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/STD/emos_std_attr_lib/script,v $
+# $NoKeywords: $
+################################################################################
+
+#/***
+#* This library implements the iterator ot the attribute list that is used
+#* in framework's ATR mode.
+#*/
+
+static attrs[];
+static attrCount = 0;
+static currAttr  = 0;
+
+#/**
+#*
+#*/
+
+public function EMOS_ATTR_init_list( in list )
+{
+	auto arr[], arr2[];
+	auto count, count2;
+	auto i;
+	# reset the old values
+	for ( i in attrs ) delete attrs[i];
+	attrCount = 0;
+	currAttr = 0;
+	
+	# attr-info pairs are split by newlines
+	count = split( list, arr, "\n" );
+	if ( count < 1 )
+		return E_ILLEGAL_PARAMETER;
+	for ( i=0; i<count; i++ )
+	{
+		# attr and info are split by colon 
+		# however since the colon may be the content of the value-part
+		# we split the string after the first colon found
+		count2 = index( arr[i+1], ":" );
+		if ( count2 == 0 )
+			return E_ILLEGAL_PARAMETER;
+		attrs[i,0] = strip_both( substr( arr[i+1], 1, count2-1 ) );
+		attrs[i,1] = strip_both( substr( arr[i+1], count2+1 ) );
+		attrCount++;
+	}
+	currAttr = 0;
+	return E_OK;
+}
+
+#/**
+#*
+#*/
+
+public function EMOS_ATTR_has_more()
+{
+	return ( attrCount > currAttr );
+}
+
+#/**
+#*
+#*/
+
+public function EMOS_ATTR_get_next( out attr, out info )
+{
+	if ( !EMOS_ATTR_has_more() )
+		return E_OUT_OF_RANGE;
+	attr = attrs[currAttr, 0];
+	info = attrs[currAttr, 1];
+	currAttr++;
+	return E_OK;
+}

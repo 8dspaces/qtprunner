@@ -1,0 +1,632 @@
+################################################################################
+# TSL-LIBRARY:	EMOS_STD_string_Lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straße 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.2 $
+# $Author: drajovic $
+# $Date: 2005/01/28 11:18:43 $
+# $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/STD/emos_std_string_lib/script $
+# $NoKeywords: $
+################################################################################
+
+#**#
+#*	This library contains some useful string manipulation routines.
+#*/
+
+#**
+#* 	This functions concatenates all elements of the array <arr> into a string.
+#*	Elements are separated by <code>sep</code>.
+#*<p> NOTE!
+#*	Iy the <code>arr</code> is not sequentially inexed (starting from 0), then either the
+#*	<code>count</code> should NOT be defined (in operator will be used) or <code>start</code> must
+#*	be defined (sequential from then on).
+#* @param arr[] (inout)	array to be "streamed"
+#* @param sep (in)		(optional) separator,  [default: comma]
+#* @param count (in)	(optional) number of elements in the array [default: 0]
+#* @param start (in)	(optional) starting index [default: 0]
+#* @return
+#*	streamed array
+#*/
+
+public function arr2str ( inout arr[], in sep, in count, in start )
+{
+	auto i, end, str = "";
+	if ( sep == "" ) sep = ",";
+	if ( count == "" )
+	{
+		count = 0;
+		for ( i in arr ) count++;
+		for ( i in arr )
+			str = str & arr[i] & ((--count) ? sep : ""); 
+	}
+	else
+	{
+		end = start*1+count;
+		for( i = start*1; i<end; i++ )
+			str = str & arr[i] & ((--count) ? sep : "");
+	}
+	return str;
+}
+
+#**
+#* 	Replaces all <code>delchr</code> characters with <code>insstr</code> string.
+#*<p> NOTE1!
+#*	This function internally uses split() to process the string. Unfortunatelly,
+#*	split() has an undocumented "feature" that it trims blanks from the given
+#*	string before splitting. This has the effect that replace() does the same.
+#*	If you don't want the string to be trimmed, use replace1().
+#*<p> NOTE2!
+#*	The replace() replaces each occurence of individual characters within
+#*	<code>delchr</code> with the complete string <code>insstr</code>. It does NOT replace string
+#*	<code>delchr</code> with the string <code>insstr</code>.
+#* @param str (in)	string to be processed
+#* @param delchr (in)	character(s) to be replaced
+#* @param insstr (in)	string to be used as replacement
+#* @return
+#*	converted string
+#*/
+
+public function replace ( in str, in delchr, in insstr )
+{
+	auto count, i, arr[], outstr;
+	count = split( str, arr, delchr );
+	if ( count == 0 )
+		return str;
+	outstr = arr[1];
+	for( i=2; i <= count; i++ )
+		outstr = outstr & insstr & arr[i];
+	return outstr;
+}
+
+static function test_replace()
+{
+	auto i, test[], j=0;
+	test[j++] = "";
+	test[j++] = "x";
+	test[j++] = "xxx";
+	test[j++] = "xa";
+	test[j++] = "ax";
+	test[j++] = "axa";
+	test[j++] = "xxaxx";
+	test[j++] = "axxa";
+	test[j++] = "aaa";
+	print("");
+	for ( i=0; i<j-1; i++ )
+		print ( test[i] & "-->" & replace( test[i],"x","|" ) );
+	print("");
+	for ( i=0; i<j-1; i++ )
+		print ( test[i] & "-->" & replace( test[i],"x","" ) );
+	print("");
+	for ( i=0; i<j-1; i++ )
+		print ( test[i] & "-->" & replace( test[i],"xx","||" ) );
+}
+
+static const DEFZAP = " ";
+#**
+#* 	Removes all occuences of <code>zap</code> from the end of <code>str</code> (right trim).
+#* @param str (in)	string to be processed
+#* @param zap (in)	(optional) string to be removed [default: " "]
+#* @return
+#*	converted string
+#*/
+
+public function strip_trail ( in str, in zap )
+{
+	auto slen, zlen;
+	if ( zap == "" ) 
+		zap = DEFZAP;
+	slen = length( str );
+	zlen = length( zap );
+	if ( slen && substr( str, (slen-zlen+1) ) == zap )
+		str = strip_trail( substr( str, 1, slen-zlen ) );
+	return str;
+}
+
+#**
+#* 	Removes all occuences of <code>zap</code> from the front of <code>str</code> (left trim).
+#* @param str (in)	string to be processed
+#* @param zap (in)	(optional) string to be removed [default: " "]
+#* @return
+#*	converted string
+#*/
+
+public function strip_front ( in str, in zap )
+{
+	auto slen, zlen;
+	if ( zap == "" ) 
+		zap = DEFZAP;
+	slen = length( str );
+	zlen = length( zap );
+	if ( slen && substr( str, 1, zlen ) == zap )
+		str = strip_front( substr( str, 1+zlen ) );
+	return str;
+}
+
+#**
+#* 	Removes all occuences of <code>zap</code> from both sides of <code>str</code> (trim).
+#* @param str (in)	string to be processed
+#* @param zap (in)	(optional) string to be removed [default: " "]
+#* @return
+#*	converted string
+#*/
+
+public function strip_both ( in str, in zap )
+{
+	return strip_front( strip_trail ( str, zap ), zap );
+}
+
+#**
+#* 	Splits a <code>path</code> string into a <code>directory</code> and <code>file</code> parts. The path
+#*	separator can be defined with <code>sep</code> (default: backslash) 
+#*<p> NOTE!
+#*	The function does not analyse whether the <code>file</code> part is indeed a file name.
+#*	Anything following the last <sep</code> is treated as <code>file</code>. Anything before is
+#*	treated as <code>dir</code>.
+# NOTE2!
+#	<code>dir</code> does not end with <code>sep</code>.
+#* @param path (in)	string to be processed
+#* @param dir (out)	directory-part (up until the last <code>sep</code>)
+#* @param file (out)	name-part (anything after the last <code>sep</code>)
+#* @param sep (in)	(optional) separator (default: backslash)
+#* @return
+#*	E_OK:	success
+#*	!E_OK:	error (do not ust the out variables!)
+#*/
+
+public function split_path( in path, out dir, out file, in sep )
+{
+	auto count, i;
+	auto arr[];
+	
+	if ( sep == "" )
+	{
+		# assuming backslash is more frequent
+		path = replace( path, "/", "\\" );
+		sep = "\\";
+	}
+	
+	count = split( path, arr, sep );
+
+	switch ( count )
+	{
+	case 0:
+		return E_BAD_PATH;
+	case 1:
+		dir = "";
+		file = arr[1];
+		return E_OK;
+	default:
+		dir = arr[1];
+		for ( i=2; i<count; i++ )
+			dir = dir & sep & arr[i];
+		file = arr[count];
+		return E_OK;
+	}
+}
+
+#**
+#*	Diese Funktion fügt zwei Pfadteile zusammen. Dabei werden <code>sep</code> konvertiert
+#*	"/-->\  bzw. \-->/). Standardmeßig werden \ durch / ersetzt.
+#*	Eventuell nicht oder merfach vorhandene Separatoren in der Join-Stelle 
+#*	werden auf ein <sep> gesetzt.
+#*<p> EXAMPLE:
+#*<pre>
+#*	join_path( "C:\aaa", "bbb.xxx" )   ==>  "C:/aaa/bbb.xxx"
+#*	join_path( "C:\aaa\", "\bbb.xxx" ) ==>  "C:/aaa/bbb.xxx"
+#*	join_path( "", "bbb.xxx" )         ==>  "/bbb.xxx"
+#*	join_path( "C:/aaa" )              ==>  "C:/aaa/"
+#*</pre>
+#* @param part1 (in)	erster Teil der Pfadangabe
+#* @param part2 (in)	zweiter Teil der Pfadangabe
+#* @param sep (in)	(optional) Pathseparator to use [default: /]
+#* @return
+#*	concatenated path
+#*/
+
+public function join_path( in part1, in part2, in sep )
+{
+	auto sep2;
+	switch (sep)
+	{
+	case "":
+		sep="/";
+		# merke, kein break!
+	case "/":
+		sep2 = "\\";
+		break;
+	case "\\":
+		sep2 = "/";
+		break;
+	default:
+		sep2 = sep;
+	}
+	part1 = strip_both( part1, " " );
+	part1 = replace( part1, sep2, sep );
+	part2 = strip_both( part2, " " );
+	part2 = replace( part2, sep2, sep );
+	if ( part1 == "" )
+		return part2;
+	if ( part2 == "" )
+		return part1;
+	part1 = strip_trail( part1, sep );
+	part2 = strip_front( part2, sep );
+	return part1 & sep & part2;
+}
+
+#===============================================================================
+# FUNCTION: trim
+#===============================================================================
+# DESCRIPTION/PURPOSE:
+# 	Diese Funktion entfernt alle Vorkommen Blank vom Ende des <str1>.
+# PARAMETERS:
+#	in str:		String, das "gestrippt" werden soll
+# RETURN VALUE:
+#	umgewandelter String
+# BEISPIEL:
+#	s = "1234  ";
+#	x = "<" & trim(s) & ">";	 ==> x = "<1234>"
+#===============================================================================
+
+public function trim(in str1)
+{
+	static i;
+	
+	for(i=length(str1); i > 0; i--)
+		if(substr(str1,i,1) != " ") break;
+
+	return(substr(str1,1,i));
+}
+
+#===============================================================================
+# FUNCTION: ltrim
+#===============================================================================
+# DESCRIPTION/PURPOSE:
+# 	Diese Funktion entfernt alle Vorkommen Blank vom Anfang des <str1>.
+# PARAMETERS:
+#	in str:		String, das "gestrippt" werden soll
+# RETURN VALUE:
+#	umgewandelter String
+# BEISPIEL:
+#	s = "   1234";
+#	x = "<" & ltrim(s) & ">";	 ==> x = "<1234>"
+#===============================================================================
+
+public function ltrim(in str1)
+{
+	static i,j1,j2;
+	
+	j1 = length(str1);
+
+	for(i=1; i <= j1; i++)
+		if(substr(str1,i,1) != " ") break;
+
+	if (i <= j1)
+		return(substr(str1,i));
+	else
+		return(str1);
+}
+
+#===============================================================================
+# FUNCTION: alltrim
+#===============================================================================
+# DESCRIPTION/PURPOSE:
+# 	Diese Funktion entfernt alle Vorkommen Blank vom Anfang und vom Ende 
+#																	des <str1>.
+# PARAMETERS:
+#	in str:		String, das "gestrippt" werden soll
+# RETURN VALUE:
+#	umgewandelter String
+# BEISPIEL:
+#	s = "   1234  ";
+#	x = "<" & alltrim(s) & ">";	 ==> x = "<1234>"
+#===============================================================================
+
+public function alltrim(in str1)
+{
+	return(ltrim(trim(str1)));
+}
+
+#===============================================================================
+# FUNCTION: random_arr  -  Vorbereitung Random-Array.
+#===============================================================================
+# DESCRIPTION/PURPOSE:
+#	Vorbereitung Random-Array.
+# PARAMETERS:
+#	inout arr[]:	belibige Array 
+#	in nnn:			Dimension von Array
+# RETURN VALUE:
+#	inout arr[]:	Array zufälliger Zahlen 
+# BEISPIEL:
+#		random_arr(arr1,100);
+#		for(i=1; i <= 100; i++)
+#			print(arr1[i]);
+#===============================================================================
+
+public function random_arr(inout arr1[], in nnn)
+{
+	static i, ind1;
+
+	for (i = 1; i <= nnn; i++)
+		arr1[i] = 0;
+
+	for (i = 1;   i <= nnn;   i++)
+	{
+		ind1 = int(rand() * nnn) + 1;
+
+		while(  arr1[ind1]  !=  0 )
+			ind1 = int(rand() * nnn) + 1;
+
+		arr1[ind1] = i;
+	}
+}
+
+#===============================================================================
+# FUNCTION: replace1
+#===============================================================================
+# DESCRIPTION/PURPOSE:
+# 	Diese Funktion ersetzt alle Vorkommen <s2> durch <s3> in <s1>.
+# PARAMETERS:
+#	in s1:	String, das "gestrippt" werden soll
+#	in s2:	String, das ersetzt werden sollen
+#	in s3:	String, das engefügt werden sol
+# RETURN VALUE:
+#	umgewandelter String
+# BEISPIEL:
+#	s1 = replace1("1234567890","34","abcd"); ==> s1 = "12abcd567890"
+#	s1 = replace1("1234567890","3456","a");  ==> s1 = "12a7890"
+#	s1 = replace1("1234567890","3456","");   ==> s1 = "127890"
+#===============================================================================
+
+public function replace1(in s1, in s2, in s3)
+{
+	static i,i1,i2,len2;
+	static t1,t2,j1,j2;
+	static s1x;
+
+	j1 = 1;
+	
+	if (s1 == ""  ||  s2 == "")  return(s1);
+	
+	i1 = index(s1,s2);
+	if (i1 == 0)  return(s1);
+
+	s1x  =  s1;   s1 = "";   len2 = length(s2);	
+
+	i2 = index1(s1x,s2);
+	
+	for(i = 1; i <= i2; i++)
+	{
+		i1 = index(s1x, s2);
+
+		if (i1 != 1)   s1 = s1  &  substr(s1x, 1, i1-1);
+
+		s1 = s1  &  s3;
+
+		if (i1 + len2 <= length(s1x) )   s1x = substr(s1x, i1 + len2);
+		else						     s1x = "";
+	}
+	return( s1  &  s1x );
+}
+
+#===============================================================================
+# FUNCTION: substr1
+#===============================================================================
+# DESCRIPTION/PURPOSE:
+# 	Diese Funktion gibt substring aus <str1> vom Anfang <s1> bis zum Ende <s3>
+#																	zurück.
+# PARAMETERS:
+#	in str1:	String, das untersucht werden soll
+#	in s2:		String, das den Anfang bestimmt
+#	in s3:		String, das das Ende bestimmt
+# RETURN VALUE:
+#	substring
+# BEISPIEL:
+#	x = substr1("123<<<abcd>>>45678","<<<",">>>");  ==> x = "abcd"
+#	x = substr1("123##abcdef##45678","##","##");	==> x = "abcdef"
+#===============================================================================
+
+public function substr1(in str1, in s1, in s2)
+{
+	static j1,j2,j3,j4,j5;
+
+	j1 = index(str1,s1);
+	if (j1 == 0) return("");
+
+	if (s1 == s2)
+	{
+		j4 = index1(str1,s1);
+		if (j4 <= 1) return("");
+		
+		j4 = index2(str1,s1,1) + length(s1);
+		j5 = index2(str1,s1,2) - j4;
+		
+		return(substr(str1,j4,j5));
+	}
+
+	j3 = j1 + length(s1);
+
+	if (s2 == "")	return(substr(str1,j3));
+	else
+	{
+		j2 = index(substr(str1,j3),s2);
+		if (j2 == 0) return("");
+		return(substr(str1,j3,j2-1));
+	}
+}
+
+#===============================================================================
+# FUNCTION: index1
+#===============================================================================
+# DESCRIPTION/PURPOSE:
+# 	Diese Funktion gibt den Anzahl alle Vorkommen <s2> in <s1> zurück.
+# PARAMETERS:
+#	in s1:	String, das untersucht werden soll
+#	in s2:	subtring, das    sucht werden soll
+# RETURN VALUE:
+#	Zahl
+# BEISPIEL:
+#	rc = index1("123ab4567ab890","ab");  ==>  rc = 2
+#	rc = index1("123ab4567ababa","ab");  ==>  rc = 3
+#===============================================================================
+
+public function index1(in s1, in s2)
+{
+	static i,i1,i2;
+
+	i=1; i1=0; i2=0;
+
+	while(1)
+	{
+		i1 = index(substr(s1,i),s2);
+		if (i1 == 0) return(i2);
+		i2++;
+		i  = i + i1 - 1 + length(s2);
+	}	
+}
+
+#===============================================================================
+# FUNCTION: index2
+#===============================================================================
+# DESCRIPTION/PURPOSE:
+# 	Diese Funktion gibt die Position des Vorkommens <s2> in <s1> 
+#													mit Nummer <n1> zurück.
+# PARAMETERS:
+#	in s1:	String, das untersucht werden soll
+#	in s2:	subtring, das    sucht werden soll
+#	in n1:	Zahl - Nummer des Vorkommens
+# RETURN VALUE:
+#	Anzahl
+# BEISPIEL:
+#	Pos:  123456789012345678 				
+#	s1 = "12ab345ab6ab789ab0";
+#	N = index2(s1,"ab",1);				  ==>  N = 3
+#	N = index2(s1,"ab",2);				  ==>  N = 8
+#	Letztes Vorkommen:
+#	N = index2(s1,"ab",index1(s1,"ab"));  ==>  N = 16
+#===============================================================================
+
+public function index2(in s1, in s2, in n1)
+{
+	static i,i1,i2;
+
+	i=1; i1=0; i2=0;
+	
+	if (s1 == ""  ||  s2 == ""  ||  n1 == ""  ||  n1 == 0) return(0);
+
+	while(1)
+	{
+		i1 = index(substr(s1, i),s2);
+		if (i1 == 0) return(0);
+		if (++i2 == n1) return(i + i1 - 1);
+		i  = i + i1 - 1 + length(s2);
+	}
+}
+
+#===============================================================================
+# FUNCTION: split1
+#===============================================================================
+# DESCRIPTION/PURPOSE:
+# 	Änlich wie builtin-Funktion split() außer: statt Field_separators
+#																 ganzes String.  
+# PARAMETERS:
+# 	Änlich wie builtin-Funktion split()
+# RETURN VALUE:
+# 	Änlich wie builtin-Funktion split()
+# BEISPIEL:
+#	rc = split1("123##45##6789##0",arr1,"##");  ==> rc = 4 
+#												==> arr1[1] = "123" 
+#												==> arr1[2] = "45" 
+#												==> arr1[3] = "6789" 
+#												==> arr1[4] = "0" 
+#===============================================================================
+
+public function split1(in s1, inout arr1[], in s2)
+{
+	static i,i1,len2;
+
+	for(i in arr1)	arr1[i]= "";
+
+	if (index(s1,s2) == 0) return(0);
+	
+	len2 = length(s2);	
+	
+	if (substr(s1,1,len2) != s2)	s1 = s2 & s1;
+		
+	i1 = index1(s1,s2);
+
+	if (substr(s1,length(s1) - len2 + 1, len2) != s2)	s1 = s1 & s2;
+	else i1--;
+
+	for (i=1; i <= i1; i++)
+		arr1[i]= substr1(substr(s1,index2(s1,s2,i)),s2,s2);
+
+	return(i1);
+}
+
+#/**
+#* Converts the integer returned by the get_time function to a string formatted as YYYYMMDD.
+#* This function converts the integer argument (time) returned by the get_time function to a string,
+#* in the format "YYYYMMDD" For example, the string "19981205", is the return value of the function.
+#* @param time (in) [optional] integer returned by get_time() or any other integer that is interpreted
+#* as number of seconds passes since 1.Jan.1970. [default: today]
+#* @return string formatted to YYYYMMDD or empty string if date could not be interpreted.
+#*/
+
+public function yyyymmdd_str( in time )
+{
+	auto t = (time=="" ? time_str() : time_str( time ));
+	auto arr[];
+	auto count;
+	auto mm;
+	
+	count = split( t, arr, " " );
+	if ( count != 5 )
+		return "";
+	switch ( arr[2] )
+	{
+	case "Jan": mm = 1; break;
+	case "Feb": mm = 2; break;
+	case "Mar": mm = 3; break;
+	case "Apr": mm = 4; break;
+	case "May": mm = 5; break;
+	case "Jun": mm = 6; break;
+	case "Jul": mm = 7; break;
+	case "Aug": mm = 8; break;
+	case "Sep": mm = 9; break;
+	case "Oct": mm = 10; break;
+	case "Nov": mm = 11; break;
+	case "Dec": mm = 12; break;
+	default: return "";
+	}
+	return sprintf("%04d%02d%02d", arr[5], mm, arr[3] );
+}
+
+###########################################################################
+# TSL-LIBRARY:	EMOS_STD_string_Lib
+###########################################################################

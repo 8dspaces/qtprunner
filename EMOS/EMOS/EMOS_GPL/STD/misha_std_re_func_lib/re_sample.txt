@@ -1,0 +1,73 @@
+########### sample test scripts ###################
+
+# "label_like" gui property, to verify labels with regular expressions
+
+# open notepad and save a file called "sausage"
+win="{class: window, label_like: \"silly|sausage\", MSW_class: Notepad}";
+if (win_exists(win,-1) == E_OK)
+	win_get_info(win,"label",value);
+
+#-------------------------------------------------------
+
+# "id_like" gui property, for MSW_id with re's
+
+# open notepad, and the Font dialog
+set_window("{class:window,label:Font}", 1);
+obj_highlight("{id_like:\"1001|1000\"}",2);
+
+#-------------------------------------------------------
+
+# re_search and re_match functions
+
+orig_str = "A headless horseman rides through the the deep jungle.";
+print orig_str;
+
+# bad expression
+re = "\\w+{2}";
+re_search(orig_str, re, m_pos, m_len, detail);
+print "bad re...";
+re_print_detail(detail);
+
+re = "horse|head";
+re_search(orig_str, re, m_pos, m_len, detail);
+print "horse|head...";
+re_print_detail(detail);
+
+re = "[[:upper:]].*\\.";
+if (re_match(orig_str, re, m_pos, m_len, detail))
+	print "yes its in sentence case.";
+else
+	print "no its not sentence case.";
+
+re = "(\\w+){2}";
+if (re_search(orig_str, re, m_pos, m_len, detail))
+{
+	re_get_match(orig_str, detail, 0, match_str);
+	print "found double word: " match_str;
+}
+else
+	print "did not find double word";
+
+re = ".{2}";
+if (re_search(orig_str, re, m_pos, m_len, detail))
+{
+	re_get_match(orig_str, detail, 0, match_str);
+	print "found double character: " match_str;
+}
+else
+	print "did not find double character";
+
+re = "headless (\\w+) (\\w+) (\\w+)";
+if(re_search(orig_str, re, m_pos, m_len, detail))
+{
+	re_get_detail(detail, 0, nsubs, line, position, len);
+	for (n=1; n<=nsubs; n++)
+	{
+		re_get_match(orig_str, detail, n, match_str);
+		print "found submatch: " match_str;
+	}
+}
+else
+	print "did not find submatch";
+
+#-----------------------------------------

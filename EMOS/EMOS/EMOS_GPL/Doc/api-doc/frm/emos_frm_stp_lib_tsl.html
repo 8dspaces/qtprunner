@@ -1,0 +1,805 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_FRM_stp_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.6 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/27 08:53:54 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/emos_frm_stp_lib/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/***
+#* Defines an interface for efficient creation of test cases unsing the FRM
+#* data tables.&lt;p&gt;
+#* A typical FRM test case defines its test data across columns. This is the 
+#* plain oposite of the approach taken by Mercury and many other testers. The
+#* benefit of defining test data column-wise is the ability to define many,
+#* very many (up to 64k) test entries which makes very complex tests possible
+#* (accross rows the limit is 256) which are comparatively easy to maintain
+#* (no ugly right-left scrolling, you can see much more test data at once).
+#* Additionally, you can (hypothetically) "pack" up to 254 of such complex tests
+#* in a single Excel-file wich can greatly reduce the mess on your hard drive.&lt;p&gt;
+#* A single test case contains three important parts:
+#* &lt;ul&gt;
+#* &lt;li&gt;&lt;code&gt;name&lt;/code&gt; content of the cell in the first row&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;sequence&lt;/code&gt; a single cell containing the list of test steps
+#* which are to be executed in a sequence&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;step(s)&lt;/code&gt; an indexed block of rows containing test data&lt;/li&gt;
+#* &lt;/ul&gt;
+#* To keep things simple imagine a part of some application with two windows.
+#* First window contains the list of user names and three buttons: New, Edit, Delete.
+#* Imagine a table "User1.xls" with the following content:
+#* &lt;table border&gt;
+#*  &lt;tr&gt; &lt;th&gt;IDX&lt;/th&gt; &lt;th&gt;Name&lt;/th&gt;&lt;th&gt;1&lt;/th&gt;&lt;th&gt;2&lt;/th&gt;&lt;th&gt;3&lt;/th&gt;  &lt;/tr&gt;
+#*  &lt;tr&gt; &lt;td&gt;x&lt;/td&gt; &lt;th&gt;Testsequence&lt;/th&gt; &lt;td&gt;&lt;pre&gt;select_user
+#*user_data&lt;/pre&gt;&lt;/td&gt; &lt;td&gt;&lt;pre&gt;select_user
+#*user_data&lt;/pre&gt;&lt;/td&gt; &lt;td&gt;select_user&lt;/td&gt; &lt;/tr&gt;
+#*  &lt;tr&gt; &lt;td&gt;x&lt;/td&gt; &lt;th&gt;select_user&lt;/th&gt; &lt;th&gt;&amp;#160;&lt;/th&gt; &lt;th&gt;&amp;#160;&lt;/th&gt; &lt;th&gt;&amp;#160;&lt;/th&gt;  &lt;/tr&gt;
+#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;user list&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;dean&lt;/td&gt; &lt;td&gt;dean&lt;/td&gt; &lt;/tr&gt;
+#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;New/Edit/Delete&lt;/td&gt; &lt;td&gt;New&lt;/td&gt; &lt;td&gt;Edit&lt;/td&gt; &lt;td&gt;Delete&lt;/td&gt; &lt;/tr&gt;
+#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;delete? (OK/Cancel)&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;OK&lt;/td&gt; &lt;/tr&gt;
+#*  &lt;tr&gt; &lt;td&gt;x&lt;/td&gt; &lt;th&gt;user_data&lt;/th&gt; &lt;th&gt;&amp;#160;&lt;/th&gt; &lt;th&gt;CHK&lt;/th&gt; &lt;th&gt;&amp;#160;&lt;/th&gt; &lt;/tr&gt;
+#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;first name&lt;/td&gt; &lt;td&gt;dean&lt;/td&gt; &lt;td&gt;dean&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;
+#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;last name&lt;/td&gt; &lt;td&gt;rajovic&lt;/td&gt; &lt;td&gt;rajovic&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;
+#*  &lt;tr&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;td&gt;OK/Cancel&lt;/td&gt; &lt;td&gt;OK&lt;/td&gt; &lt;td&gt;Cancel&lt;/td&gt; &lt;td&gt;&amp;#160;&lt;/td&gt; &lt;/tr&gt;
+#* &lt;/table&gt;
+#* This table contains three independent test cases named 1, 2 and 3.
+#* Test 1 creates a new user....
+#*/</font></i><font color=black>
+
+<b>static</b> <b>const</b> COUNT = 0;
+<b>static</b> <b>const</b> NEXT = 1;
+<b>static</b> <b>const</b> IDX = 2;
+
+<b>static</b> <b>const</b> DEFAULT_IDX_NAME = </font><font color="#00bb00">"Testvorgang"</font><font color=black>;
+
+</font><font color="#ff0000"><i># Dreidimensional: steps[ table, test, vorgang ]</font></i><font color=black>
+<b>static</b> steps[];
+
+</font><font color="#ff0000"><i>#Dreidimensional: info[ table, test, info_type ]</font></i><font color=black>
+<b>static</b> info[];           
+
+<b>public</b> __evalRC;        </font><font color="#ff0000"><i># public variable used to communicate returne code for eval statements</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Initialises the step iterator.
+#* @param tid (in)	table ID
+#* @param test (in)	column name
+#* @param idx (in)	(optional) index (i.e. table row) containing test steps [default: "Testvorgang"]
+#* @return
+#*	E_OK:	success
+#*	E_NOT_FOUND:	no steps found (idx missing)
+#*	else:	other error
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_STP_init_steps ( <b>in</b> tid, <b>in</b> test, <b>in</b> idx )
+{
+	<b>auto</b> rc, val, count, arr[], i, msg;
+	
+	<b>if</b> ( idx == </font><font color="#00bb00">""</font><font color=black> )
+		idx = DEFAULT_IDX_NAME;
+	
+	rc = FRM_get_cell( tid, test, idx, val );
+	<b>if</b> ( rc != E_OK )
+	{
+		msg = sprintf( </font><font color="#00bb00">"Teststeps cannot be determined; idx=[%s] rc=[%s]"</font><font color=black>, idx, rc );
+		<b>tl_step</b>( </font><font color="#00bb00">"FRM_STP_init_steps"</font><font color=black>, rc, msg );
+		<b>return</b> rc;
+	}
+	FRM_STP_clear_steps ( tid, test );
+
+	info[ tid, test, IDX ] = idx;
+	info[ tid, test, COUNT ] = 0;
+	info[ tid, test, NEXT ] = 1;
+
+	FRM_STP_load_steps( tid,test, idx, val );
+
+	</font><font color="#ff0000"><i># since 04/2001: load up to 99 additional test step cells</font></i><font color=black>
+	<b>for</b>( i=1; i&lt;100; i++ )
+	{
+		<b>if</b> ( FRM_get_cell( tid, test, idx&amp;i, val ) != E_OK )
+			<b>break</b>;
+		FRM_STP_load_steps( tid, test, idx&amp;i, val );
+	}
+	<b>return</b> (info[ tid, test, COUNT ]==0) ? E_NOT_FOUND : E_OK;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Loads the content of a single table cell (steps separated by newline char)
+#* into the internal step table.
+#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_STP_load_steps ( <b>in</b> tid, <b>in</b> test, <b>in</b> idx, <b>in</b> val )
+{
+	<b>auto</b> arr[], count, i;
+	<b>auto</b> count2 =info[ tid, test, COUNT ];
+	
+	count = split( val, arr, </font><font color="#00bb00">"\n"</font><font color=black> );
+	<b>for</b>( i=1; i&lt;=count; i++ )
+	{
+		steps[ tid, test, count2+i ] = arr[i];		
+		info[ tid, test, COUNT ] = count2+i;
+	}
+}
+	
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Frees all references to the specified test.
+#* @param tid (in)	table ID
+#* @param test (in)	column name
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_STP_clear_steps ( <b>in</b> tid, <b>in</b> test )
+{
+	<b>auto</b> i, idx = tid &amp; ARRSEP &amp; test;
+	<b>for</b> ( i <b>in</b> steps )
+		<b>if</b> ( match (i, idx) == 1 )
+			delete steps[i];
+	<b>for</b> ( i <b>in</b> info )
+		<b>if</b> ( match (i, idx) == 1 )
+			delete info[i];
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Indicates whether there are steps to execute.
+#* @param tid (in)	table ID
+#* @param test (in)	column name
+#* @return
+#*	TRUE:	there are more steps; use FRM_STP_get_next_step() to get the next one
+#*	FALSE:	all steps have been retrieved
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_STP_has_more_steps ( <b>in</b> tid, <b>in</b> test )
+{
+	<b>if</b> ( ((tid, test, COUNT) <b>in</b> info) &amp;&amp; ((tid, test, NEXT) <b>in</b> info) )
+		<b>return</b> ( info[tid, test, NEXT] &lt;= info[tid, test, COUNT] );
+	<b>return</b> FALSE;
+}
+		
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns the next step. Note that the &lt;b&gt;implicit steps&lt;/b&gt; are never returned
+#* with this command. They are simply executed by this function. The implicit
+#* steps are:
+#* &lt;ul&gt;
+#* &lt;li&gt;&lt;code&gt;LINK&lt;/code&gt; executes a test in this or some other data table, 
+#* the test is atomatically loaded if necessary&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;LINA&lt;/code&gt; same as LINK while loading ALL tests from the specified
+#* table (sometimes impoves the overal performance)&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;LINX&lt;/code&gt; executes a specified test from an inverted data table
+#* (table in which tests are organised/indexed horizontally)&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;CALL&lt;/code&gt; invokes an arbitrary WinRunner main test&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;EVAL&lt;/code&gt; invokes an arbitrary WinRunner function&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;EXEC&lt;/code&gt; evaluates a block of WinRunner functions&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;#&lt;/code&gt; any step starting with # is treated as a comment&lt;/li&gt;
+#* &lt;li&gt;obsolete syntax is still valid&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;&lt;b&gt;LNK:&lt;/b&gt;script_name&lt;/code&gt; links this test with another one 
+#* (loading only the specified tests)&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;&lt;b&gt;LNA:&lt;/b&gt;script_name&lt;/code&gt; links this test with another one 
+#* (loading all tests in the referenced table)&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;&lt;b&gt;EXE:&lt;/b&gt;test step&lt;/code&gt; exectutes all rows in the specified test block&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;&lt;b&gt;###:&lt;/b&gt;test step&lt;/code&gt; comments out the given test step&lt;/li&gt;
+#* &lt;li&gt;&lt;code&gt;&amp;lt;&amp;lt;PAUSE&amp;gt;&amp;gt;&lt;/code&gt; pauses the test execution in interactive mode&lt;/li&gt;
+#* &lt;/ul&gt;
+#* @param tid (in)	table ID
+#* @param test (in)	column name
+#* @param step (out)	name (idx) of the test step
+#* @param mode (out)	mode to be applied ( FRM_SET_MODE/FRM_CHK_MODE/FRM_GEN_MODE )
+#* @return
+#*	E_OK:	success; test step defined
+#*	E_FILE_EOF:	no steps to be retreived
+#*	else:	failure
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_STP_get_next_step ( <b>in</b> tid, <b>in</b> test, <b>out</b> step, <b>out</b> mode )
+{
+	<b>auto</b> val, stp, nxt, hdr;
+	<b>auto</b> formatted, sep, arr[], count, i;
+	<b>auto</b> cmd, drv, tbl, tst;
+
+	<b>auto</b> rc = E_OK;
+	
+	<b>while</b> ( 1 )
+	{
+		<b>if</b> ( !FRM_STP_has_more_steps ( tid, test ) )
+			<b>return</b> E_FILE_EOF;
+		nxt = info[ tid, test, NEXT ];
+		stp = strip_both( steps[tid, test, nxt ] );
+
+		</font><font color="#ff0000"><i># empty step or comment</font></i><font color=black>
+		<b>if</b> ( stp == </font><font color="#00bb00">""</font><font color=black> || substr( stp,1,1  ) == </font><font color="#00bb00">"#"</font><font color=black> )
+		{
+			info[ tid, test, NEXT ] = nxt+1;
+			<b>continue</b>;
+		}
+		
+		hdr = toupper( substr( stp,1,4 ) );
+
+		</font><font color="#ff0000"><i># look for keywords</font></i><font color=black>
+		<b>switch</b> ( hdr )
+		{
+		</font><font color="#ff0000"><i># shortcuts for SET/CHK/ATR/GEN modes</font></i><font color=black>
+		<b>case</b> </font><font color="#00bb00">"SET:"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"CHK:"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"ATR:"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"GEN:"</font><font color=black>:
+		</font><font color="#ff0000"><i># call to another FRM test</font></i><font color=black>
+		<b>case</b> </font><font color="#00bb00">"LINK"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"LINA"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"LINX"</font><font color=black>:
+		</font><font color="#ff0000"><i># call to an arbitrary test script</font></i><font color=black>
+		<b>case</b> </font><font color="#00bb00">"CALL"</font><font color=black>:
+		</font><font color="#ff0000"><i># executes an arbtrary WinRunner command</font></i><font color=black>
+		<b>case</b> </font><font color="#00bb00">"EVAL"</font><font color=black>:
+		</font><font color="#ff0000"><i># executes a block of WinRunner commands</font></i><font color=black>
+		<b>case</b> </font><font color="#00bb00">"EXEC"</font><font color=black>:
+		</font><font color="#ff0000"><i># old-fashined links (still supported)</font></i><font color=black>
+		<b>case</b> </font><font color="#00bb00">"LNK:"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"LNA:"</font><font color=black>:
+		</font><font color="#ff0000"><i># old-fashioned EXEC</font></i><font color=black>
+		<b>case</b> </font><font color="#00bb00">"EXE:"</font><font color=black>:
+			formatted = (<b>length</b>(stp) &gt; 4 ? TRUE : FALSE);
+			<b>break</b>;
+		<b>default</b>:
+			formatted = FALSE;
+			<b>break</b>;
+		}
+
+		info[ tid, test, NEXT ] = nxt+1;
+
+		<b>if</b> ( !formatted )
+		{
+			step = stp;
+			<b>if</b> ( FRM_STP_is_internal_step( step, tid ) )
+				<b>continue</b>;
+			wrlog_block_start ( stp );
+			<b>if</b> ( FRM_STP_is_dummy_step_mode() )
+			{
+				wrlog_block_stop ( stp, 0 );
+				<b>continue</b>;
+			}
+			<b>break</b>;
+		}
+
+		<b>switch</b> ( hdr )
+		{
+		<b>case</b> </font><font color="#00bb00">"SET:"</font><font color=black>:
+			mode = FRM_SET_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( step );
+			<b>if</b> ( FRM_STP_is_dummy_step_mode() )
+			{
+				wrlog_block_stop ( step, 0 );
+				<b>continue</b>;
+			}
+			<b>break</b>;
+		<b>case</b> </font><font color="#00bb00">"CHK:"</font><font color=black>:
+			mode = FRM_CHK_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( step );
+			<b>if</b> ( FRM_STP_is_dummy_step_mode() )
+			{
+				wrlog_block_stop ( step, 0 );
+				<b>continue</b>;
+			}
+			<b>break</b>;
+		<b>case</b> </font><font color="#00bb00">"ATR:"</font><font color=black>:
+			mode = FRM_ATR_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( step );
+			<b>if</b> ( FRM_STP_is_dummy_step_mode() )
+			{
+				wrlog_block_stop ( step, 0 );
+				<b>continue</b>;
+			}
+			<b>break</b>;
+		<b>case</b> </font><font color="#00bb00">"GEN:"</font><font color=black>:
+			mode = FRM_GEN_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( step );
+			<b>if</b> ( FRM_STP_is_dummy_step_mode() )
+			{
+				wrlog_block_stop ( step, 0 );
+				<b>continue</b>;
+			}
+			<b>break</b>;
+		<b>case</b> </font><font color="#00bb00">"LINK"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"LINA"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"LINX"</font><font color=black>:
+			wrlog_block_start ( stp );
+			rc = FRM_STP_parse_link( stp, tid, drv, tbl, tst );
+			wrlog_block_stop ( stp, rc );
+			<b>if</b> ( rc != E_OK ) <b>break</b>;
+			wrlog_test_start ( tst, tbl, drv );
+			rc = FRM_STP_eval_link( hdr, tid, drv, tbl, tst );
+			wrlog_test_stop ( stp, rc );
+			<b>if</b> ( rc != E_OK ) <b>break</b>;
+			<b>continue</b>;
+		<b>case</b> </font><font color="#00bb00">"CALL"</font><font color=black>:
+			wrlog_block_start ( stp );
+			<b>if</b> ( !FRM_STP_is_dummy_step_mode() )
+				rc = FRM_STP_eval_call( stp );
+			wrlog_block_stop ( stp, rc );
+			<b>if</b> ( rc != E_OK ) <b>break</b>;
+			<b>continue</b>;
+		<b>case</b> </font><font color="#00bb00">"EVAL"</font><font color=black>:
+			wrlog_block_start ( stp );
+			<b>if</b> ( !FRM_STP_is_dummy_step_mode() )
+			rc = FRM_STP_eval( substr( stp, 6 ) );
+			wrlog_block_stop ( stp, rc );
+			<b>continue</b>;
+		<b>case</b> </font><font color="#00bb00">"EXEC"</font><font color=black>:
+			mode = FRM_SET_MODE;
+			step = substr( stp, 6 );
+			wrlog_block_start ( stp );
+			<b>if</b> ( !FRM_STP_is_dummy_step_mode() )
+				rc = FRM_STP_exec( tid, test, step, mode );
+			wrlog_block_stop ( stp, rc );
+			<b>if</b> ( rc != E_OK ) <b>break</b>;
+			<b>continue</b>;
+		</font><font color="#ff0000"><i># KEPT ONLY FOR THE SAKE OF COMPATIBILITY WITH THE OLD DATA TABLES</font></i><font color=black>
+		</font><font color="#ff0000"><i># use LINK and/or LINA instead!</font></i><font color=black>
+		<b>case</b> </font><font color="#00bb00">"LNK:"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"LNA:"</font><font color=black>:
+			mode = FRM_SET_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( stp );
+			wrlog_block_stop ( stp, 0 );
+			<b>if</b> ( hdr == </font><font color="#00bb00">"LNK:"</font><font color=black> )
+				rc = FRM_STP_link( tid, test, step, mode, FALSE );
+			<b>else</b>
+				rc = FRM_STP_link( tid, test, step, mode, TRUE );
+			</font><font color="#ff0000"><i># propagate errors up the call chain</font></i><font color=black>
+			<b>if</b> ( rc != E_OK ) <b>break</b>;
+			<b>continue</b>;
+		<b>case</b> </font><font color="#00bb00">"EXE:"</font><font color=black>:
+			mode = FRM_SET_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( stp );
+			<b>if</b> ( !FRM_STP_is_dummy_step_mode() )
+				rc = FRM_STP_exec( tid, test, step, mode );
+			wrlog_block_stop ( stp, rc );
+			<b>if</b> ( rc != E_OK ) <b>break</b>;
+			<b>continue</b>;
+		<b>default</b>:
+			</font><font color="#ff0000"><i># internal error if you land here</font></i><font color=black>
+			rc = E_GENERAL_ERROR;
+			<b>break</b>;
+		}
+		<b>tl_step</b>( </font><font color="#00bb00">"STEP"</font><font color=black>, rc, sprintf( </font><font color="#00bb00">"[%s] failed returning [rc=%s]"</font><font color=black>, stp, rc ) );
+		<b>return</b> rc;
+	}
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Parses the call to another FRM test, i.e. call driver( table, test ).
+#* SYNTAX:
+#*	&lt;code&gt;LINK&amp;lt;SEP&amp;gt;[driver]&amp;lt;SEP&amp;gt;[table]&amp;lt;SEP&amp;gt;test&lt;/code&gt;
+#* or
+#*	&lt;code&gt;LINA&amp;lt;SEP&amp;gt;[driver]&amp;lt;SEP&amp;gt;[table]&amp;lt;SEP&amp;gt;test&lt;/code&gt;
+#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_STP_parse_link ( <b>in</b> line, <b>in</b> curr_tid, <b>out</b> drv, <b>out</b> tbl, <b>out</b> tst )
+{
+	<b>auto</b> sep, arr[], count, i;
+	<b>auto</b> dir, file;
+
+	sep = substr( line, 5, 1 );
+	count = split( line, arr, sep );
+	<b>if</b> ( count != 4 )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+
+	</font><font color="#ff0000"><i># driver is optional if new driver logic is used</font></i><font color=black>
+	drv = strip_both( arr[2] );
+	<b>if</b> ( drv == </font><font color="#00bb00">""</font><font color=black> &amp;&amp; !FRM_DRV_is_new_test_driver() )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+
+	</font><font color="#ff0000"><i># test name must be specified</font></i><font color=black>
+	tst = strip_both( arr[4] );
+	<b>if</b> ( tst == </font><font color="#00bb00">""</font><font color=black> )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+
+	tbl = strip_both( arr[3] );
+
+	</font><font color="#ff0000"><i># table name is optional (default: current table)</font></i><font color=black>
+	</font><font color="#ff0000"><i># if we don't return tbl, then curr_tid should be used by the caller</font></i><font color=black>
+	<b>if</b> ( tbl == </font><font color="#00bb00">""</font><font color=black> )
+		<b>return</b> E_OK;
+	
+	</font><font color="#ff0000"><i># if table only contains the sheet name (i.e. starts with name sep), </font></i><font color=black>
+	</font><font color="#ff0000"><i># then substitute the full path of the current table</font></i><font color=black>
+	<b>if</b> ( substr(tbl, 1, 1) == ddt_get_name_sep() )
+	{
+		split_path( FRM_get_filename(curr_tid), dir, file, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+		tbl = join_path( dir, file, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> ) &amp; tbl;
+		<b>return</b> E_OK;
+	}
+	</font><font color="#ff0000"><i># otherwise if table name supplied (eventually with sheet name),</font></i><font color=black>
+	</font><font color="#ff0000"><i># then table name MUST be absolute and backslash-separated</font></i><font color=black>
+	tbl = replace(tbl, </font><font color="#00bb00">"/"</font><font color=black>, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black>);
+	<b>if</b> ( match( tbl, </font><font color="#00bb00">" *[A-Za-z]:"</font><font color=black> ) != 1 &amp;&amp; substr( tbl, 1, 1 ) != </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> )
+	{
+		split_path( FRM_get_name(curr_tid), dir, file, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+		tbl = join_path( dir, tbl, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+	}
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Executes the link call.
+#* SYNTAX:
+#*	&lt;code&gt;LINK&amp;lt;SEP&amp;gt;[driver]&amp;lt;SEP&amp;gt;[table]&amp;lt;SEP&amp;gt;test&lt;/code&gt;
+#* or
+#*	&lt;code&gt;LINA&amp;lt;SEP&amp;gt;[driver]&amp;lt;SEP&amp;gt;[table]&amp;lt;SEP&amp;gt;test&lt;/code&gt;
+#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_STP_eval_link( <b>in</b> typ, <b>in</b> curr_tid, <b>in</b> drv, <b>in</b> tbl, <b>in</b> tst )
+{
+	<b>auto</b> rc, tid, cmd;
+
+	rc = E_OK;
+	
+	<b>switch</b> ( typ )
+	{
+	</font><font color="#ff0000"><i># loads only the required column (if not loaded yet)</font></i><font color=black>
+	</font><font color="#ff0000"><i># and executes the test with that column</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">"LINK"</font><font color=black>:
+		<b>if</b> ( tbl == </font><font color="#00bb00">""</font><font color=black> )
+		{
+			tid = curr_tid;
+			rc = FRM_load_test( tid, tst );
+			<b>break</b>;
+		}
+		<b>if</b> ( FRM_is_table_open( tbl, tid ) )
+		{
+			rc = FRM_load_test( tid, tst );
+			<b>break</b>;
+		}
+		rc = FRM_open( tbl, tst, tid );
+		<b>break</b>;
+	</font><font color="#ff0000"><i># loads all columns if required column not loaded yet</font></i><font color=black>
+	</font><font color="#ff0000"><i># and executes the test with specified column</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">"LINA"</font><font color=black>:
+		<b>if</b> ( tbl == </font><font color="#00bb00">""</font><font color=black> )
+		{
+			tid = curr_tid;
+			rc = FRM_is_parameter( tid, tst );
+			<b>if</b> ( rc != E_OK )
+			{
+				rc = FRM_close( tid );
+				rc = FRM_open( tbl, </font><font color="#00bb00">"&lt;&lt;ALL&gt;&gt;"</font><font color=black>, tid );
+			}
+			<b>break</b>;
+		}
+		<b>if</b> ( FRM_is_table_open( tbl, tid ) )
+		{
+			rc = FRM_is_parameter( tid, tst );
+			<b>if</b> ( rc != E_OK )
+			{
+				rc = FRM_close( tid );
+				rc = FRM_open( tbl, </font><font color="#00bb00">"&lt;&lt;ALL&gt;&gt;"</font><font color=black>, tid );
+			}
+			<b>break</b>;
+		}
+		rc = FRM_open( tbl, </font><font color="#00bb00">"&lt;&lt;ALL&gt;&gt;"</font><font color=black>, tid );
+		<b>break</b>;
+	</font><font color="#ff0000"><i># loads all columns if table not loaded yet</font></i><font color=black>
+	</font><font color="#ff0000"><i># and executes the test assuming the tests are spread across rows</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">"LINX"</font><font color=black>:
+		<b>if</b> ( tbl == </font><font color="#00bb00">""</font><font color=black> )
+		{
+			tid = curr_tid;
+			<b>break</b>;
+		}
+		<b>if</b> ( FRM_is_table_open( tbl, tid ) )
+		{
+			<b>break</b>;
+		}
+		rc = FRM_open( tbl, </font><font color="#00bb00">"&lt;&lt;ALL&gt;&gt;"</font><font color=black>, tid );
+		<b>break</b>;
+	<b>default</b>:
+		</font><font color="#ff0000"><i># should never happen</font></i><font color=black>
+		rc = E_GENERAL_ERROR;
+	}
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+
+	<b>if</b> ( FRM_DRV_is_new_test_driver() )
+	{
+		<b>return</b> FRM_DRV_test_driver( drv, tid, tst );
+	}
+	<b>else</b>
+	{
+		cmd = sprintf( </font><font color="#00bb00">"treturn call_close &#92;&#34;%s&#92;&#34; ( &#92;&#34;%s&#92;&#34;, &#92;&#34;%s&#92;&#34; );"</font><font color=black>, drv, tid, tst ); 
+		debug_msg( sprintf( </font><font color="#00bb00">"%s: %s ..."</font><font color=black>, typ, cmd ) ); 
+		rc = <b>eval</b>( cmd );
+		cmd = sprintf( </font><font color="#00bb00">"treturn call_close &#92;&#34;%s&#92;&#34; ( &#92;&#34;%s&#92;&#34;, &#92;&#34;%s&#92;&#34; );"</font><font color=black>, drv, tid, tst ); 
+		debug_msg( sprintf( </font><font color="#00bb00">"%s: %s [rc=%s]"</font><font color=black>, typ, cmd, rc ) ); 
+	    </font><font color="#ff0000"><i># we always return E_OK because test driver that was called</font></i><font color=black>
+	    </font><font color="#ff0000"><i># sould have handled the error anyway, if we had returned the rc,</font></i><font color=black>
+	    </font><font color="#ff0000"><i># we would cause all other recursive calls of (i.e. links to) the </font></i><font color=black>
+	    </font><font color="#ff0000"><i># same test diver to fail even if they run fine</font></i><font color=black>
+		<b>return</b>  E_OK;
+	}
+}
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Parses the call to an arbitrary test, i.e. call test ( [param]* )
+#* SYNTAX:
+#*	&lt;code&gt;CALL&amp;lt;SEP&amp;gt;test[&amp;lt;SEP&amp;gt;arg]*&lt;/code&gt;
+#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_STP_eval_call ( <b>in</b> line )
+{
+	<b>auto</b> rc, sep, cmd;
+	<b>auto</b> arr[], count, i;
+	
+	sep = substr( line, 5, 1 );
+	count = split( line, arr, sep );
+	<b>if</b> ( count &lt; 2 )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+
+	cmd = sprintf( </font><font color="#00bb00">"treturn call_close &#92;&#34;%s&#92;&#34; ("</font><font color=black>, arr[2] );
+	<b>for</b> ( i=3; i&lt;=count; i++ )
+	{
+		cmd = sprintf( </font><font color="#00bb00">"%s%s &#92;&#34;%s&#92;&#34;"</font><font color=black>, cmd, (i&gt;3 ? </font><font color="#00bb00">","</font><font color=black> : </font><font color="#00bb00">""</font><font color=black>), arr[i] );
+	}
+	cmd = cmd &amp; </font><font color="#00bb00">" );"</font><font color=black>;
+	debug_msg( sprintf( </font><font color="#00bb00">"CALL: %s; ..."</font><font color=black>, cmd ) ); 
+	rc = <b>eval</b>( cmd );
+	debug_msg( sprintf( </font><font color="#00bb00">"CALL: %s; [rc=%s]"</font><font color=black>, cmd, rc ) ); 
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Executes a block of TSL-statements defined in the given block.
+#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_STP_exec ( <b>in</b> tid, <b>in</b> test, <b>in</b> idx, <b>in</b> mode )
+{
+	<b>auto</b> rc, obj, val, row;
+
+	rc = FRM_init_block( tid, test, idx, mode );
+	<b>if</b> ( rc != E_OK ) 
+		<b>return</b> rc;
+
+	rc = FRM_get_current_row( tid, row );
+
+	<b>while</b> ( rc == E_OK || rc == E_FRM_SKIP )
+	{
+		row++;
+		rc = FRM_get( tid, FRM_COL_NAME, obj, row );
+		<b>if</b> ( rc != E_OK &amp;&amp; rc != E_FRM_SKIP ) <b>break</b>;
+		<b>if</b> ( match( obj, </font><font color="#00bb00">"&lt;&lt;[eE][nN][dD][eE]*&gt;&gt;"</font><font color=black> ) ) <b>break</b>;
+		rc = FRM_get( tid, test, val, row );
+</font><font color="#ff0000"><i>#		if ( rc == E_FRM_SKIP ) continue;</font></i><font color=black>
+		<b>if</b> ( rc != E_OK ) <b>break</b>;
+		FRM_STP_eval( val );
+	}
+	<b>return</b> (rc==E_FRM_SKIP)? E_OK : rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Evaluates an arbitrary command. You can specify multiple commands by separating them
+#* with semicolins. The outcome of the eval statement is expected to be passed by the
+#* global variable __evalRC (the assignment has to be done by the evalueated code.
+#* For example use code like this "__evalRc = some_function();" in order to let
+#* framework evaluate your return code. If you don't assign any value to __evalRC,
+#* then eval will erturn E_OK.
+#* @param cmd (in) command(s) to be executed (it is not necessary to place the
+#* semicolon at the end of the last command but you must separate multiple
+#* commands with the semicolon, though).
+#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_STP_eval ( <b>in</b> cmd )
+{
+	<b>extern</b> __evalRC;
+
+	debug_msg( sprintf( </font><font color="#00bb00">"EVAL: %s; ..."</font><font color=black>, cmd ) ); 
+	__evalRC = E_OK;
+	<b>eval</b>( cmd &amp; </font><font color="#00bb00">";"</font><font color=black> );
+	debug_msg( sprintf( </font><font color="#00bb00">"EVAL: %s; [done]"</font><font color=black>, cmd ) ); 
+	<b>return</b> FRM_rc2( __evalRC, cmd );
+}
+
+<b>static</b> <b>function</b> FRM_STP_eval_old ( <b>in</b> cmd )
+{
+	<b>auto</b> count, arr[], i;
+	count = split( cmd, arr, </font><font color="#00bb00">";"</font><font color=black> );
+	<b>for</b>( i=1; i&lt;=count; i++ )
+	{
+		debug_msg( sprintf( </font><font color="#00bb00">"EVAL: %s; ..."</font><font color=black>, arr[i] ) ); 
+		<b>eval</b>( arr[i] &amp; </font><font color="#00bb00">";"</font><font color=black> );
+		debug_msg( sprintf( </font><font color="#00bb00">"EVAL: %s; [done]"</font><font color=black>, arr[i] ) ); 
+	}
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* OBSOLETE: KEPT ONLY FOR THE SAKE OF COMPATIBILITY WITH THE OLD DATA TABLES.
+#* Indicates an internal step (step containg special command).
+#* @param step (in)	the step to be evaluated
+#* @param tid (in)	id of the active test table
+#* @return
+#*	TRUE:	internal
+#*	FALSE:	"ordinary" step
+#* @deprecated
+#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_STP_is_internal_step( <b>in</b> step, <b>in</b> tid )
+{
+	<b>switch</b> ( toupper( step ) )
+	{
+	<b>case</b> </font><font color="#00bb00">"&lt;&lt;PAUSE&gt;&gt;"</font><font color=black>:
+		wrlog_block_start ( step );
+		<b>if</b> ( !FRM_STP_is_dummy_step_mode() )
+			pause( </font><font color="#00bb00">"Test interrupted due to &lt;&lt;PAUSE&gt;&gt;"</font><font color=black> );
+		wrlog_block_stop ( step, 0 );
+		<b>break</b>;
+	<b>default</b>:
+		<b>return</b> FALSE;
+	}
+	<b>return</b> TRUE;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* OBSOLETE: KEPT ONLY FOR THE SAKE OF COMPATIBILITY WITH THE OLD DATA TABLES.
+#* Executes another test(s) in the same or some other table(s) running the same
+#* or some other tsl script.
+#*@deprecated
+#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_STP_link ( <b>in</b> tid, <b>in</b> test, <b>in</b> idx, <b>in</b> mode, <b>in</b> load_all )
+{
+	<b>auto</b> rc, row, nam, val, obj, table2, tid2, dir, file, cmd;
+	<b>auto</b> no_table, no_test;
+	<b>auto</b> p1, p2;
+	
+	<b>if</b> ( load_all == </font><font color="#00bb00">""</font><font color=black> )
+		load_all = FALSE;
+
+	rc = FRM_init_block( tid, test, idx, mode );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+		
+	rc = FRM_get_current_row( tid, row );
+
+	<b>while</b> ( rc == E_OK || rc == E_FRM_SKIP )
+	{
+		row++;
+		rc = FRM_get( tid, FRM_COL_NAME, obj, row );
+		<b>if</b> ( rc != E_OK ) <b>break</b>;
+		<b>if</b> ( match( obj, </font><font color="#00bb00">"&lt;&lt;[eE][nN][dD][eE]*&gt;&gt;"</font><font color=black> ) ) <b>break</b>;
+		rc = FRM_get( tid, test, val, row );
+		<b>if</b> ( rc == E_FRM_SKIP ) <b>continue</b>;
+		<b>if</b> ( rc != E_OK ) <b>break</b>;
+
+		no_table = ( match( obj, </font><font color="#00bb00">"&lt;.*&gt;"</font><font color=black> ) )? TRUE : FALSE;
+		no_test = ( match( val, </font><font color="#00bb00">"&lt;.*&gt;"</font><font color=black> ) )? TRUE : FALSE;
+		<b>if</b> ( no_table || no_test )
+		{
+			p1 = substr( obj, 2, <b>length</b>(obj)-2 );
+			p2 = substr( val, 2, <b>length</b>(val)-2 );
+			<b>if</b> ( p1 == </font><font color="#00bb00">""</font><font color=black> &amp;&amp; p2 == </font><font color="#00bb00">""</font><font color=black> )
+				cmd = </font><font color="#00bb00">"treturn call_close &#92;&#34;"</font><font color=black> &amp; idx &amp; </font><font color="#00bb00">"&#92;&#34; ();"</font><font color=black>;
+			<b>if</b> ( p1 == </font><font color="#00bb00">""</font><font color=black> &amp;&amp; p2 != </font><font color="#00bb00">""</font><font color=black> )
+				cmd = </font><font color="#00bb00">"treturn call_close &#92;&#34;"</font><font color=black> &amp; idx &amp; </font><font color="#00bb00">"&#92;&#34; (&#92;&#34;&#92;&#34;,&#92;&#34;"</font><font color=black> &amp; p2 &amp; </font><font color="#00bb00">"&#92;&#34;);"</font><font color=black>;
+			<b>if</b> ( p1 != </font><font color="#00bb00">""</font><font color=black> &amp;&amp; p2 == </font><font color="#00bb00">""</font><font color=black> )
+				cmd = </font><font color="#00bb00">"treturn call_close &#92;&#34;"</font><font color=black> &amp; idx &amp; </font><font color="#00bb00">"&#92;&#34; (&#92;&#34;"</font><font color=black> &amp; p1 &amp; </font><font color="#00bb00">"&#92;&#34;);"</font><font color=black>;
+			<b>if</b> ( p1 != </font><font color="#00bb00">""</font><font color=black> &amp;&amp; p2 != </font><font color="#00bb00">""</font><font color=black> )
+				cmd = </font><font color="#00bb00">"treturn call_close &#92;&#34;"</font><font color=black> &amp; idx &amp; </font><font color="#00bb00">"&#92;&#34; (&#92;&#34;"</font><font color=black> &amp; p1 &amp; </font><font color="#00bb00">"&#92;&#34;,&#92;&#34;"</font><font color=black> &amp; p2 &amp; </font><font color="#00bb00">"&#92;&#34;);"</font><font color=black>;
+			wrlog_block_start ( cmd );
+			rc = <b>eval</b>( cmd );
+			wrlog_block_stop ( cmd, rc );
+			<b>continue</b>;
+		}
+		</font><font color="#ff0000"><i>#relative Pfade werden absolut</font></i><font color=black>
+		<b>if</b> ( !match( obj, </font><font color="#00bb00">"[A-Za-z]:"</font><font color=black> ) &amp;&amp; substr( obj, 1, 1 ) != </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> )
+		{
+			split_path( replace(FRM_get_name(tid), </font><font color="#00bb00">"/"</font><font color=black>, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black>), dir, file, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+			table2 = join_path( dir, obj, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+		}
+		<b>else</b>
+		{
+			table2 = obj;
+		}
+		<b>if</b> ( load_all )
+		{
+			<b>if</b> ( FRM_is_open( table2 ) )
+			{
+				tid2 = FRM_get_tid( table2 );
+				rc = FRM_is_parameter( tid2, val );
+				<b>if</b> (  rc != E_OK )
+				{
+					rc = FRM_close( tid2 );
+					rc = FRM_open( table2, </font><font color="#00bb00">"&lt;&lt;ALL&gt;&gt;"</font><font color=black>, tid2 );
+				}
+			}
+			<b>else</b>
+			{
+				rc = FRM_open( table2, </font><font color="#00bb00">"&lt;&lt;ALL&gt;&gt;"</font><font color=black>, tid2 );
+			}
+		}
+		<b>else</b>
+		{
+			<b>if</b> ( FRM_is_open( table2 ) )
+				rc = FRM_load_test( FRM_get_tid(table2), val );
+			<b>else</b>
+				rc = FRM_open( table2, val, tid2 );
+		}
+		<b>if</b> ( rc != E_OK )
+		{
+			<b>tl_step</b>( </font><font color="#00bb00">"FRM_STP_link"</font><font color=black>, rc, </font><font color="#00bb00">"table=["</font><font color=black>&amp;table2&amp;</font><font color="#00bb00">"], RC=["</font><font color=black>&amp;rc&amp;</font><font color="#00bb00">"]"</font><font color=black> );
+			<b>break</b>;
+		}
+		<b>if</b> ( FRM_DRV_is_new_test_driver() )
+		{
+			<b>return</b> FRM_DRV_test_driver( idx, tid2, val );
+		}
+		<b>else</b>
+		{
+			cmd = </font><font color="#00bb00">"treturn call_close &#92;&#34;"</font><font color=black> &amp; idx &amp; </font><font color="#00bb00">"&#92;&#34; ( &#92;&#34;"</font><font color=black>&amp;tid2&amp;</font><font color="#00bb00">"&#92;&#34;, &#92;&#34;"</font><font color=black>&amp;val&amp;</font><font color="#00bb00">"&#92;&#34; );"</font><font color=black>;
+			wrlog_test_start ( val, table2, idx );
+			rc = <b>eval</b>( cmd );
+			wrlog_test_stop ( val, rc );
+		}
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Flag for dummy step mode. This mode can be used for the purpose of documenting
+#* the test suite. With this mode EMOS Framework only pretends to execute the test
+#* suite. It navigates through all test cases all the way to the individual
+#* test block but it does not execute them.
+#*/</font></i><font color=black>
+
+<b>static</b> emos_dummy_step_mode = FALSE;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Turns dummy test mode on/off.
+#* @param mode (in)	true/false
+#* @return the sam as the input parameter mode
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_STP_set_dummy_step_mode( <b>in</b> mode )
+{
+	<b>return</b> emos_dummy_step_mode = mode;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Indicates the dummy test mode.
+#* @return TRUE: dummy mode on, FALSE: dummy mode off
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_STP_is_dummy_step_mode( )
+{
+	<b>return</b> emos_dummy_step_mode;
+}
+
+</pre></body></html>

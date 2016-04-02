@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TEST:	emos_testset_driver</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.5 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/27 08:53:54 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/TPL/Scripts/DRV/emos_testset_driver/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/***
+#* A simple driver for a single test set. This driver was designed to be used
+#* with TestDirector. The idea is that we could create test sets in TestDirector
+#* and replace with them the Frameworks concept of "test suite". So a test set
+#* in TestDirector could act a counterpart of one test suite. What we need to do
+#* is create automate tests within the test subject tree that all prepare the
+#* required three parameters and call this test.
+#*/</font></i><font color=black>
+
+<b>static</b> rc;
+
+<b>if</b> ( arg_script == </font><font color="#00bb00">""</font><font color=black> || arg_table == </font><font color="#00bb00">""</font><font color=black> || arg_testset == </font><font color="#00bb00">""</font><font color=black> )
+    <b>treturn</b> E_ILLEGAL_PARAMETER;
+
+wrlog_set_start( arg_testset );
+FRM_close_all();
+rc = FRM_DRV_test_set_driver( 
+        arg_script, 
+        join_path( DATA_HOME, arg_table, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> ),
+		arg_testset );
+FRM_close_all();
+wrlog_set_stop( arg_testset, rc );
+
+<b>treturn</b> rc;
+</pre></body></html>

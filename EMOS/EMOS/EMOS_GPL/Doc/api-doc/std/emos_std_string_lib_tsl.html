@@ -1,0 +1,635 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_string_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straße 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.2 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/28 11:18:43 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/STD/emos_std_string_lib/script $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This library contains some useful string manipulation routines.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* 	This functions concatenates all elements of the array &lt;arr&gt; into a string.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Elements are separated by &lt;code&gt;sep&lt;/code&gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt; NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Iy the &lt;code&gt;arr&lt;/code&gt; is not sequentially inexed (starting from 0), then either the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	&lt;code&gt;count&lt;/code&gt; should NOT be defined (in operator will be used) or &lt;code&gt;start&lt;/code&gt; must</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	be defined (sequential from then on).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param arr[] (inout)	array to be "streamed"</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param sep (in)		(optional) separator,  [default: comma]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param count (in)	(optional) number of elements in the array [default: 0]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param start (in)	(optional) starting index [default: 0]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	streamed array</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> arr2str ( <b>inout</b> arr[], <b>in</b> sep, <b>in</b> count, <b>in</b> start )
+{
+	<b>auto</b> i, end, str = </font><font color="#00bb00">""</font><font color=black>;
+	<b>if</b> ( sep == </font><font color="#00bb00">""</font><font color=black> ) sep = </font><font color="#00bb00">","</font><font color=black>;
+	<b>if</b> ( count == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		count = 0;
+		<b>for</b> ( i <b>in</b> arr ) count++;
+		<b>for</b> ( i <b>in</b> arr )
+			str = str &amp; arr[i] &amp; ((--count) ? sep : </font><font color="#00bb00">""</font><font color=black>); 
+	}
+	<b>else</b>
+	{
+		end = start*1+count;
+		<b>for</b>( i = start*1; i&lt;end; i++ )
+			str = str &amp; arr[i] &amp; ((--count) ? sep : </font><font color="#00bb00">""</font><font color=black>);
+	}
+	<b>return</b> str;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* 	Replaces all &lt;code&gt;delchr&lt;/code&gt; characters with &lt;code&gt;insstr&lt;/code&gt; string.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt; NOTE1!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This function internally uses split() to process the string. Unfortunatelly,</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	split() has an undocumented "feature" that it trims blanks from the given</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	string before splitting. This has the effect that replace() does the same.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	If you don't want the string to be trimmed, use replace1().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt; NOTE2!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The replace() replaces each occurence of individual characters within</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	&lt;code&gt;delchr&lt;/code&gt; with the complete string &lt;code&gt;insstr&lt;/code&gt;. It does NOT replace string</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	&lt;code&gt;delchr&lt;/code&gt; with the string &lt;code&gt;insstr&lt;/code&gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param str (in)	string to be processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param delchr (in)	character(s) to be replaced</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param insstr (in)	string to be used as replacement</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	converted string</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> replace ( <b>in</b> str, <b>in</b> delchr, <b>in</b> insstr )
+{
+	<b>auto</b> count, i, arr[], outstr;
+	count = split( str, arr, delchr );
+	<b>if</b> ( count == 0 )
+		<b>return</b> str;
+	outstr = arr[1];
+	<b>for</b>( i=2; i &lt;= count; i++ )
+		outstr = outstr &amp; insstr &amp; arr[i];
+	<b>return</b> outstr;
+}
+
+<b>static</b> <b>function</b> test_replace()
+{
+	<b>auto</b> i, test[], j=0;
+	test[j++] = </font><font color="#00bb00">""</font><font color=black>;
+	test[j++] = </font><font color="#00bb00">"x"</font><font color=black>;
+	test[j++] = </font><font color="#00bb00">"xxx"</font><font color=black>;
+	test[j++] = </font><font color="#00bb00">"xa"</font><font color=black>;
+	test[j++] = </font><font color="#00bb00">"ax"</font><font color=black>;
+	test[j++] = </font><font color="#00bb00">"axa"</font><font color=black>;
+	test[j++] = </font><font color="#00bb00">"xxaxx"</font><font color=black>;
+	test[j++] = </font><font color="#00bb00">"axxa"</font><font color=black>;
+	test[j++] = </font><font color="#00bb00">"aaa"</font><font color=black>;
+	print(</font><font color="#00bb00">""</font><font color=black>);
+	<b>for</b> ( i=0; i&lt;j-1; i++ )
+		print ( test[i] &amp; </font><font color="#00bb00">"--&gt;"</font><font color=black> &amp; replace( test[i],</font><font color="#00bb00">"x"</font><font color=black>,</font><font color="#00bb00">"|"</font><font color=black> ) );
+	print(</font><font color="#00bb00">""</font><font color=black>);
+	<b>for</b> ( i=0; i&lt;j-1; i++ )
+		print ( test[i] &amp; </font><font color="#00bb00">"--&gt;"</font><font color=black> &amp; replace( test[i],</font><font color="#00bb00">"x"</font><font color=black>,</font><font color="#00bb00">""</font><font color=black> ) );
+	print(</font><font color="#00bb00">""</font><font color=black>);
+	<b>for</b> ( i=0; i&lt;j-1; i++ )
+		print ( test[i] &amp; </font><font color="#00bb00">"--&gt;"</font><font color=black> &amp; replace( test[i],</font><font color="#00bb00">"xx"</font><font color=black>,</font><font color="#00bb00">"||"</font><font color=black> ) );
+}
+
+<b>static</b> <b>const</b> DEFZAP = </font><font color="#00bb00">" "</font><font color=black>;
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* 	Removes all occuences of &lt;code&gt;zap&lt;/code&gt; from the end of &lt;code&gt;str&lt;/code&gt; (right trim).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param str (in)	string to be processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param zap (in)	(optional) string to be removed [default: " "]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	converted string</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> strip_trail ( <b>in</b> str, <b>in</b> zap )
+{
+	<b>auto</b> slen, zlen;
+	<b>if</b> ( zap == </font><font color="#00bb00">""</font><font color=black> ) 
+		zap = DEFZAP;
+	slen = <b>length</b>( str );
+	zlen = <b>length</b>( zap );
+	<b>if</b> ( slen &amp;&amp; substr( str, (slen-zlen+1) ) == zap )
+		str = strip_trail( substr( str, 1, slen-zlen ) );
+	<b>return</b> str;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* 	Removes all occuences of &lt;code&gt;zap&lt;/code&gt; from the front of &lt;code&gt;str&lt;/code&gt; (left trim).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param str (in)	string to be processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param zap (in)	(optional) string to be removed [default: " "]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	converted string</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> strip_front ( <b>in</b> str, <b>in</b> zap )
+{
+	<b>auto</b> slen, zlen;
+	<b>if</b> ( zap == </font><font color="#00bb00">""</font><font color=black> ) 
+		zap = DEFZAP;
+	slen = <b>length</b>( str );
+	zlen = <b>length</b>( zap );
+	<b>if</b> ( slen &amp;&amp; substr( str, 1, zlen ) == zap )
+		str = strip_front( substr( str, 1+zlen ) );
+	<b>return</b> str;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* 	Removes all occuences of &lt;code&gt;zap&lt;/code&gt; from both sides of &lt;code&gt;str&lt;/code&gt; (trim).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param str (in)	string to be processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param zap (in)	(optional) string to be removed [default: " "]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	converted string</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> strip_both ( <b>in</b> str, <b>in</b> zap )
+{
+	<b>return</b> strip_front( strip_trail ( str, zap ), zap );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* 	Splits a &lt;code&gt;path&lt;/code&gt; string into a &lt;code&gt;directory&lt;/code&gt; and &lt;code&gt;file&lt;/code&gt; parts. The path</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	separator can be defined with &lt;code&gt;sep&lt;/code&gt; (default: backslash) </font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt; NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function does not analyse whether the &lt;code&gt;file&lt;/code&gt; part is indeed a file name.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Anything following the last &lt;sep&lt;/code&gt; is treated as &lt;code&gt;file&lt;/code&gt;. Anything before is</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	treated as &lt;code&gt;dir&lt;/code&gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i># NOTE2!</font></i><font color=black>
+</font><font color="#ff0000"><i>#	&lt;code&gt;dir&lt;/code&gt; does not end with &lt;code&gt;sep&lt;/code&gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param path (in)	string to be processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param dir (out)	directory-part (up until the last &lt;code&gt;sep&lt;/code&gt;)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param file (out)	name-part (anything after the last &lt;code&gt;sep&lt;/code&gt;)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param sep (in)	(optional) separator (default: backslash)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	error (do not ust the out variables!)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> split_path( <b>in</b> path, <b>out</b> dir, <b>out</b> file, <b>in</b> sep )
+{
+	<b>auto</b> count, i;
+	<b>auto</b> arr[];
+	
+	<b>if</b> ( sep == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		</font><font color="#ff0000"><i># assuming backslash is more frequent</font></i><font color=black>
+		path = replace( path, </font><font color="#00bb00">"/"</font><font color=black>, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+		sep = </font><font color="#00bb00">"&#92;&#92;"</font><font color=black>;
+	}
+	
+	count = split( path, arr, sep );
+
+	<b>switch</b> ( count )
+	{
+	<b>case</b> 0:
+		<b>return</b> E_BAD_PATH;
+	<b>case</b> 1:
+		dir = </font><font color="#00bb00">""</font><font color=black>;
+		file = arr[1];
+		<b>return</b> E_OK;
+	<b>default</b>:
+		dir = arr[1];
+		<b>for</b> ( i=2; i&lt;count; i++ )
+			dir = dir &amp; sep &amp; arr[i];
+		file = arr[count];
+		<b>return</b> E_OK;
+	}
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Diese Funktion fügt zwei Pfadteile zusammen. Dabei werden &lt;code&gt;sep&lt;/code&gt; konvertiert</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	"/--&gt;\  bzw. \--&gt;/). Standardmeßig werden \ durch / ersetzt.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Eventuell nicht oder merfach vorhandene Separatoren in der Join-Stelle </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	werden auf ein &lt;sep&gt; gesetzt.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt; EXAMPLE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	join_path( "C:\aaa", "bbb.xxx" )   ==&gt;  "C:/aaa/bbb.xxx"</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	join_path( "C:\aaa&#92;&#34;, "\bbb.xxx" ) ==&gt;  "C:/aaa/bbb.xxx"</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	join_path( "", "bbb.xxx" )         ==&gt;  "/bbb.xxx"</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	join_path( "C:/aaa" )              ==&gt;  "C:/aaa/"</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param part1 (in)	erster Teil der Pfadangabe</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param part2 (in)	zweiter Teil der Pfadangabe</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param sep (in)	(optional) Pathseparator to use [default: /]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	concatenated path</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> join_path( <b>in</b> part1, <b>in</b> part2, <b>in</b> sep )
+{
+	<b>auto</b> sep2;
+	<b>switch</b> (sep)
+	{
+	<b>case</b> </font><font color="#00bb00">""</font><font color=black>:
+		sep=</font><font color="#00bb00">"/"</font><font color=black>;
+		</font><font color="#ff0000"><i># merke, kein break!</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">"/"</font><font color=black>:
+		sep2 = </font><font color="#00bb00">"&#92;&#92;"</font><font color=black>;
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"&#92;&#92;"</font><font color=black>:
+		sep2 = </font><font color="#00bb00">"/"</font><font color=black>;
+		<b>break</b>;
+	<b>default</b>:
+		sep2 = sep;
+	}
+	part1 = strip_both( part1, </font><font color="#00bb00">" "</font><font color=black> );
+	part1 = replace( part1, sep2, sep );
+	part2 = strip_both( part2, </font><font color="#00bb00">" "</font><font color=black> );
+	part2 = replace( part2, sep2, sep );
+	<b>if</b> ( part1 == </font><font color="#00bb00">""</font><font color=black> )
+		<b>return</b> part2;
+	<b>if</b> ( part2 == </font><font color="#00bb00">""</font><font color=black> )
+		<b>return</b> part1;
+	part1 = strip_trail( part1, sep );
+	part2 = strip_front( part2, sep );
+	<b>return</b> part1 &amp; sep &amp; part2;
+}
+
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: trim</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># DESCRIPTION/PURPOSE:</font></i><font color=black>
+</font><font color="#ff0000"><i># 	Diese Funktion entfernt alle Vorkommen Blank vom Ende des &lt;str1&gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i># PARAMETERS:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in str:		String, das "gestrippt" werden soll</font></i><font color=black>
+</font><font color="#ff0000"><i># RETURN VALUE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	umgewandelter String</font></i><font color=black>
+</font><font color="#ff0000"><i># BEISPIEL:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	s = "1234  ";</font></i><font color=black>
+</font><font color="#ff0000"><i>#	x = "&lt;" &amp; trim(s) &amp; "&gt;";	 ==&gt; x = "&lt;1234&gt;"</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+
+<b>public</b> <b>function</b> trim(<b>in</b> str1)
+{
+	<b>static</b> i;
+	
+	<b>for</b>(i=<b>length</b>(str1); i &gt; 0; i--)
+		<b>if</b>(substr(str1,i,1) != </font><font color="#00bb00">" "</font><font color=black>) <b>break</b>;
+
+	<b>return</b>(substr(str1,1,i));
+}
+
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: ltrim</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># DESCRIPTION/PURPOSE:</font></i><font color=black>
+</font><font color="#ff0000"><i># 	Diese Funktion entfernt alle Vorkommen Blank vom Anfang des &lt;str1&gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i># PARAMETERS:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in str:		String, das "gestrippt" werden soll</font></i><font color=black>
+</font><font color="#ff0000"><i># RETURN VALUE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	umgewandelter String</font></i><font color=black>
+</font><font color="#ff0000"><i># BEISPIEL:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	s = "   1234";</font></i><font color=black>
+</font><font color="#ff0000"><i>#	x = "&lt;" &amp; ltrim(s) &amp; "&gt;";	 ==&gt; x = "&lt;1234&gt;"</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+
+<b>public</b> <b>function</b> ltrim(<b>in</b> str1)
+{
+	<b>static</b> i,j1,j2;
+	
+	j1 = <b>length</b>(str1);
+
+	<b>for</b>(i=1; i &lt;= j1; i++)
+		<b>if</b>(substr(str1,i,1) != </font><font color="#00bb00">" "</font><font color=black>) <b>break</b>;
+
+	<b>if</b> (i &lt;= j1)
+		<b>return</b>(substr(str1,i));
+	<b>else</b>
+		<b>return</b>(str1);
+}
+
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: alltrim</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># DESCRIPTION/PURPOSE:</font></i><font color=black>
+</font><font color="#ff0000"><i># 	Diese Funktion entfernt alle Vorkommen Blank vom Anfang und vom Ende </font></i><font color=black>
+</font><font color="#ff0000"><i>#																	des &lt;str1&gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i># PARAMETERS:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in str:		String, das "gestrippt" werden soll</font></i><font color=black>
+</font><font color="#ff0000"><i># RETURN VALUE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	umgewandelter String</font></i><font color=black>
+</font><font color="#ff0000"><i># BEISPIEL:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	s = "   1234  ";</font></i><font color=black>
+</font><font color="#ff0000"><i>#	x = "&lt;" &amp; alltrim(s) &amp; "&gt;";	 ==&gt; x = "&lt;1234&gt;"</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+
+<b>public</b> <b>function</b> alltrim(<b>in</b> str1)
+{
+	<b>return</b>(ltrim(trim(str1)));
+}
+
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: random_arr  -  Vorbereitung Random-Array.</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># DESCRIPTION/PURPOSE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Vorbereitung Random-Array.</font></i><font color=black>
+</font><font color="#ff0000"><i># PARAMETERS:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	inout arr[]:	belibige Array </font></i><font color=black>
+</font><font color="#ff0000"><i>#	in nnn:			Dimension von Array</font></i><font color=black>
+</font><font color="#ff0000"><i># RETURN VALUE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	inout arr[]:	Array zufälliger Zahlen </font></i><font color=black>
+</font><font color="#ff0000"><i># BEISPIEL:</font></i><font color=black>
+</font><font color="#ff0000"><i>#		random_arr(arr1,100);</font></i><font color=black>
+</font><font color="#ff0000"><i>#		for(i=1; i &lt;= 100; i++)</font></i><font color=black>
+</font><font color="#ff0000"><i>#			print(arr1[i]);</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+
+<b>public</b> <b>function</b> random_arr(<b>inout</b> arr1[], <b>in</b> nnn)
+{
+	<b>static</b> i, ind1;
+
+	<b>for</b> (i = 1; i &lt;= nnn; i++)
+		arr1[i] = 0;
+
+	<b>for</b> (i = 1;   i &lt;= nnn;   i++)
+	{
+		ind1 = <b>int</b>(rand() * nnn) + 1;
+
+		<b>while</b>(  arr1[ind1]  !=  0 )
+			ind1 = <b>int</b>(rand() * nnn) + 1;
+
+		arr1[ind1] = i;
+	}
+}
+
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: replace1</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># DESCRIPTION/PURPOSE:</font></i><font color=black>
+</font><font color="#ff0000"><i># 	Diese Funktion ersetzt alle Vorkommen &lt;s2&gt; durch &lt;s3&gt; in &lt;s1&gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i># PARAMETERS:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in s1:	String, das "gestrippt" werden soll</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in s2:	String, das ersetzt werden sollen</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in s3:	String, das engefügt werden sol</font></i><font color=black>
+</font><font color="#ff0000"><i># RETURN VALUE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	umgewandelter String</font></i><font color=black>
+</font><font color="#ff0000"><i># BEISPIEL:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	s1 = replace1("1234567890","34","abcd"); ==&gt; s1 = "12abcd567890"</font></i><font color=black>
+</font><font color="#ff0000"><i>#	s1 = replace1("1234567890","3456","a");  ==&gt; s1 = "12a7890"</font></i><font color=black>
+</font><font color="#ff0000"><i>#	s1 = replace1("1234567890","3456","");   ==&gt; s1 = "127890"</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+
+<b>public</b> <b>function</b> replace1(<b>in</b> s1, <b>in</b> s2, <b>in</b> s3)
+{
+	<b>static</b> i,i1,i2,len2;
+	<b>static</b> t1,t2,j1,j2;
+	<b>static</b> s1x;
+
+	j1 = 1;
+	
+	<b>if</b> (s1 == </font><font color="#00bb00">""</font><font color=black>  ||  s2 == </font><font color="#00bb00">""</font><font color=black>)  <b>return</b>(s1);
+	
+	i1 = index(s1,s2);
+	<b>if</b> (i1 == 0)  <b>return</b>(s1);
+
+	s1x  =  s1;   s1 = </font><font color="#00bb00">""</font><font color=black>;   len2 = <b>length</b>(s2);	
+
+	i2 = index1(s1x,s2);
+	
+	<b>for</b>(i = 1; i &lt;= i2; i++)
+	{
+		i1 = index(s1x, s2);
+
+		<b>if</b> (i1 != 1)   s1 = s1  &amp;  substr(s1x, 1, i1-1);
+
+		s1 = s1  &amp;  s3;
+
+		<b>if</b> (i1 + len2 &lt;= <b>length</b>(s1x) )   s1x = substr(s1x, i1 + len2);
+		<b>else</b>						     s1x = </font><font color="#00bb00">""</font><font color=black>;
+	}
+	<b>return</b>( s1  &amp;  s1x );
+}
+
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: substr1</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># DESCRIPTION/PURPOSE:</font></i><font color=black>
+</font><font color="#ff0000"><i># 	Diese Funktion gibt substring aus &lt;str1&gt; vom Anfang &lt;s1&gt; bis zum Ende &lt;s3&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#																	zurück.</font></i><font color=black>
+</font><font color="#ff0000"><i># PARAMETERS:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in str1:	String, das untersucht werden soll</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in s2:		String, das den Anfang bestimmt</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in s3:		String, das das Ende bestimmt</font></i><font color=black>
+</font><font color="#ff0000"><i># RETURN VALUE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	substring</font></i><font color=black>
+</font><font color="#ff0000"><i># BEISPIEL:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	x = substr1("123&lt;&lt;&lt;abcd&gt;&gt;&gt;45678","&lt;&lt;&lt;","&gt;&gt;&gt;");  ==&gt; x = "abcd"</font></i><font color=black>
+</font><font color="#ff0000"><i>#	x = substr1("123##abcdef##45678","##","##");	==&gt; x = "abcdef"</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+
+<b>public</b> <b>function</b> substr1(<b>in</b> str1, <b>in</b> s1, <b>in</b> s2)
+{
+	<b>static</b> j1,j2,j3,j4,j5;
+
+	j1 = index(str1,s1);
+	<b>if</b> (j1 == 0) <b>return</b>(</font><font color="#00bb00">""</font><font color=black>);
+
+	<b>if</b> (s1 == s2)
+	{
+		j4 = index1(str1,s1);
+		<b>if</b> (j4 &lt;= 1) <b>return</b>(</font><font color="#00bb00">""</font><font color=black>);
+		
+		j4 = index2(str1,s1,1) + <b>length</b>(s1);
+		j5 = index2(str1,s1,2) - j4;
+		
+		<b>return</b>(substr(str1,j4,j5));
+	}
+
+	j3 = j1 + <b>length</b>(s1);
+
+	<b>if</b> (s2 == </font><font color="#00bb00">""</font><font color=black>)	<b>return</b>(substr(str1,j3));
+	<b>else</b>
+	{
+		j2 = index(substr(str1,j3),s2);
+		<b>if</b> (j2 == 0) <b>return</b>(</font><font color="#00bb00">""</font><font color=black>);
+		<b>return</b>(substr(str1,j3,j2-1));
+	}
+}
+
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: index1</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># DESCRIPTION/PURPOSE:</font></i><font color=black>
+</font><font color="#ff0000"><i># 	Diese Funktion gibt den Anzahl alle Vorkommen &lt;s2&gt; in &lt;s1&gt; zurück.</font></i><font color=black>
+</font><font color="#ff0000"><i># PARAMETERS:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in s1:	String, das untersucht werden soll</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in s2:	subtring, das    sucht werden soll</font></i><font color=black>
+</font><font color="#ff0000"><i># RETURN VALUE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Zahl</font></i><font color=black>
+</font><font color="#ff0000"><i># BEISPIEL:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	rc = index1("123ab4567ab890","ab");  ==&gt;  rc = 2</font></i><font color=black>
+</font><font color="#ff0000"><i>#	rc = index1("123ab4567ababa","ab");  ==&gt;  rc = 3</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+
+<b>public</b> <b>function</b> index1(<b>in</b> s1, <b>in</b> s2)
+{
+	<b>static</b> i,i1,i2;
+
+	i=1; i1=0; i2=0;
+
+	<b>while</b>(1)
+	{
+		i1 = index(substr(s1,i),s2);
+		<b>if</b> (i1 == 0) <b>return</b>(i2);
+		i2++;
+		i  = i + i1 - 1 + <b>length</b>(s2);
+	}	
+}
+
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: index2</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># DESCRIPTION/PURPOSE:</font></i><font color=black>
+</font><font color="#ff0000"><i># 	Diese Funktion gibt die Position des Vorkommens &lt;s2&gt; in &lt;s1&gt; </font></i><font color=black>
+</font><font color="#ff0000"><i>#													mit Nummer &lt;n1&gt; zurück.</font></i><font color=black>
+</font><font color="#ff0000"><i># PARAMETERS:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in s1:	String, das untersucht werden soll</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in s2:	subtring, das    sucht werden soll</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in n1:	Zahl - Nummer des Vorkommens</font></i><font color=black>
+</font><font color="#ff0000"><i># RETURN VALUE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Anzahl</font></i><font color=black>
+</font><font color="#ff0000"><i># BEISPIEL:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Pos:  123456789012345678 				</font></i><font color=black>
+</font><font color="#ff0000"><i>#	s1 = "12ab345ab6ab789ab0";</font></i><font color=black>
+</font><font color="#ff0000"><i>#	N = index2(s1,"ab",1);				  ==&gt;  N = 3</font></i><font color=black>
+</font><font color="#ff0000"><i>#	N = index2(s1,"ab",2);				  ==&gt;  N = 8</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Letztes Vorkommen:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	N = index2(s1,"ab",index1(s1,"ab"));  ==&gt;  N = 16</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+
+<b>public</b> <b>function</b> index2(<b>in</b> s1, <b>in</b> s2, <b>in</b> n1)
+{
+	<b>static</b> i,i1,i2;
+
+	i=1; i1=0; i2=0;
+	
+	<b>if</b> (s1 == </font><font color="#00bb00">""</font><font color=black>  ||  s2 == </font><font color="#00bb00">""</font><font color=black>  ||  n1 == </font><font color="#00bb00">""</font><font color=black>  ||  n1 == 0) <b>return</b>(0);
+
+	<b>while</b>(1)
+	{
+		i1 = index(substr(s1, i),s2);
+		<b>if</b> (i1 == 0) <b>return</b>(0);
+		<b>if</b> (++i2 == n1) <b>return</b>(i + i1 - 1);
+		i  = i + i1 - 1 + <b>length</b>(s2);
+	}
+}
+
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: split1</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># DESCRIPTION/PURPOSE:</font></i><font color=black>
+</font><font color="#ff0000"><i># 	Änlich wie builtin-Funktion split() außer: statt Field_separators</font></i><font color=black>
+</font><font color="#ff0000"><i>#																 ganzes String.  </font></i><font color=black>
+</font><font color="#ff0000"><i># PARAMETERS:</font></i><font color=black>
+</font><font color="#ff0000"><i># 	Änlich wie builtin-Funktion split()</font></i><font color=black>
+</font><font color="#ff0000"><i># RETURN VALUE:</font></i><font color=black>
+</font><font color="#ff0000"><i># 	Änlich wie builtin-Funktion split()</font></i><font color=black>
+</font><font color="#ff0000"><i># BEISPIEL:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	rc = split1("123##45##6789##0",arr1,"##");  ==&gt; rc = 4 </font></i><font color=black>
+</font><font color="#ff0000"><i>#												==&gt; arr1[1] = "123" </font></i><font color=black>
+</font><font color="#ff0000"><i>#												==&gt; arr1[2] = "45" </font></i><font color=black>
+</font><font color="#ff0000"><i>#												==&gt; arr1[3] = "6789" </font></i><font color=black>
+</font><font color="#ff0000"><i>#												==&gt; arr1[4] = "0" </font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+
+<b>public</b> <b>function</b> split1(<b>in</b> s1, <b>inout</b> arr1[], <b>in</b> s2)
+{
+	<b>static</b> i,i1,len2;
+
+	<b>for</b>(i <b>in</b> arr1)	arr1[i]= </font><font color="#00bb00">""</font><font color=black>;
+
+	<b>if</b> (index(s1,s2) == 0) <b>return</b>(0);
+	
+	len2 = <b>length</b>(s2);	
+	
+	<b>if</b> (substr(s1,1,len2) != s2)	s1 = s2 &amp; s1;
+		
+	i1 = index1(s1,s2);
+
+	<b>if</b> (substr(s1,<b>length</b>(s1) - len2 + 1, len2) != s2)	s1 = s1 &amp; s2;
+	<b>else</b> i1--;
+
+	<b>for</b> (i=1; i &lt;= i1; i++)
+		arr1[i]= substr1(substr(s1,index2(s1,s2,i)),s2,s2);
+
+	<b>return</b>(i1);
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Converts the integer returned by the get_time function to a string formatted as YYYYMMDD.
+#* This function converts the integer argument (time) returned by the get_time function to a string,
+#* in the format "YYYYMMDD" For example, the string "19981205", is the return value of the function.
+#* @param time (in) [optional] integer returned by get_time() or any other integer that is interpreted
+#* as number of seconds passes since 1.Jan.1970. [default: today]
+#* @return string formatted to YYYYMMDD or empty string if date could not be interpreted.
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> yyyymmdd_str( <b>in</b> time )
+{
+	<b>auto</b> t = (time==</font><font color="#00bb00">""</font><font color=black> ? time_str() : time_str( time ));
+	<b>auto</b> arr[];
+	<b>auto</b> count;
+	<b>auto</b> mm;
+	
+	count = split( t, arr, </font><font color="#00bb00">" "</font><font color=black> );
+	<b>if</b> ( count != 5 )
+		<b>return</b> </font><font color="#00bb00">""</font><font color=black>;
+	<b>switch</b> ( arr[2] )
+	{
+	<b>case</b> </font><font color="#00bb00">"Jan"</font><font color=black>: mm = 1; <b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"Feb"</font><font color=black>: mm = 2; <b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"Mar"</font><font color=black>: mm = 3; <b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"Apr"</font><font color=black>: mm = 4; <b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"May"</font><font color=black>: mm = 5; <b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"Jun"</font><font color=black>: mm = 6; <b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"Jul"</font><font color=black>: mm = 7; <b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"Aug"</font><font color=black>: mm = 8; <b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"Sep"</font><font color=black>: mm = 9; <b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"Oct"</font><font color=black>: mm = 10; <b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"Nov"</font><font color=black>: mm = 11; <b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"Dec"</font><font color=black>: mm = 12; <b>break</b>;
+	<b>default</b>: <b>return</b> </font><font color="#00bb00">""</font><font color=black>;
+	}
+	<b>return</b> sprintf(</font><font color="#00bb00">"%04d%02d%02d"</font><font color=black>, arr[5], mm, arr[3] );
+}
+
+</font><font color="#ff0000"><i>###########################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_string_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>###########################################################################</font></i><font color=black>
+</pre></body></html>

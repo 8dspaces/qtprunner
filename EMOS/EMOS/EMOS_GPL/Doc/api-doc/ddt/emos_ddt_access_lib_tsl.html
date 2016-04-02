@@ -1,0 +1,310 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_DDT_ACCESS_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.2 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/28 11:18:42 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Archive: /MERCURY/Projects/EMOS_GPL/DDT/emos_ddt_access_lib/script $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**# </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This library defines a sequential forward "iterator" (as much as one can </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	emulate a real iterator in a language such as TSL) for data tables </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	(ddt-interface).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The main benefits of this iterator are:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	   1.) you can loop through any table in an uniform way,</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	   2.) you can elegantly define a set of entries to be iterated through,</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	   3.) you can simultaneously have iterators for multiple data tables</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	       (ane at a time per table!)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	   4.) you can use it to iterate anything, not only data tables.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	To understand how this iterator works use the analogy of selecting pages to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	be printed in a word-processing program. This sort of dialogs typically</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	allow you to specify the RANGE of pages by connecting a first and the last</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	page in the range with a hyphen (e.g. 3-9 ) and INDIVIDUAL pages by</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	separating them with commas (e.g. 1,5,9,15-17,20). Exactly the same syntax</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	is used with this iterator. So, if you call </font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		DDT_ACCESS_init( table, "1-3,7,9-11" );&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		DDT_ACCESS_get_next( table );&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	will return you the sequence 1,2,3,7,9,10,11.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This iterator also accepts non-numeric expressions such as</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		DDT_ACCESS_init( table, "foo,bar,anyway" );&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Note however that this iterator does not read a data table in any way. So</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	if your table contains following five columns</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		aaa;foo;ccc;bar;eee&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	the expression</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		DDT_ACCESS_init( table, "foo-bar" );&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	will return you "foo-bar" instead of "foo", "ccc", "bar" as you might have</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	expected. If you use alpha names you, should know them in advance, i.e.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		DDT_ACCESS_init( table, "foo,ccc,bar" );&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	You might think of this as a serious limitation, but once you learn how</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	EMOS uses data tables in its framework, you will probably apreciate the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#____________________________________________________</font></i><font color=black>
+</font><font color="#ff0000"><i># local variables</font></i><font color=black>
+</font><font color="#ff0000"><i>#____________________________________________________</font></i><font color=black>
+
+<b>static</b> testNames[];
+<b>static</b> testCount[];
+<b>static</b> testIdx[];
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Initialises the standard access algorithm. The &lt;code&gt;tests&lt;/code&gt; can be specified </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	with syntax described on library-level (e.g. "1-5,7,9,aaa,xxx,12-35).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table (in)	unique name for the iterator (normaly, name of the data table)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param tests (in)	test names (e.g. "1-15" or "1-3,5,7" or "a,b,c", etc.)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	initialisation succeeded</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	invalid test set</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_ACCESS_init( <b>in</b> table, <b>in</b> tests )
+{
+	<b>auto</b> count = init_count( table, tests );
+	<b>if</b> ( count == 0 )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+	testCount[table] = count;
+	testIdx[table] = 0;
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Removes access for the given &lt;code&lt;table&lt;/code&gt; name and frees the internal buffers.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table (in)	the name od the iterator (data table)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_ACCESS_clean ( <b>in</b> table )
+{
+	delete_dimension( testNames, table );
+	delete_dimension( testCount, table );
+	delete_dimension( testIdx, table );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Indicates whether a subsequent call to DDT_ACCESS_get_next() is about to </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	succeed or not.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table (in)	the name od the iterator (data table)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	TRUE:	there are still some tests left to be processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	FALSE:	all tests processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_ACCESS_has_more( <b>in</b> table )
+{
+	<b>return</b> testIdx[table] &lt; testCount[table];
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Returns the name of the next test to be processed. More specifically, it</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	returns the next available name from the set of names that were specified </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	by the DDT_ACCES_init() command.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table (in)	the name od the iterator (data table)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!"":	a test name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	"":		error ocurred</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_ACCESS_get_next( <b>in</b> table )
+{
+	<b>if</b> ( DDT_ACCESS_has_more( table ) )
+		<b>return</b> testNames[table, testIdx[table]++];
+	<b>else</b>
+		<b>return</b> </font><font color="#00bb00">""</font><font color=black>;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Analyses the given string &lt;code&gt;tests&lt;/code&gt; and builds an array that contains all</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	individual values that were specified.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table (in)	table dimension</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param tests (in)	test names in format (1,3-9) </font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#	number of tests to be processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> init_count( <b>in</b> table, <b>in</b> tests )
+{
+	<b>auto</b> i, j;
+	<b>auto</b> x, y, z, b;
+	<b>auto</b> t1, tests1[];
+	<b>auto</b> t2, tests2[];
+
+	delete_dimension( testNames, table );
+
+	t1 = split( tests, tests1, </font><font color="#00bb00">","</font><font color=black> );
+
+	j = 0;
+	<b>for</b>( i=1; i &lt;= t1; i++ )
+	{
+		t2 = split( tests1[i], tests2, </font><font color="#00bb00">"-"</font><font color=black> );
+		<b>switch</b> ( t2 ) 
+		{
+			<b>case</b> 0:
+				<b>break</b>;
+			<b>case</b> 1:
+				testNames[table, j++] = tests2[1];
+				<b>break</b>;
+			<b>default</b>:
+				<b>if</b> ( get_range( tests2[1], tests2[2], x, y, b ) != E_OK )
+				{
+					testNames[table, j++] = tests1[i];
+					<b>break</b>;
+				}
+				<b>if</b> ( x &lt; y )
+					<b>while</b> ( x &lt;= y )
+						testNames[table, j++] = b &amp; x++;
+				<b>else</b>
+					<b>while</b> ( x &gt;= y )
+						testNames[table, j++] = b &amp; x--;
+				<b>break</b>;
+		}
+		<b>for</b>( z=1; z&lt;=t2; z++ ) delete tests2[z];
+	}
+	<b>return</b> j;
+}
+
+<b>static</b> <b>function</b> get_range( <b>in</b> from, <b>in</b> to, <b>out</b> x, <b>out</b> y, <b>out</b> b )
+{
+	<b>extern</b> RSTART, RLENGTH;
+	
+	y = to*1;
+	<b>if</b> ( !y ) <b>return</b> E_OUT_OF_RANGE;
+
+	<b>if</b> ( match( from, </font><font color="#00bb00">"[0-9][0-9]*"</font><font color=black> ) )
+	{
+		<b>if</b> ( RSTART == 1 )
+		{
+			x = substr( from, RSTART, RLENGTH )*1;
+			b = substr( from, RSTART+RLENGTH );
+			<b>return</b> E_OK;
+		}
+		<b>if</b> ( RSTART+RLENGTH-1 == <b>length</b>( from ) )
+		{
+			b = substr( from, 1, RSTART-1 );
+			x = substr( from, RSTART )*1;
+			<b>return</b> E_OK;
+		}
+	}
+	<b>return</b> E_OUT_OF_RANGE;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This function deletes a dimension from a multidimensional array.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt;WARNING!&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	It will delete ALL dimensions with the same name. For example</font></i><font color=black>
+</font><font color="#ff0000"><i>#*   assume your three-dimensional array "arr" has the following content:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		arr["x",1,"x"] = "x1x";</font></i><font color=black>
+</font><font color="#ff0000"><i>#*		arr["x",1,"y"] = "x1y";</font></i><font color=black>
+</font><font color="#ff0000"><i>#*		arr["y",1,"x"] = "y1x";</font></i><font color=black>
+</font><font color="#ff0000"><i>#*		arr["y",1,"y"] = "y1Y";</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	then the following command</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		delete_dimension( arr, "x" );&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	will delete everything BUT</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		arr["y",1,"y"] = "y1Y";&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param arr (inout)	array to be processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param dim (in)	dimension(s) to be removed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> delete_dimension( <b>inout</b> arr[], <b>in</b> dim )
+{
+	<b>auto</b> i;
+	<b>for</b> ( i <b>in</b> arr )
+		<b>if</b> ( match (i, dim) )
+			delete arr[i];
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Test with valid values</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> col_test_valid()
+{
+	<b>auto</b> i, valid[], tab = </font><font color="#00bb00">"tab"</font><font color=black>;
+	valid[0] = </font><font color="#00bb00">"1"</font><font color=black>;
+	valid[1] = </font><font color="#00bb00">"1,2"</font><font color=black>;
+	valid[2] = </font><font color="#00bb00">"1-3"</font><font color=black>;
+	valid[3] = </font><font color="#00bb00">"1,3-5,7"</font><font color=black>;
+	valid[4] = </font><font color="#00bb00">"30-33,40-42"</font><font color=black>;
+	valid[5] = </font><font color="#00bb00">"abc"</font><font color=black>;
+	valid[6] = </font><font color="#00bb00">"aaa,bbb,ccc"</font><font color=black>;
+	valid[7] = </font><font color="#00bb00">"11-11"</font><font color=black>;
+	valid[8] = </font><font color="#00bb00">"11-5"</font><font color=black>;
+
+	<b>for</b> ( i = 0; i &lt; 9; i++ )
+	{
+		print( </font><font color="#00bb00">"test: "</font><font color=black> &amp; valid[i] );
+		DDT_ACCESS_init( tab, valid[i] );
+		<b>while</b>( DDT_ACCESS_has_more( tab ) )
+			print( </font><font color="#00bb00">"	"</font><font color=black> &amp; DDT_ACCESS_get_next( tab ) );
+		DDT_ACCESS_clean( tab );
+	}
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Test with invalid values</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> col_test_invalid()
+{
+	<b>auto</b> i, invalid[], tab = </font><font color="#00bb00">"tab"</font><font color=black>;
+	invalid[0] = </font><font color="#00bb00">""</font><font color=black>;
+	invalid[1] = </font><font color="#00bb00">",-,"</font><font color=black>;
+	invalid[2] = </font><font color="#00bb00">"-3"</font><font color=black>;
+	invalid[3] = </font><font color="#00bb00">"1-, 3-5 ,-"</font><font color=black>;
+	invalid[4] = </font><font color="#00bb00">"1-3-5,42"</font><font color=black>;
+	invalid[5] = </font><font color="#00bb00">"abc-xxx"</font><font color=black>;
+	invalid[6] = </font><font color="#00bb00">"3-1"</font><font color=black>;
+
+	<b>for</b> ( i = 0; i &lt; 7; i++ )
+	{
+		print( </font><font color="#00bb00">"test: "</font><font color=black> &amp; invalid[i] );
+		DDT_ACCESS_init( tab, invalid[i] );
+		<b>while</b>( DDT_ACCESS_has_more( tab ) )
+			print( </font><font color="#00bb00">"	"</font><font color=black> &amp; DDT_ACCESS_get_next( tab ) );
+		DDT_ACCESS_clean( tab );
+	}
+}
+
+</font><font color="#ff0000"><i># Uncomment the following lines to run the test</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#static const x = col_test_valid();</font></i><font color=black>
+</font><font color="#ff0000"><i>#static const y = col_test_invalid();</font></i><font color=black>
+
+</font><font color="#ff0000"><i>###########################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_DDT_ACCESS_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>###########################################################################</font></i><font color=black>
+</pre></body></html>

@@ -1,0 +1,142 @@
+################################################################################
+# TEST:	drv1
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This test is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This test is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this test; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.4 $
+# $Author: drajovic $
+# $Date: 2005/01/23 19:31:51 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/TPL/Scripts/DRV/drv1/script,v $
+# $NoKeywords: $
+################################################################################
+
+#**# 
+#*	This main test implements a "dummy" step driver which you may use to
+#*	implement the real one.
+#*
+#*	The purpose of a step driver is to interpret the corresponding "Teststep"
+#*	cell of each test case. With "interpreting" we mean the process of splitting
+#*	the cell (Teststep) into individual steps and individually processing
+#*	each of them either by a built-in FRM functionality (e.g. LNK or EXE steps)
+#*	or by calling the specialised function.
+#*
+#*	This "dummy" template implements all the necessary interractions with the
+#*	emos_FRM_STP_lib and very carefully handles the return code in order to
+#*	produce correct WinRunner test results. All you need to do is to load the
+#*	apropriate libraries and handle the individual keywords (step names).
+#*
+#*	You should be aware of the fact	that this scripts typically call themselves
+#*	recursively and very much care is necessary in order to properly propagate 
+#*	the return code (i.e. indication of failure) up the call chain. Therefore
+#*
+#*	<p>DO NOT MODIFY THE CODE OUTSIDE OF DESIGNATED AREAS UNLESS
+#*	<ul> 
+#*	<li>you know what you are doing,</li>
+#*	<li>you have to fix a bug (in this case please let us know) or</li>
+#*	<li>you are prepared to live with the consequences.</li>
+#*	</ul>
+#* <p>REQUIREMENTS/PREREQUISITES:
+#*	The rest of the test suite should be developed according to FRM-principles
+#*	in order to make any use of this script.
+#*
+# <p>PARAMETERS:
+#*	<ul>
+#*	<li><b>table</b>:		the name of the opened data table</li>
+#*	<li><b>test</b>:		the name of the individual test case</li>
+#*	<li><b>reset_rc</b>:	flag indicating whether this is the first or a recursive
+#*				invocation of this script.<li>
+#*</ul>
+#* <p>RETURN VALUE:
+#*	<ul>
+#*	<li><b>0</b>:		successfull completion</li>
+#*	<li><b>&gt;0</b>:		unsuccessfull comletion</li>
+#*	</ul>
+#*/
+
+# WARNING:  MODIFY THE CODE ONLY IN DESIGNATED AREAS!
+
+static step, mode, comment;
+static rc, frm_rc;
+
+if ( reset_rc ) frm_rc = 0;
+
+# IMPLEMENT YOUR OWN REPORTING HERE
+# -->>-->>-->>
+report_msg( "=====================" );
+report_msg( "Table: " & FRM_get_name( table ) );
+report_msg( "Test: " & test );
+if ( FRM_get_cell( table, test, "description", comment ) == E_OK )
+{
+	wrlog_test_data( "DESCRIPTION", comment );
+	report_msg( "Description: " & comment );
+}
+report_msg( "=====================" );
+# <<--<<--<< END OF REPORTING
+
+rc = FRM_STP_init_steps( table, test, "Testsequence" );
+if ( rc != E_OK ) 
+	treturn rc;
+
+# LOAD THE NECESSARY LIBs & Guis HERE
+# Use FRM_load_XXX() and you need not warry when to unload them.
+# -->>-->>-->>
+#FRM_load_gui( table, GUI_HOME & "\\" & "???.gui" );
+FRM_load_lib( table, "LIB/FRM/FRM_lib1_lib", 0, 0 );
+# <<--<<--<< END OF LOADING
+
+while( FRM_STP_has_more_steps( table, test ) )
+{
+	rc = FRM_STP_get_next_step( table, test, step, mode );
+	if ( rc == E_FILE_EOF )
+		break;
+	if ( rc != E_OK )
+	{
+		frm_rc++;
+		continue;
+	}
+	switch( tolower( step ) )
+	{
+# PROCESS YOUR TEST STEPS HERE
+# -->>-->>-->>
+	case "testblock":
+		rc = FRM_testblock( table, test, step, mode );	break;
+#	case "not-implemented-yet step":
+#		FRM_DRV_handle_unimplemented_block( step, frm_rc );
+#		continue;
+# <<--<<--<< END OF TEST STEPS
+	default:
+		FRM_DRV_handle_unknown_block( step, frm_rc );
+		continue;
+	} # switch
+
+	if ( FRM_DRV_handle_processed_block( step, test, rc, frm_rc ) )
+		break;
+} # while
+	
+treturn (frm_rc=="" ? 0 : frm_rc);
+

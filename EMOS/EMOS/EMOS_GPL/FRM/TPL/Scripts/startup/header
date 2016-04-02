@@ -1,0 +1,21 @@
+#! asci,100,100,Test Header,Mon Nov 20 09:03:21 2000
+
+[General]
+TDDB_ID=0
+NAME=C:\WR\EMOS_GPL\FRM\TPL\startup
+TYPE=TP
+AUTHOR=
+DATE=967806065
+FUNCTION=
+SPEC=
+FSEARCH=
+TSEARCH=
+SUM_DESCRIPTION=
+DESCRIPTION=
+COMMENTS=
+ADDONS=
+DATA_TBL=c:\wr\schuecal2000\testscripts\..\testdaten\datenerzeugung\grunddaten\eigeneglaspreise.xls
+VERSION=
+
+[Params]
+PARAM_CNT=0

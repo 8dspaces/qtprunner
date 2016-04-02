@@ -1,0 +1,264 @@
+################################################################################
+# TSL-LIBRARY:	EMOS_DDT_Lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.3 $
+# $Author: drajovic $
+# $Date: 2005/01/28 11:18:42 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/DDT/emos_ddt_lib/script,v $
+# $NoKeywords: $
+################################################################################
+
+#/**
+#*	This library contains wrappers for some chosen ddt_functions with
+#*	extended logging and some additional useful functions.
+#*<p>NOTE:<br>
+#*	The interface to multiple Excel sheets is now supported.
+#*	We kindly thank <a href="mailto:aanoop@covansys.com">Anoop Joy</a> 
+#*	for his <code>ExcelSheet.dll</code> which provides the basis for this implementation.
+#*/
+
+static nameSep = "#";
+
+#/**
+#* Setter function for sheet separator sign (default: #).
+#*/
+public function ddt_set_name_sep ( in sep )
+{
+	nameSep = substr( sep, 1, 1 );
+}
+#/**
+#* Getter function for sheet separator sign.
+#*/
+public function ddt_get_name_sep ()
+{
+	return nameSep;
+}
+
+#/**
+#*	Opens the given Excel table. This function supports access to multiple Excel
+#*	sheets by appending "#&lt;sheet_name&gt;" to &gt;table&lt; name, e.g.
+#*<pre>
+#*		DDT_open_table( "C:\\some_dir\\table.xls#sheet1" );
+#*</pre>
+#* @param table (in)	table name
+#* @param mode (in)	(optional) DDT_MODE_READ or DDT_MODE_READWRITE [defult: DDT_MODE_READ]
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+
+public function DDT_open_table ( in table, in mode )
+{
+	auto rc, nameArr[], count;
+	
+	count = split( table, nameArr, nameSep );
+	switch ( count )
+	{
+	case 1:
+		break;
+	case 2:
+		rc = ddt_set_excel_sheet(nameArr[1], nameArr[2] );
+		if ( rc != E_OK )
+		{
+			tl_step( "DDT_open_table()", rc, table & " [ rc=" & rc & "]" );
+			return rc;
+		}
+		break;
+	default:
+		rc = E_ILLEGAL_PARAMETER;
+		tl_step( "DDT_open_table()", rc, table & " [ rc=" & rc & "]" );
+		return rc;
+	}
+	if ( mode == "" )
+		rc = ddt_open( nameArr[1] );
+	else
+		rc = ddt_open( nameArr[1], mode );
+	if( rc == E_FILE_OPEN )
+	{
+		ddt_close( nameArr[1] );
+		if ( mode == "" )
+			rc = ddt_open( nameArr[1] );
+		else
+			rc = ddt_open( nameArr[1], mode );
+	}
+	tl_step( "DDT_open_table()", rc, table & " [ rc=" & rc & "]" );
+	return rc;
+}
+
+#/**
+#*	Closes the table. This routine now parses the table name and removes the
+#*	sheet specification if present. This way we ensure that underlying ddt_close()
+#*	will not fail due to multiple sheet support integrated in DDT_open_table().
+#* @param table (in)	table name
+#* @return
+#*	E_OK:	operation succeeded
+#*	!E_OK:	operation failed
+#*/
+
+public function DDT_close_table ( in table )
+{
+	auto nameArr[], count;
+	
+	count = split( table, nameArr, nameSep );
+	return ddt_close( nameArr[1] );
+}
+
+#/**
+#*	Displays a dialog wher you can either choose the default table or display
+#*	the file-browser and pick any file you want.
+#* @param def_path (in)	name of the default table (full path!)
+#* @param dir (out)		name of the chosen directory
+#* @param name (out)		name of the chosen file
+#* @return
+#*	E_OK:		table chosen ( output variables filled )
+#*	E_BAD_PATH:	oeration failed
+#*/
+
+public function DDT_choose_table ( in def_path, out dir, out name )
+{
+	auto rc, table;
+
+	rc = pause_test( "Should the following table be used?\n\n" & def_path,
+                     "&Yes", "&No" );
+	if ( rc == 0 )
+		table = def_path;
+	else
+		table = create_browse_file_dialog( "*.xls" );
+
+	rc = split_path( table, dir, name );
+	if ( rc != E_OK )
+		tl_step( "DDT_choose_table()", rc, table & " [BAD_PATH]" );
+	return rc;
+}
+
+#/**
+#*	A special-purpose function. It wraps around a ddt_val function by parsing
+#*	the retrieved value. If the value begins with the particular substring
+#*	(default: ?), then a dialog is displayed where the retrieved value may
+#*	be modified before being sent to further processing.
+#* @param table (in)	table name (full path)
+#* @param param (in)	column name
+#* @param msg (in)		message to be displayed in case the substring is found
+#* @param flag (in)	(optional) substring that triggers the dialog [default: ?]
+#* @return
+#*	value (either modified or unmodified) which is to be further processed
+#*/
+
+public function DDT_ask ( in table, in param, in msg, in flag )
+{
+	auto rc, val, len;
+	if ( flag == "" )
+		flag = "?";
+	len = length( flag );
+	val = ddt_val( table, param );
+	if ( length( val ) < len )
+		return val;
+	if ( substr( val, 1, len ) == flag )
+	{
+		val = substr( val, len+1 );
+		rc = create_input_dialog( msg & ": " & val );
+		if ( rc == "" )
+			return val;
+		return rc;
+	} 
+	return val;
+}
+
+#-------------------------------------------------------------------------
+# The following functions build upon the work of  
+# <a href="mailto:aanoop@covansys.com">Anoop Joy 
+# and his/her ExcelSheet.dll.
+#-------------------------------------------------------------------------
+
+public const _initexsheet = load_dll( getvar("testname") & "\\ExcelSheet.dll" );
+
+#/**
+#* Changes the active sheet in the given excel file.
+#* An Excel file contains number of worksheets. Only one among them will be active.
+#* Winrunner access only this active sheet. 
+#* This function uses excel automation to implement the following algorithm: 
+#* <pre> 
+#* 				1. Create an instance of Excel application
+#* 				2. Open the given file in the application
+#* 				3. Iterate through each worksheet in the file
+#* 				4. If the worksheet name matches with the given Sheetname
+#* 					Then Set the sheet to Active
+#* 				5. Save the excel file
+#* 				6. Close Excel application
+#*</pre> 
+#* Usage : SetExcelSheet ( "C:\sample.xls", "Sheet2");
+#* @param table (in)  table name/path
+#* @param sheet (in) sheet name
+#* @return	
+#* 	-1	Couldn't Open Excel Application
+#* 	-2	File not found
+#* 	-4	UnExpected Error
+#* 	-3	Sheet not found
+#*/
+extern int SetExcelSheet ( in string<1024>, in string<1024> );
+
+public const E_NO_EXCEL = -20661;
+public const E_NO_EXCEL_FILE = -20662;
+public const E_NO_EXCEL_SHEET = -20663;
+public const E_EXCEL_ERROR = -20664;
+
+#/**
+#* Selects the specified sheet in the given Excel table.
+#* @param excel_filename (in) name/path of the Excel table
+#* @param excel_sheetname (in) name of the excel shhet to be selected
+#* @return
+#*	E_OK	(0)	Operation succesfull
+#*	E_FILE_OPEN	(-10007)	Cannot open file. File may already be open.
+#*	E_SHARING_VIOLATION	(-10041)	Sharing violation (i.e. file opened by another app)
+#*	E_FILE_NOT_FOUND	(-10033)	File not found.
+#* 	E_NO_EXCEL	(-20661)	Couldn't Open Excel Application
+#* 	E_NO_EXCEL_FILE	(-20662)	File not found or not an excel file
+#* 	E_NO_EXCEL_SHEET	(-20663)	Sheet not found
+#* 	E_EXCEL_ERROR	(-20664)	UnExpected Error
+#*  other errors possible
+#*/
+public function ddt_set_excel_sheet ( in excel_filename, in excel_sheetname )
+{
+	auto rc, line;
+	# not sure this signature applies to all Excel files/versions
+	static excel_signature = "–œ‡°±";
+
+	rc = file_open( excel_filename, FO_MODE_READ );
+	if ( rc != E_OK )
+		return rc;
+	rc = file_getline ( excel_filename, line );
+	file_close( excel_filename );
+	if ( rc != E_OK || match( line, excel_signature ) != 1 )
+		return E_NO_EXCEL_FILE;
+
+	rc = SetExcelSheet ( excel_filename, excel_sheetname );
+	return (rc) ? -20660+rc : E_OK;
+}
+

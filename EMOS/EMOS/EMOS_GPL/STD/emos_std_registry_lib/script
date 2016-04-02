@@ -1,0 +1,40 @@
+static const MY_DLL = getvar( "testname" ) & "\\regdean.dll";
+
+static function loadRegistry()
+{
+	return load_dll(MY_DLL);
+}
+# load the dll
+public const LOAD_REGISTRY_STATUS = loadRegistry();
+
+
+public function unloadRegistry()
+{
+	return unload_dll(MY_DLL);
+}
+
+public function OpenRegistryKey (in root, in key)
+{
+	auto hKey, keys[], i;
+	auto numKeys = split (key, keys, ";");
+	hKey = GetReservedKey (root);
+	for (i=1; i<=numKeys; i++)
+	{
+		hKey = GetSubKey (hKey, keys[i]);
+	}
+	return hKey;
+}
+
+public const HKEY_CLASSES_ROOT  = 0;
+public const HKEY_CURRENT_USER  = 1;
+public const HKEY_LOCAL_MACHINE = 2;
+public const HKEY_USERS         = 3;
+
+extern unsigned long GetReservedKey (int root);
+extern unsigned long GetSubKey (unsigned long hKey, string subKey);
+extern string GetValueData (unsigned long hKey, string subKey, string value);
+extern int SetValueData (unsigned long hKey, string subKey, string value, string data);
+
+#hKey = OpenRegistryKey( HKEY_LOCAL_MACHINE, "SOFTWARE;Allianz;AZ-Setup;Installed" );
+#data = GetValueData( hKey, "AAGT", "Version" );
+#rc = SetValueData( hKey, "AAGT", "Version", "foo" );

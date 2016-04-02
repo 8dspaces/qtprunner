@@ -1,0 +1,117 @@
+################################################################################
+# TEST: startup
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This test is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This test is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this test; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.4 $
+# $Author: drajovic $
+# $Date: 2005/01/28 11:18:42 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/TPL/Scripts/startup/script,v $
+# $NoKeywords: $
+################################################################################
+
+#**#
+#*	Make this script your startup test and place here all you allways need.
+#*	If you place your complete test suite under this directory you probably
+#*	won't need much more than what is already defined here.
+#*/
+
+#**
+#*	Trims given characters from the end of the given <code>str</code>ing.
+#*	Use this function to ensure that getvar("curr_dir") allways returns the
+#*	same value. Sometimes it returns the path ended with backslash. In other
+#*	occasions (e.g. re-run the same test) it returns the same path without the
+#*	backslash.
+#*	@param str (in)	string to be right-trimmed
+#*	@param zap (in)	(optional) string to be trimmed [default: \]
+#*	@return the trimmed string
+#*/
+
+static function strip_trail ( in str, in zap )
+{
+	static const DEFZAP = "\\";
+	auto slen, zlen;
+	if ( zap == "" ) 
+		zap = DEFZAP;
+	slen = length( str );
+	zlen = length( zap );
+	if ( slen && substr( str, (slen-zlen+1) ) == zap )
+		str = strip_trail( substr( str, 1, slen-zlen ) );
+	return str;
+}
+
+#------------------
+# public constants
+#------------------
+
+public const MROOT = getenv ("M_ROOT");
+# make sure this points to the place where you installed EMOS framework
+public const EMOS_HOME = MROOT & "\\lib\\EMOS_GPL"; 
+
+public const TEST_HOME = strip_trail( getvar( "curr_dir" ), "\\" );
+public const DATA_HOME = TEST_HOME & "\\..\\Data";
+public const GUI_HOME = TEST_HOME & "\\GUI";
+
+#------------------
+# search path
+#------------------
+
+setvar("searchpath", sprintf( ". .. <%s> <%s> <%s>"
+      , TEST_HOME
+      , MROOT & "\\lib"
+      , EMOS_HOME ) );
+
+# load emos framework core (make sure it is in your searchpath)
+call_close emosinit();
+
+# Make sure yout timeout is fine (WR sometimes confuses msec with secs)
+setvar("timeout", 10 );
+
+# initialise Misha's re_func library (see STD/misha_std_re_func_lib)
+#re_func_init();
+
+#------------------
+# load project libs
+#------------------
+
+#reload ("LIB\\???_lib", 0, 1 );
+
+# set debug mode
+set_debug( TRUE );
+
+#------------------
+# load global GUI-Map(s)
+#------------------
+
+GUI_close_all();
+#load_GUI( GUI_HOME & "\\" & "???.gui" );
+
+#------------------
+# Exceptions
+#------------------
+# if you have any, define them here

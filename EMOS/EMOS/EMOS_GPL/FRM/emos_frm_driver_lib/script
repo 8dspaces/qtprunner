@@ -1,0 +1,741 @@
+ ################################################################################
+# TEST:	EMOS_FRM_driver_lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.8 $
+# $Author: drajovic $
+# $Date: 2005/01/27 08:53:54 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/emos_frm_driver_lib/script,v $
+# $NoKeywords: $
+################################################################################
+
+#**#
+#* The library routines for the EMOS_FRM_driver test.
+#*/
+
+static const PREFIX = "IDX:";
+static const GER_COLUMNS  = "Bearbeiten?,Testscript,Testtabelle,Testset";
+static const GER_ERROR_MODES = "1 - Weiter,2 - Test anhalten,3 - Testset anhalten,4 - Testsuite anhalten,5 - Block wiederholen";
+
+#* Properties (parameters that can be set/get)
+
+static script_home;
+static data_home;
+static default_suite_table;
+static ask = FALSE;
+static columns = GER_COLUMNS;
+static new_test_driver = FALSE;
+static fail_on_unknown_test = FALSE;
+static def_error_mode = E_FRM_CONTINUE;
+static error_modes = GER_ERROR_MODES;
+
+#/**
+#* Home directory for test scripts
+#*/
+
+public function FRM_DRV_set_script_home ( in dir )
+{
+    script_home = dir;
+}
+
+#/**
+#* Home directory for test data
+#*/
+
+public function FRM_DRV_set_data_home ( in dir )
+{
+    data_home = dir;
+}
+
+#/**
+#* Name of the test suite table
+#*/
+
+public function FRM_DRV_set_default_suite_table ( in name )
+{
+    default_suite_table = name;
+}
+
+#/**
+#* Set routine for activating the new test driver logic
+#*/
+
+public function FRM_DRV_set_new_test_driver ( in test_driver )
+{
+    new_test_driver = test_driver;
+}
+
+#/**
+#* Get routine for activating the new test driver logic
+#*/
+
+public function FRM_DRV_is_new_test_driver ( )
+{
+    return new_test_driver;
+}
+
+#/**
+#* Turns failure on unknown test on/off [default: FALSE]
+#* @param mode (in) TRUE raises an error by FRM_DRV_test_set_driver() 
+#*  if an unknown test (i.e. nonexisting column) is called, FALSE doesn't
+#*/
+
+public function FRM_DRV_set_fail_on_unknown_test ( in mode )
+{
+    fail_on_unknown_test = mode;
+}
+
+#/**
+#* Get routine for activating activating failure on unknown test
+#*/
+
+public function FRM_DRV_is_fail_on_unknown_test ( )
+{
+    return fail_on_unknown_test;
+}
+
+#/**
+#* Sets the default error mode. This value is evaluated by the emos driver in
+#* in order to determine how to proceed after an error has been detected in
+#* some test block. In interactive mode a dialog is displayed where you can
+#* interactively choose the desired behaviour. In batchmode or if you choose
+#* "Cancel" in interactive mode the default mode which is set here is applied.
+#* By default the <code>E_FRM_CONTINUE</code> is used (which means that 
+#* no test block will be skipped due to errors).
+#* @param mode (in) possible values <code>E_FRM_TEST_STOP,  E_FRM_SET_STOP,  
+#*	E_FRM_SUITE_STOP,  E_FRM_CONTINUE</code> if eny other value was passed 
+#*  (including <code>E_FRM_RETRY</code>) the default mode will be set to 
+#*  <code>E_FRM_CONTINUE</code>.
+#* @param eror_modes (in) String list defining mode names 
+#* <pre>[default:"1 - Weiter,2 - Test anhalten,3 - Testset anhalten,4 - Testsuite anhalten,5 - Block wiederholen"]</pre>
+#*	Make sure to preserve the numbers, the meaning of modes and no blanks after comma!
+#* @return the mode actually set (note it may be different from the wanted one!)
+#*/
+
+public function FRM_DRV_set_default_error_mode ( in mode, in mode_list )
+{
+    if ( mode_list != "" )
+    	error_modes = mode_list;
+    switch( mode )
+    {
+    	case E_FRM_TEST_STOP:
+    	case E_FRM_SET_STOP:
+    	case E_FRM_SUITE_STOP:
+    	    def_error_mode = mode;
+    	    break;
+    	default:
+    	    def_error_mode = E_FRM_CONTINUE;
+    }
+    return def_error_mode;
+}
+
+#/**
+#* TRUE: gives you the option to choose the alternative suite table;
+#* FALSE: opens the defined table only [default]
+#*/
+
+public function FRM_DRV_set_ask ( in par )
+{
+    ask = par;
+}
+
+#/**
+#* Comma-separated string defining the
+#* titles of the four important columns
+#* [default: <pre>"Bearbeiten?,Testscript,Testtabelle,Testset[,Kommentar]"</pre>]
+#*/
+
+public function FRM_DRV_set_columns ( in cols )
+{
+    columns = cols;
+}
+
+#**
+#* The main loop processes all rows in the suite table.
+#* @param arg1 home directory for test scripts
+#* @param arg2 home directory for test data
+#* @param arg3 name of the test suite table
+#* @param arg4 TRUE: gives you the option to choose 
+#* alternative suite table; FALSE: opens the defined table only [default]
+#* @param arg5 comma-separated string defining the
+#* titles of the four important columns 
+#* [default: <pre>"Bearbeiten?,Testscript,Testtabelle,Testset[,Kommentar]"</pre>]
+#* @return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+#public function FRM_DRV_main( in script_home, in data_home, in default_suite_table, in ask, in columns )
+public function FRM_DRV_main( in arg1, in arg2, in arg3, in arg4, in arg5 )
+{
+	auto suite_table, stid, cols[], rc, rows;
+
+    # these ifs are just for backward compatibility (when function arguments were not optional)
+    
+	if ( arg1 != "" ) FRM_DRV_set_script_home( arg1 );
+	if ( arg2 != "" ) FRM_DRV_set_data_home( arg2 );
+	if ( arg3 != "" ) FRM_DRV_set_default_suite_table( arg3 );
+	if ( arg4 != "" ) FRM_DRV_set_ask( arg4 );
+	if ( arg5 != "" ) FRM_DRV_set_columns( arg5 );
+
+	# column titles can be dynamically defined via columns
+	# by default they are in german (backwards compatibility)
+	
+	if ( columns == "" )
+		columns = GER_COLUMNS;
+	# sanity check that we have at lest four cols 	
+	if ( split( columns, cols, "," ) < 4 )
+	{
+		tl_step( "columns", FAIL, "invalid parameter" );
+		return E_ILLEGAL_PARAMETER;
+	}
+	# find out which table is to be used
+	if( fail( FRM_DRV_choose_table( data_home, default_suite_table, ask, suite_table ) ) ) return getLastRc();
+
+	# ask whether retry of the run is wanted
+	FRM_DRV_ask_retry();
+	
+	# forget the garbage from the previous run
+	FRM_close_all();
+
+	# open table and init iterator
+	if( fail( FRM_open( suite_table, columns, stid ) ) ) return getLastRc();
+	if( fail( FRM_get_row_count( stid, rows ) ) ) return getLastRc();
+	
+	# <suite_table> must stay opened
+	# see below FRM_close_all_except
+
+	rc = FRM_DRV_test_suite_driver(script_home, data_home, stid, cols, rows );	 
+
+	FRM_close_all( );
+
+	return rc;
+}
+
+#**
+#* Picks the appropriate file. If &lt;ask&gt; = TRUE [defult], then a
+#* file browse dialog is shown to interactively pick the file. In batch
+#* mode, the dialog is not shown.
+#*@param dir (in)	directory
+#*@param name (in)	file name
+#*@param ask (in)	(optional) TRUE/FALSE [default: TRUE]
+#*@param path (out)	full path name to be used
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+static function FRM_DRV_choose_table ( in dir, in name, in ask, out path )
+{
+	auto rc = E_OK;
+	
+	if ( ask || ask == "" )
+	{
+		if ( fail( DDT_choose_table( join_path( dir, name ), dir, name ) ) ) return getLastRc();
+	}
+	path = join_path( dir, name, "\\" );
+	return E_OK;
+}
+
+#**
+#* Waits for the user input (an edit field and OK/Cancel buttons) if a table 
+#* cell contains a specielly formatted data. The data is "specially formatted" 
+#* if it either begins with the question mark or with some other string as 
+#* defined by <code>flag</code> parameter.
+#* @param tid (in)	table ID
+#* @param param (in)	column name
+#* @param msg (in)	message to be displayed
+#* @param val (out)	value choosen (empty string indicates Cancel)
+#* @param flag (in)	(optional) prefix which indicates the "askable" data [default: ?]
+#* @return
+#*	E_OK:	success; <code>val</code> contains valid data
+#*	!E_OK:	failure; do not rely on <code>val</code>
+#*/
+
+static function FRM_DRV_ask ( in tid, in param, in msg, out val, in flag )
+{
+	auto rc, len;
+	if ( flag == "" )
+		flag = "?";
+	len = length( flag );
+	if ( fail( FRM_get( tid, param, val ) ) ) return getLastRc();
+	if ( length( val ) < len )
+		return E_OK;
+	if ( substr( val, 1, len ) == flag )
+	{
+		val = substr( val, len+1 );
+		rc = create_input_dialog( msg & ": " & val );
+		if ( rc != "" )
+			val = rc;
+	}
+	return E_OK;
+}
+
+#**
+#* execute a test suite excel table. 
+#* @param script_home home directory for test scripts
+#* @param data_home home directory for test data
+#* @param stid suite_table ID ( as returned by FRM_open() )
+#* @param cols 
+#* @param rows
+#*/
+
+static function FRM_DRV_test_suite_driver( in script_home, in data_home, in stid, inout cols[], in rows )
+{
+	auto data_table, xtabs[];
+	auto table, script, testset, comment;
+	auto doit;
+	auto row;
+	auto i;
+	auto rc;
+	auto suite_rc;
+
+	rc = E_OK;
+	suite_rc = E_OK;
+
+	xtabs[stid] = FRM_get_name( stid );
+
+	wrlog_suite_start( xtabs[stid] );
+
+	# iterate through all rows
+	DDT_ACCESS_init( stid, "1-"& rows );
+	
+	while( DDT_ACCESS_has_more( stid ) )
+	{
+		# fetch test-set data from excel table
+		row = DDT_ACCESS_get_next( stid );
+		rc = FRM_set_row( stid, row );
+		if ( rc != E_OK )
+		{
+			suite_rc += rc;
+			break;
+		}
+		rc = FRM_get( stid, cols[1], doit );
+		rc+= FRM_get( stid, cols[2], script );
+		rc+= FRM_get( stid, cols[3], table );
+		rc+= FRM_get( stid, cols[4], testset );
+		     FRM_get( stid, cols[5], comment );  # comment column is not mandatory
+		if ( rc != E_OK )
+		{
+			report_msg( "Row " & row & " ignored." );
+			continue;
+		} 
+	 	rc+= FRM_DRV_ask( stid, cols[1], "("&table&": "&testset&")? ", doit );
+		if ( rc != E_OK )
+		{
+			suite_rc += rc;
+			break;
+		}
+		if ( !Ja( doit ) ) 
+		{
+			report_msg( "Row " & row & " skipped." );
+			continue;
+		} 
+		table = join_path( data_home, table, "\\" );
+		#script = join_path( script_home, script );
+		rc = FRM_DRV_ask( stid, cols[4], cols[4], testset );
+		if ( rc != E_OK )
+		{
+			suite_rc += rc;
+			break;
+		}
+		report_msg( cols[2] & ": " & script );
+		report_msg( cols[3] & ": " & table );
+		report_msg( cols[4] & ": " & testset );
+		if ( comment != "" )
+		{
+			report_msg( cols[5] & ": " & comment );
+		}
+		# process test set
+		rc = FRM_DRV_test_set_driver(script, table, testset);
+		suite_rc += rc;
+
+		FRM_close_all_except( xtabs );
+	}
+
+	DDT_ACCESS_clean( stid );
+
+	wrlog_suite_stop( xtabs[stid], suite_rc );
+
+	return suite_rc;
+}
+
+#**
+#* Executes a set of tests from a specified data table by the specified script. 
+#* @param script (in)	test driver (full path or accessable vie search path)
+#* @param table (in)	data table (full path name!)
+#* @param testset (in)	names of the tests to be executed (individual entries
+#* are comma-separated; numeric ranges can be shortend by hyphen, e.g. 1-5 which
+#* stands for 1,2,3,4,5; ranges can also be defined within name spaces and are 
+#* similarly shortened, e.g. a1-3 stands for a1,a2,a3)
+#*/
+
+public function FRM_DRV_test_set_driver(in script, in table, in testset, in comment ) 
+{
+	auto test, tid;
+	auto via_IDX;
+	auto expr, msg;
+	auto rc, set_rc;
+	extern RLENGTH;
+
+	rc = E_OK;
+	set_rc = E_OK;
+
+	wrlog_set_start( testset );
+	if ( comment != "" )
+	{
+		wrlog_set_data( "DESCRIPTION", comment );
+	}
+	
+	# NOTE!
+	# If testset begins with "IDX:", it indicates that test
+	# are defined accross rows instead of column-wise.
+	# For this to work correctly ALL collumns have to be
+	# loaded at once. Normally, only the columns specified
+	# by the testset are loaded.
+	
+	via_IDX = ( substr( testset, 1, length( PREFIX ) ) == PREFIX);
+	if ( via_IDX )
+	{
+		testset = substr( testset, length(PREFIX)+1 );
+		rc = FRM_open( table, "<<ALL>>", tid );
+	}
+	else
+	{
+		rc = FRM_open( table, testset, tid );
+	}
+	if ( rc != E_OK )
+	{
+		wrlog_set_stop( testset, rc );
+		return rc;
+	}
+	DDT_ACCESS_init( table, testset );
+	while ( DDT_ACCESS_has_more( table ) )
+	{
+		rc = E_OK;
+		test = DDT_ACCESS_get_next( table );
+		if ( via_IDX || FRM_is_parameter( tid, test ) == E_OK )
+		{
+			wrlog_test_start( test, table, script );
+			if ( FRM_DRV_is_retry() && FRM_DRV_retry_lookup_log( table, test ) == 0 )
+			{
+				report_msg( "Test: " & test & "\t--> won't be retried" );
+				rc = 0;
+			}
+			else
+			{
+				FRM_DRV_retry_log_test1( table, test );
+				report_msg( "Test: " & test & "\t--> is being processed" );
+				if ( FRM_DRV_is_new_test_driver() )
+				{
+					if ( isCompiledModule( script & "_lib" )
+					  || isCompiledModule( script ) )
+					{
+						expr = sprintf( "treturn call_close \"DRV/emos_test_driver\" ( \"%s\", \"%s\", \"%s\" );", script, tid, test );
+					}
+					else
+					{
+						expr = sprintf( "treturn call_close \"%s\" ( \"%s\", \"%s\", TRUE );", script, tid, test );
+					}
+				}
+				else
+				{
+					expr = sprintf( "treturn call_close \"%s\" ( \"%s\", \"%s\", TRUE );", script, tid, test );
+				}
+				rc = eval( expr );
+				tl_step( test, rc, script & " returned rc=[" & rc & "]" ); 
+				FRM_DRV_retry_log_test2( rc );
+				set_rc += rc;
+				
+				if ( rc == E_OK )
+					FRM_RES_add_test_statistics("# of successful tests" );
+				else
+					FRM_RES_add_test_statistics("# of failed tests" );
+			}
+			wrlog_test_stop( test, rc );
+		}
+		else
+		{
+			wrlog_test_start( test, table, script );
+			if ( fail_on_unknown_test )
+			{
+				rc = E_NOT_FOUND;
+				msg = sprintf( "Test \"%s\" not found", test );
+				tl_step( test, rc, msg );
+			}
+			else
+			{
+				rc = "";        # empty string is shown as ? in ttracx
+				msg = sprintf( "Test \"%s\" --> UNKNOWN, ignored", test );
+				report_msg( msg );
+			}
+			wrlog_test_data( "MSG", msg );
+			wrlog_test_stop( test, rc );
+			set_rc += rc;
+			FRM_RES_add_test_statistics("# of ignored/unknown tests" );
+		}
+		if ( rc == E_FRM_SET_STOP || rc == E_FRM_SUITE_STOP )
+		{
+			DDT_ACCESS_clean( table );
+			wrlog_set_stop( testset, rc );
+			return rc;
+		}
+	}
+	DDT_ACCESS_clean( table );
+	wrlog_set_stop( testset, set_rc );
+	return set_rc;
+}
+
+#/**
+#* The main lop for driving the test navigation.
+#* @param lib (in) library that contains application-specific test navigation functions
+#* @param tid (in) table ID of the Excel table that contains the sepcified <code>test</code>
+#* @param test (in) name of the test (i.e. column) that is to be processed
+#* @return E_OK if successfull, else failure
+#*/
+
+public function FRM_DRV_test_driver ( in lib, in tid, in test )
+{
+	auto step;
+	auto mode;
+	auto step_rc;
+	auto rc;
+	auto i;	
+
+	rc = load_drv_lib( lib, 0, 1 );
+	if ( rc != E_OK )
+		return rc;
+
+	rc+= AUT_DRV_report ( tid, test );
+	rc+= AUT_DRV_load ( tid, test );
+	rc+= AUT_DRV_init_steps( tid, test );
+	if ( rc != E_OK )
+	{
+		return rc;
+	}
+	step_rc = E_OK;
+	while( FRM_STP_has_more_steps( tid, test ) )
+	{
+		rc = FRM_STP_get_next_step( tid, test, step, mode );
+		if ( rc == E_FILE_EOF )
+		{
+			break;
+		}
+		if ( rc == E_FRM_TEST_STOP || rc == E_FRM_SET_STOP || rc == E_FRM_SUITE_STOP )
+		{
+			return rc;
+		}
+		if ( rc != E_OK )
+		{
+			step_rc++;
+			continue;
+		}
+		do
+		{
+			rc = AUT_DRV_call_block( tid, test, step, mode );
+			if ( rc == E_FRM_NOT_IMPLEMENTED )
+			{
+				step_rc++;
+				tl_step( step, rc, "Test block [" & step & "] not implemented yet" );
+				wrlog_block_stop ( step, "unimplemented" );
+			}
+			else if ( rc == E_FRM_UNKNOWN )
+			{
+				step_rc++;
+				tl_step( step, rc, "Test block [" & step & "] unknown" );
+				wrlog_block_stop ( step, "unknown" );
+			}
+			else
+			{
+				rc = FRM_DRV_handle_processed_block( step, test, rc, step_rc );
+				switch( rc )
+				{
+				case E_FRM_TEST_STOP:
+				case E_FRM_SET_STOP:
+				case E_FRM_SUITE_STOP:
+					return rc;
+				}
+			}
+		} while ( rc == E_FRM_RETRY );
+	}
+	return step_rc;
+}
+
+#/**
+#* Formats the report for unimplemented test blocks. Note that this function
+#* increases the inout variable <code>frm_rc</code> by 1.
+#* @param block (in)	the name of the test block
+#* @param frm_rc (inout)	the status variable (increased by 1 upon the exit)
+#*/
+
+public function FRM_DRV_handle_unimplemented_block( in block, inout frm_rc )
+{
+		frm_rc++;
+		tl_step( block, frm_rc, "Test block [" & block & "] not implemnted" );
+		wrlog_block_stop ( block, "unimplemented" );
+		return frm_rc;
+}
+
+#/**
+#* Formats the report for unknown test blocks. Note that this function
+#* increases the inout variable <code>frm_rc</code> by 1.
+#* @param block (in)	the name of the test block
+#* @param frm_rc (inout)	the status variable (increased by 1 upon the exit)
+#*/
+
+public function FRM_DRV_handle_unknown_block( in block, inout frm_rc )
+{
+		frm_rc++;
+		tl_step( block, frm_rc, "Test block [" & block & "] unknown" );
+		wrlog_block_stop ( block, "unknown" );
+}
+
+#/**
+#* Formats the report for procesed test blocks. Note that this function
+#* increases the inout variable <code>frm_rc</code> by 1 in case of <code>rc!=0</code>.
+#* @param block (in)	the name of the test block
+#* @param test (in)	the name of the test case
+#* @param rc (in)	status returned by the processed test block
+#* @param frm_rc (in)	the current value of the status variable
+#* @return 0 to continue with the test case, 1 to stop the execution of the test case
+#*/
+
+public function FRM_DRV_handle_processed_block( in block, in test, in rc, inout frm_rc )
+{
+	auto rc2;
+	wrlog_block_stop ( block, rc );
+	if ( rc != E_OK )
+	{
+		tl_step( block, rc, "Test block=[" & block & "], rc=[" & rc & "]" );
+		rc2 = create_list_dialog( "Test block failed", block, error_modes );
+		# "1 - Continue,2 - Stop test,3 - Stop test set,4 - Stop test suite,5 - Retry block"
+		switch( substr( rc2, 1, 1 ) )
+		{
+		case 1: frm_rc = rc; break;
+		case 2: frm_rc = E_FRM_TEST_STOP; break;
+		case 3: frm_rc = E_FRM_SET_STOP; break;
+		case 4: frm_rc = E_FRM_SUITE_STOP; break;
+		case 5: frm_rc = E_FRM_RETRY; break;
+		default:	# either batch mode or Cancel
+			frm_rc = (def_error_mode == E_FRM_CONTINUE) ? rc : def_error_mode;
+		}
+		return frm_rc;
+	}
+	return E_OK;
+}
+
+#/**
+#* Loads driver libs.
+#* <p>NOTE1<br>
+#*	Each invocation of LINK|LINA|LINX instruction will cause a new "reload"
+#*	of the specified driver library. This is necessary in order to ensure
+#*	proper loading when multiple divers are used (big projects tend to use
+#*	this strategy). If you want to skeep such unecessary reloading, you may
+#*	remove the name of the driver from the LINK commands wherever you are
+#*	sure that the proper driver has already been loaded, for example
+#*	<pre>
+#*		LINK~drv/xxx~~1_1
+#*		LINK~~~1_2
+#*		LINK~~~1_3
+#*	</pre>
+#* <p>NOTE2<br>
+#*	For compatibility reasons with older projects you should name your new
+#*	driver libraries using the "_lib" suffix. If you preserve the rest of
+#*	the driver name (e.g. if "DRV/xxx" is changed to "DRV/xxx_lib", then you 
+#*	need not modify anything in your Excel tables because this routine will
+#*	automatically append "_lib" to all names that do not use this suffix.
+#*/
+
+static function load_drv_lib ( in lib, in p1, in p2 )
+{
+	auto rc;
+	
+	if ( lib == "" )
+		return E_OK;
+
+	if ( isCompiledModule( lib ) )
+	 	return reload( lib, p1, p2 );
+	else
+	 	return reload( lib & "_lib", p1, p2 );
+}
+#/**
+#* Executes several test sets as defined by the parameter <code>callArr[]</code>.
+#* <p>NOTE1<br>
+#*	Input array must be a two-dimensional array. First dimension must be sequentially
+#*  indexed from 0 onwards. The second dimension must be sequentially numbered from
+#*  0 onwards where 0 holds "test driver name", 1 hodls "test table name", and 2 holds
+#*	"test set name". The easiest way to initialise such array in the callong script
+#*	is via the following construct:
+#*	<pre>
+#*		static callArr[] = {
+#*			 { "drv/main", "table1.xls", "1-5" }
+#*			,{ "drv/main", "table2.xls", "1-3" }
+#*			,{ "drv/xxxx", "table2.xls", "3-9" }
+#*		};
+#*	</pre>
+#* @param callArr (inout) array contianing test set instructions (see above)
+#* @return E_OK if success else error
+#*/
+
+public function FRM_DRV_execute_set_array( inout callArr[] )
+{
+	extern DATA_HOME;
+	auto rc, rc2;
+	auto driver, table, set;
+	auto i, count=0;
+	for (i in callArr ) count++;
+	if ( count%3 != 0 )
+	{
+		# malformed input array (# of elements not the multipe of 3)
+		return E_ILLEGAL_PARAMETER;
+	}
+	count/=3;
+	rc2 = 0;
+	FRM_close_all();
+	for (i=0; i<count; i++)
+	{
+		driver = callArr[i,0];
+		table = callArr[i,1];
+		set = callArr[i,2];
+		wrlog_set_start( set );
+		if ( driver == "" || callArr[i,1] == "" || set == "" )
+			rc = E_ILLEGAL_PARAMETER;
+		else
+			rc = FRM_DRV_test_set_driver( driver, table, set );
+		wrlog_set_stop( set, rc );
+		if( rc == E_FRM_SET_STOP || rc == E_FRM_SUITE_STOP )
+		{
+			rc2 = rc;
+			break;
+		}
+		rc2 += rc;
+	}
+	FRM_close_all();
+	return rc2;
+}

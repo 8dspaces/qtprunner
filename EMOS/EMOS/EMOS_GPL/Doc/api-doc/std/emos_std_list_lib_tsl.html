@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_list_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.1.1.1 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2004/03/24 20:14:02 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Archive: /MERCURY/Projects/EMOS_GPL/STD/emos_std_list_lib/script $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This library contains alternative implementations of standard functions</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	that operate on list objects (list_x() functions). Reasons for alternative </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	implementations can be various. They should be carefully documented with</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	each function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Another sort of functions in this library are functions that implement some</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	additional functionality that would probably fit into Mercury's logic</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	for list_x() functions.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* 	Checks whether the &lt;code&gt;list&lt;/code&gt; contains a particular item. You can search for</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	items that must exactly match the search string &lt;code&gt;str1&lt;/code&gt; or contain the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	searched substring.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param obj (in)		list object to be searched</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param regex (in)	string to search for</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param pos (out)	item number in case &lt;str1&gt; was found</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param soft (in)	(optional)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	            TRUE = matches a substring</font></i><font color=black>
+</font><font color="#ff0000"><i>#*				FALSE = exact match [default: FALSE]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:		match found</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_NOT_FOUND: match not found</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	else:		errors detected</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> list_item_exists( <b>in</b> obj, <b>in</b> regex, <b>out</b> pos, <b>in</b> soft )
+{
+	<b>static</b> i,nnn,val,rc;
+	<b>extern</b> RLENGTH;
+
+	rc = list_get_info(obj,</font><font color="#00bb00">"count"</font><font color=black>,nnn);
+	<b>if</b> (rc  != 0) <b>return</b>(rc);
+	<b>if</b> (nnn == 0) <b>return</b>(E_NOT_FOUND);
+
+	<b>for</b>(pos = 0; pos &lt;= nnn-1; pos++)
+	{
+		rc = list_get_item(obj,pos,val);
+		<b>if</b> (rc != 0)  <b>return</b>(rc);
+		<b>switch</b> ( match(val,regex) )
+		{
+		<b>case</b> 0:
+			<b>break</b>;
+		<b>case</b> 1:
+			<b>if</b> ( soft || ( <b>length</b>(val) == RLENGTH ) )
+			{
+				pos++;
+				<b>return</b>(E_OK);
+			}
+			<b>break</b>;
+		<b>default</b>:
+			<b>if</b> ( soft )
+			{
+				pos++;
+				<b>return</b>(E_OK);
+			}
+			<b>break</b>;
+		}
+	}
+	<b>return</b>(E_NOT_FOUND);
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This function was created as an attempt to solve a particularly ugly bug</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	in WR 6.0 / 6.02. It is obsolete now because we have discovered the real</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	cause of the problem which you can solve by placing set_var("timeout",10)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	in your startup script. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	We have left the function in the library to show one way how some problems</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	could be aproached by applying alternative methods to achieve the "same"</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	effect. In this case we rely on the fact that MFC listboxes typically</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	position the focus on the item whose name starts with the key pressed. So</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	we are pressing the initial key until we either find an item or we "cycle-</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	through" the list.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt; PROBLEM DESCRIPTION:&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Hier and then we had the problem that after restarting WinRunner, list</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	objects wouldn't work properly. For some reason list_select_item() would</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	suddenly not work although the item was still there and neither application</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	nor the test (that's what we thought) changed. GUI editor would show no</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	problems whatsoever with any of the list objects. Only the selecting would</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	not work. The only way to "solve" the problem was to re-install WinRunner.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Finally, after days of searching,, we have discovered, that after some</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	WinRunner crashes, the default timeout value (saved in wrun.ini, where else)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	had a value of 10 instead of 10000. This has explained why this problem </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	only occurs in WR 6.0. It is 6.0 when timeout was changed from seconds to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	miliseconds. Obviously, somewhere deep in some WinRunner dll there is still</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	a peace of logic that thinks in seconds instead of miliseconds.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Since we know what Mercury could claim, we have checked our test scripts -</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	they are deffinitely fine. It is WinRunner who causes problems.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt; PROBLEM SOLUTION:&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	There are several solutions for this problem:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;ul&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt; You change the wrun.ini each time this happens.&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt; You wait until Mercury fixes the problem.&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt; You (re)set the timeout you want in your startup script.&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;/ul&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Obviously, the last one is the only feasible.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param obj (in)		name of the list object</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param item (in)	item which is to be selected</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	error</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> list_select_item1 ( <b>in</b> obj, <b>in</b> item )
+{
+	<b>auto</b> rc, x, t;
+	<b>auto</b> arr[], n=0;
+	x = substr(item,1,1);
+	<b>while</b>( 1 )
+	{
+		rc = list_get_selected( obj, t, n ); 
+		<b>if</b> (rc) <b>return</b> rc;
+		<b>if</b> ( t == item )
+			<b>return</b> E_OK;
+		<b>if</b>( t <b>in</b> arr )
+			<b>break</b>;
+		arr[t] = n;
+		rc=obj_type(obj, x);
+		<b>if</b> (rc) <b>return</b> rc;
+	}
+	<b>return</b> E_NOT_FOUND;
+}
+
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_list_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</pre></body></html>

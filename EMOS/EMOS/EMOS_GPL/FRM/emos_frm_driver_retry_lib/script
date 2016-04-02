@@ -1,0 +1,291 @@
+################################################################################
+# TEST:	EMOS_FRM_driver_retry_lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.3 $
+# $Author: drajovic $
+# $Date: 2005/01/28 11:18:43 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/emos_frm_driver_retry_lib/script,v $
+# $NoKeywords: $
+################################################################################
+
+#**#
+#* The library containing routines that enable EMOS_FRM_driver to retry failed 
+#* tests. This is implemented by writing an execution log in a temporary file. 
+#* If the retry mode had been chosen (offered only in interactive mode), this 
+#* file is analysed by the succeeding run. If a failed or uncompleeted test is
+#* detected, this test is reinvoked. All other tests are ignored.
+#*/
+
+#/**
+#* Main flag that enables retry cabability [default=FALSE]. 
+#* Use FRM_DRV_enable_retry() to activate retry capability.
+#*/
+static retry_enabled = FALSE;
+
+#/**
+#* Once the retry_enabled is set to true this flag governs wheter it is
+#* possible to attempt a retry or not. 
+#*/
+static retry_flag = FALSE;
+
+static retry_log_file_name;
+static retry_log_table[];
+static retry_log_sep = "\t";
+
+#/**
+#* Use this function to enable the retry capability. You should either enable
+#* retry generally for all test suites (i.e. the best place to call it is
+#* the startup test). Otherwise you can enable/disable retry for each individual
+#* test suite (make sure to call enable/disable in ALL your kickoff tests).
+#*/
+
+public function FRM_DRV_enable_retry()
+{
+	retry_enabled = TRUE;
+}
+
+#/**
+#* Use this function to disable retry capability.
+#*/
+
+public function FRM_DRV_disable_retry()
+{
+	retry_enabled = FALSE;
+}
+
+#/**
+#* Indicates wheter a retry is possible which is true if retry is generally
+#* enabled, test is running in interactive mode and there is an old log file
+#* that could govern the retry.
+#*@return TRUE: can attempt to retry, FALSE: a "normal" run will be attempted
+#*/
+
+public function FRM_DRV_can_retry()
+{
+	retry_flag = FALSE;
+	FRM_DRV_retry_set_log_file_name();
+	# retry disabled in general
+	if ( !retry_enabled )
+		return FALSE;
+	# retry is only possible in interactive mode 
+	switch ( tolower( getvar( "batch" ) ) )
+	{
+	case 1:
+	case "on":
+	case "true":
+		return FALSE;
+	}
+	# make sure log file is there
+	if ( file_open( FRM_DRV_retry_get_log_file_name(), FO_MODE_READ ) == E_OK )
+	{
+		file_close( FRM_DRV_retry_get_log_file_name() );
+		return TRUE;
+	}
+    return FALSE;
+}
+
+#/**
+#* Invokes a dialog which asks the user whether to retry the last run.
+#* An internal flag is set to indicate whether to retry or not.
+#*/
+
+public function FRM_DRV_ask_retry()
+{
+	auto rc;
+	
+	if ( !FRM_DRV_can_retry() )
+	{
+		retry_flag = FALSE;
+		return;
+	}
+	rc = pause_test( "Do you want to retry this run?", "&No", "&Yes" );
+	if ( rc )
+	{
+		retry_flag = TRUE;
+	}
+	else
+	{
+		retry_flag = FALSE;
+		FRM_DRV_retry_load_log_table();
+	}
+}
+
+#/**
+#* Indicates whether retry mode is active or not.
+#*/
+
+public function FRM_DRV_is_retry ()
+{
+    return retry_flag;
+}
+
+#/**
+#* You can define your own separator for entries in the log file [default=TAB].
+#*/
+
+public function FRM_DRV_retry_set_log_sep( in sep )
+{
+	retry_log_sep = sep;
+}
+
+#/**
+#* Returns the log separator.
+#*@return the log separator
+#*/
+
+public function FRM_DRV_retry_get_log_sep()
+{
+	return retry_log_sep;
+}
+
+#/**
+#* Defines the name of the log file [default=
+#* &lt;WrTmpDir&gt;\\&lt;testName&gt;_&lt;resName&gt;.log].
+#*@param file (in)	full path name of the log file (optional)
+#*/
+
+public function FRM_DRV_retry_set_log_file_name( in file )
+{
+	auto tmpDir;
+	auto tstName;
+	auto resName;
+	auto dummy;
+	
+	if ( file == "" )
+	{
+		tmpDir = getvar( "tempdir" );
+		split_path( getvar( "testname" ), dummy, tstName, "\\" );
+		split_path( getvar( "result" ), dummy, resName, "\\" );
+		retry_log_file_name = sprintf( "%s\\%s_%s.log"
+								 , tmpDir
+								 , tstName
+								 , resName );
+	}
+	else
+	{
+		retry_log_file_name = file;
+	}
+}
+
+#/**
+#* Retrieves the name of the active log file.
+#*@return log file name
+#*/
+
+public function FRM_DRV_retry_get_log_file_name()
+{
+	return retry_log_file_name;
+}
+
+#/**
+#* Loads the log file into an internal array tho provide for a quick lookup.
+#*@return E_OK: load successful else failure
+#*/
+
+public function FRM_DRV_retry_load_log_table()
+{
+	auto line;
+	auto arr[], count, i;
+	auto rc;
+	
+	# clean the table
+	for ( i in retry_log_table )
+		delete retry_log_table[i];
+		
+	rc = file_open( FRM_DRV_retry_get_log_file_name(), FO_MODE_READ );
+	if ( rc != E_OK )
+		return rc;
+		
+	while ( file_getline( FRM_DRV_retry_get_log_file_name(), line ) == E_OK )
+	{
+		count = split( line, arr, FRM_DRV_retry_get_log_sep() );
+		if ( count < 3 )
+			continue;
+		retry_log_table[ arr[1], arr[2] ] = arr[3];
+	}
+	rc = file_close( FRM_DRV_retry_get_log_file_name() );
+	# delete the old log file
+	dos_system( "del " & FRM_DRV_retry_get_log_file_name() );
+	return rc;
+}
+
+#/**
+#* Retrieves an log entry. Empty stringis returned if entry is not found.
+#*@return the entry or empty string if no entry found
+#*/
+
+public function FRM_DRV_retry_lookup_log ( in table, in test )
+{
+	return retry_log_table[ table, test ];
+}
+
+#/**
+#* Appends the first part of the log entry. This part contains all information
+#* about a single test that is attempted with the exception of the return
+#* code returned by this test.
+#*@param table (in) name of the test table
+#*@param test (in) name of the test
+#*@return E_OK: success else failure 
+#*/
+
+public function FRM_DRV_retry_log_test1( in table, in test )
+{
+    auto rc;
+    auto logFile;
+    if ( !retry_enabled )
+        return E_OK;
+    logFile = FRM_DRV_retry_get_log_file_name();
+	rc+=file_open( logFile, FO_MODE_APPEND );
+	rc+=file_printf( logFile, "%s%s%s%s"
+	                        , table, FRM_DRV_retry_get_log_sep()
+	                        , test, FRM_DRV_retry_get_log_sep() );
+	rc+=file_close( logFile );
+	return rc;
+}
+
+#/**
+#* Appends the second part of the log entry for the particular test. The second
+#* part contains the return code received from the test.
+#*@param test_rc (in) the rc returned by the test
+#*@return E_OK: success, else failure
+#*/
+
+public function FRM_DRV_retry_log_test2( in test_rc )
+{
+    auto rc;
+    auto logFile;
+    if ( !retry_enabled )
+        return E_OK;
+    logFile = FRM_DRV_retry_get_log_file_name();
+	rc+=file_open( logFile, FO_MODE_APPEND );
+	rc+=file_printf( logFile, "%s\r\n", test_rc );
+	rc+=file_close( logFile );
+	return rc;
+}

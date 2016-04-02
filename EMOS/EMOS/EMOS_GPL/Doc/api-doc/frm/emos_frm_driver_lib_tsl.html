@@ -1,0 +1,744 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+ </font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TEST:	EMOS_FRM_driver_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.8 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/27 08:53:54 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/emos_frm_driver_lib/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**#</font></i><font color=black>
+</font><font color="#ff0000"><i>#* The library routines for the EMOS_FRM_driver test.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>const</b> PREFIX = </font><font color="#00bb00">"IDX:"</font><font color=black>;
+<b>static</b> <b>const</b> GER_COLUMNS  = </font><font color="#00bb00">"Bearbeiten?,Testscript,Testtabelle,Testset"</font><font color=black>;
+<b>static</b> <b>const</b> GER_ERROR_MODES = </font><font color="#00bb00">"1 - Weiter,2 - Test anhalten,3 - Testset anhalten,4 - Testsuite anhalten,5 - Block wiederholen"</font><font color=black>;
+
+</font><font color="#ff0000"><i>#* Properties (parameters that can be set/get)</font></i><font color=black>
+
+<b>static</b> script_home;
+<b>static</b> data_home;
+<b>static</b> default_suite_table;
+<b>static</b> ask = FALSE;
+<b>static</b> columns = GER_COLUMNS;
+<b>static</b> new_test_driver = FALSE;
+<b>static</b> fail_on_unknown_test = FALSE;
+<b>static</b> def_error_mode = E_FRM_CONTINUE;
+<b>static</b> error_modes = GER_ERROR_MODES;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Home directory for test scripts
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_set_script_home ( <b>in</b> dir )
+{
+    script_home = dir;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Home directory for test data
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_set_data_home ( <b>in</b> dir )
+{
+    data_home = dir;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Name of the test suite table
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_set_default_suite_table ( <b>in</b> name )
+{
+    default_suite_table = name;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Set routine for activating the new test driver logic
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_set_new_test_driver ( <b>in</b> test_driver )
+{
+    new_test_driver = test_driver;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Get routine for activating the new test driver logic
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_is_new_test_driver ( )
+{
+    <b>return</b> new_test_driver;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Turns failure on unknown test on/off [default: FALSE]
+#* @param mode (in) TRUE raises an error by FRM_DRV_test_set_driver() 
+#*  if an unknown test (i.e. nonexisting column) is called, FALSE doesn't
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_set_fail_on_unknown_test ( <b>in</b> mode )
+{
+    fail_on_unknown_test = mode;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Get routine for activating activating failure on unknown test
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_is_fail_on_unknown_test ( )
+{
+    <b>return</b> fail_on_unknown_test;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Sets the default error mode. This value is evaluated by the emos driver in
+#* in order to determine how to proceed after an error has been detected in
+#* some test block. In interactive mode a dialog is displayed where you can
+#* interactively choose the desired behaviour. In batchmode or if you choose
+#* "Cancel" in interactive mode the default mode which is set here is applied.
+#* By default the &lt;code&gt;E_FRM_CONTINUE&lt;/code&gt; is used (which means that 
+#* no test block will be skipped due to errors).
+#* @param mode (in) possible values &lt;code&gt;E_FRM_TEST_STOP,  E_FRM_SET_STOP,  
+#*	E_FRM_SUITE_STOP,  E_FRM_CONTINUE&lt;/code&gt; if eny other value was passed 
+#*  (including &lt;code&gt;E_FRM_RETRY&lt;/code&gt;) the default mode will be set to 
+#*  &lt;code&gt;E_FRM_CONTINUE&lt;/code&gt;.
+#* @param eror_modes (in) String list defining mode names 
+#* &lt;pre&gt;[default:"1 - Weiter,2 - Test anhalten,3 - Testset anhalten,4 - Testsuite anhalten,5 - Block wiederholen"]&lt;/pre&gt;
+#*	Make sure to preserve the numbers, the meaning of modes and no blanks after comma!
+#* @return the mode actually set (note it may be different from the wanted one!)
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_set_default_error_mode ( <b>in</b> mode, <b>in</b> mode_list )
+{
+    <b>if</b> ( mode_list != </font><font color="#00bb00">""</font><font color=black> )
+    	error_modes = mode_list;
+    <b>switch</b>( mode )
+    {
+    	<b>case</b> E_FRM_TEST_STOP:
+    	<b>case</b> E_FRM_SET_STOP:
+    	<b>case</b> E_FRM_SUITE_STOP:
+    	    def_error_mode = mode;
+    	    <b>break</b>;
+    	<b>default</b>:
+    	    def_error_mode = E_FRM_CONTINUE;
+    }
+    <b>return</b> def_error_mode;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* TRUE: gives you the option to choose the alternative suite table;
+#* FALSE: opens the defined table only [default]
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_set_ask ( <b>in</b> par )
+{
+    ask = par;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Comma-separated string defining the
+#* titles of the four important columns
+#* [default: &lt;pre&gt;"Bearbeiten?,Testscript,Testtabelle,Testset[,Kommentar]"&lt;/pre&gt;]
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_set_columns ( <b>in</b> cols )
+{
+    columns = cols;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* The main loop processes all rows in the suite table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param arg1 home directory for test scripts</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param arg2 home directory for test data</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param arg3 name of the test suite table</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param arg4 TRUE: gives you the option to choose </font></i><font color=black>
+</font><font color="#ff0000"><i>#* alternative suite table; FALSE: opens the defined table only [default]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param arg5 comma-separated string defining the</font></i><font color=black>
+</font><font color="#ff0000"><i>#* titles of the four important columns </font></i><font color=black>
+</font><font color="#ff0000"><i>#* [default: &lt;pre&gt;"Bearbeiten?,Testscript,Testtabelle,Testset[,Kommentar]"&lt;/pre&gt;]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#public function FRM_DRV_main( in script_home, in data_home, in default_suite_table, in ask, in columns )</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_DRV_main( <b>in</b> arg1, <b>in</b> arg2, <b>in</b> arg3, <b>in</b> arg4, <b>in</b> arg5 )
+{
+	<b>auto</b> suite_table, stid, cols[], rc, rows;
+
+    </font><font color="#ff0000"><i># these ifs are just for backward compatibility (when function arguments were not optional)</font></i><font color=black>
+    
+	<b>if</b> ( arg1 != </font><font color="#00bb00">""</font><font color=black> ) FRM_DRV_set_script_home( arg1 );
+	<b>if</b> ( arg2 != </font><font color="#00bb00">""</font><font color=black> ) FRM_DRV_set_data_home( arg2 );
+	<b>if</b> ( arg3 != </font><font color="#00bb00">""</font><font color=black> ) FRM_DRV_set_default_suite_table( arg3 );
+	<b>if</b> ( arg4 != </font><font color="#00bb00">""</font><font color=black> ) FRM_DRV_set_ask( arg4 );
+	<b>if</b> ( arg5 != </font><font color="#00bb00">""</font><font color=black> ) FRM_DRV_set_columns( arg5 );
+
+	</font><font color="#ff0000"><i># column titles can be dynamically defined via columns</font></i><font color=black>
+	</font><font color="#ff0000"><i># by default they are in german (backwards compatibility)</font></i><font color=black>
+	
+	<b>if</b> ( columns == </font><font color="#00bb00">""</font><font color=black> )
+		columns = GER_COLUMNS;
+	</font><font color="#ff0000"><i># sanity check that we have at lest four cols 	</font></i><font color=black>
+	<b>if</b> ( split( columns, cols, </font><font color="#00bb00">","</font><font color=black> ) &lt; 4 )
+	{
+		<b>tl_step</b>( </font><font color="#00bb00">"columns"</font><font color=black>, FAIL, </font><font color="#00bb00">"invalid parameter"</font><font color=black> );
+		<b>return</b> E_ILLEGAL_PARAMETER;
+	}
+	</font><font color="#ff0000"><i># find out which table is to be used</font></i><font color=black>
+	<b>if</b>( fail( FRM_DRV_choose_table( data_home, default_suite_table, ask, suite_table ) ) ) <b>return</b> getLastRc();
+
+	</font><font color="#ff0000"><i># ask whether retry of the run is wanted</font></i><font color=black>
+	FRM_DRV_ask_retry();
+	
+	</font><font color="#ff0000"><i># forget the garbage from the previous run</font></i><font color=black>
+	FRM_close_all();
+
+	</font><font color="#ff0000"><i># open table and init iterator</font></i><font color=black>
+	<b>if</b>( fail( FRM_open( suite_table, columns, stid ) ) ) <b>return</b> getLastRc();
+	<b>if</b>( fail( FRM_get_row_count( stid, rows ) ) ) <b>return</b> getLastRc();
+	
+	</font><font color="#ff0000"><i># &lt;suite_table&gt; must stay opened</font></i><font color=black>
+	</font><font color="#ff0000"><i># see below FRM_close_all_except</font></i><font color=black>
+
+	rc = FRM_DRV_test_suite_driver(script_home, data_home, stid, cols, rows );	 
+
+	FRM_close_all( );
+
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Picks the appropriate file. If &amp;lt;ask&amp;gt; = TRUE [defult], then a</font></i><font color=black>
+</font><font color="#ff0000"><i>#* file browse dialog is shown to interactively pick the file. In batch</font></i><font color=black>
+</font><font color="#ff0000"><i>#* mode, the dialog is not shown.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param dir (in)	directory</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param name (in)	file name</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param ask (in)	(optional) TRUE/FALSE [default: TRUE]</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@param path (out)	full path name to be used</font></i><font color=black>
+</font><font color="#ff0000"><i>#*@return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_DRV_choose_table ( <b>in</b> dir, <b>in</b> name, <b>in</b> ask, <b>out</b> path )
+{
+	<b>auto</b> rc = E_OK;
+	
+	<b>if</b> ( ask || ask == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		<b>if</b> ( fail( DDT_choose_table( join_path( dir, name ), dir, name ) ) ) <b>return</b> getLastRc();
+	}
+	path = join_path( dir, name, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Waits for the user input (an edit field and OK/Cancel buttons) if a table </font></i><font color=black>
+</font><font color="#ff0000"><i>#* cell contains a specielly formatted data. The data is "specially formatted" </font></i><font color=black>
+</font><font color="#ff0000"><i>#* if it either begins with the question mark or with some other string as </font></i><font color=black>
+</font><font color="#ff0000"><i>#* defined by &lt;code&gt;flag&lt;/code&gt; parameter.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param tid (in)	table ID</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param param (in)	column name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param msg (in)	message to be displayed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param val (out)	value choosen (empty string indicates Cancel)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param flag (in)	(optional) prefix which indicates the "askable" data [default: ?]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success; &lt;code&gt;val&lt;/code&gt; contains valid data</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure; do not rely on &lt;code&gt;val&lt;/code&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_DRV_ask ( <b>in</b> tid, <b>in</b> param, <b>in</b> msg, <b>out</b> val, <b>in</b> flag )
+{
+	<b>auto</b> rc, len;
+	<b>if</b> ( flag == </font><font color="#00bb00">""</font><font color=black> )
+		flag = </font><font color="#00bb00">"?"</font><font color=black>;
+	len = <b>length</b>( flag );
+	<b>if</b> ( fail( FRM_get( tid, param, val ) ) ) <b>return</b> getLastRc();
+	<b>if</b> ( <b>length</b>( val ) &lt; len )
+		<b>return</b> E_OK;
+	<b>if</b> ( substr( val, 1, len ) == flag )
+	{
+		val = substr( val, len+1 );
+		rc = create_input_dialog( msg &amp; </font><font color="#00bb00">": "</font><font color=black> &amp; val );
+		<b>if</b> ( rc != </font><font color="#00bb00">""</font><font color=black> )
+			val = rc;
+	}
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* execute a test suite excel table. </font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param script_home home directory for test scripts</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param data_home home directory for test data</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param stid suite_table ID ( as returned by FRM_open() )</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param cols </font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param rows</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_DRV_test_suite_driver( <b>in</b> script_home, <b>in</b> data_home, <b>in</b> stid, <b>inout</b> cols[], <b>in</b> rows )
+{
+	<b>auto</b> data_table, xtabs[];
+	<b>auto</b> table, script, testset, comment;
+	<b>auto</b> doit;
+	<b>auto</b> row;
+	<b>auto</b> i;
+	<b>auto</b> rc;
+	<b>auto</b> suite_rc;
+
+	rc = E_OK;
+	suite_rc = E_OK;
+
+	xtabs[stid] = FRM_get_name( stid );
+
+	wrlog_suite_start( xtabs[stid] );
+
+	</font><font color="#ff0000"><i># iterate through all rows</font></i><font color=black>
+	DDT_ACCESS_init( stid, </font><font color="#00bb00">"1-"</font><font color=black>&amp; rows );
+	
+	<b>while</b>( DDT_ACCESS_has_more( stid ) )
+	{
+		</font><font color="#ff0000"><i># fetch test-set data from excel table</font></i><font color=black>
+		row = DDT_ACCESS_get_next( stid );
+		rc = FRM_set_row( stid, row );
+		<b>if</b> ( rc != E_OK )
+		{
+			suite_rc += rc;
+			<b>break</b>;
+		}
+		rc = FRM_get( stid, cols[1], doit );
+		rc+= FRM_get( stid, cols[2], script );
+		rc+= FRM_get( stid, cols[3], table );
+		rc+= FRM_get( stid, cols[4], testset );
+		     FRM_get( stid, cols[5], comment );  </font><font color="#ff0000"><i># comment column is not mandatory</font></i><font color=black>
+		<b>if</b> ( rc != E_OK )
+		{
+			<b>report_msg</b>( </font><font color="#00bb00">"Row "</font><font color=black> &amp; row &amp; </font><font color="#00bb00">" ignored."</font><font color=black> );
+			<b>continue</b>;
+		} 
+	 	rc+= FRM_DRV_ask( stid, cols[1], </font><font color="#00bb00">"("</font><font color=black>&amp;table&amp;</font><font color="#00bb00">": "</font><font color=black>&amp;testset&amp;</font><font color="#00bb00">")? "</font><font color=black>, doit );
+		<b>if</b> ( rc != E_OK )
+		{
+			suite_rc += rc;
+			<b>break</b>;
+		}
+		<b>if</b> ( !Ja( doit ) ) 
+		{
+			<b>report_msg</b>( </font><font color="#00bb00">"Row "</font><font color=black> &amp; row &amp; </font><font color="#00bb00">" skipped."</font><font color=black> );
+			<b>continue</b>;
+		} 
+		table = join_path( data_home, table, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+		</font><font color="#ff0000"><i>#script = join_path( script_home, script );</font></i><font color=black>
+		rc = FRM_DRV_ask( stid, cols[4], cols[4], testset );
+		<b>if</b> ( rc != E_OK )
+		{
+			suite_rc += rc;
+			<b>break</b>;
+		}
+		<b>report_msg</b>( cols[2] &amp; </font><font color="#00bb00">": "</font><font color=black> &amp; script );
+		<b>report_msg</b>( cols[3] &amp; </font><font color="#00bb00">": "</font><font color=black> &amp; table );
+		<b>report_msg</b>( cols[4] &amp; </font><font color="#00bb00">": "</font><font color=black> &amp; testset );
+		<b>if</b> ( comment != </font><font color="#00bb00">""</font><font color=black> )
+		{
+			<b>report_msg</b>( cols[5] &amp; </font><font color="#00bb00">": "</font><font color=black> &amp; comment );
+		}
+		</font><font color="#ff0000"><i># process test set</font></i><font color=black>
+		rc = FRM_DRV_test_set_driver(script, table, testset);
+		suite_rc += rc;
+
+		FRM_close_all_except( xtabs );
+	}
+
+	DDT_ACCESS_clean( stid );
+
+	wrlog_suite_stop( xtabs[stid], suite_rc );
+
+	<b>return</b> suite_rc;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Executes a set of tests from a specified data table by the specified script. </font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param script (in)	test driver (full path or accessable vie search path)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table (in)	data table (full path name!)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param testset (in)	names of the tests to be executed (individual entries</font></i><font color=black>
+</font><font color="#ff0000"><i>#* are comma-separated; numeric ranges can be shortend by hyphen, e.g. 1-5 which</font></i><font color=black>
+</font><font color="#ff0000"><i>#* stands for 1,2,3,4,5; ranges can also be defined within name spaces and are </font></i><font color=black>
+</font><font color="#ff0000"><i>#* similarly shortened, e.g. a1-3 stands for a1,a2,a3)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_test_set_driver(<b>in</b> script, <b>in</b> table, <b>in</b> testset, <b>in</b> comment ) 
+{
+	<b>auto</b> test, tid;
+	<b>auto</b> via_IDX;
+	<b>auto</b> expr, msg;
+	<b>auto</b> rc, set_rc;
+	<b>extern</b> RLENGTH;
+
+	rc = E_OK;
+	set_rc = E_OK;
+
+	wrlog_set_start( testset );
+	<b>if</b> ( comment != </font><font color="#00bb00">""</font><font color=black> )
+	{
+		wrlog_set_data( </font><font color="#00bb00">"DESCRIPTION"</font><font color=black>, comment );
+	}
+	
+	</font><font color="#ff0000"><i># NOTE!</font></i><font color=black>
+	</font><font color="#ff0000"><i># If testset begins with "IDX:", it indicates that test</font></i><font color=black>
+	</font><font color="#ff0000"><i># are defined accross rows instead of column-wise.</font></i><font color=black>
+	</font><font color="#ff0000"><i># For this to work correctly ALL collumns have to be</font></i><font color=black>
+	</font><font color="#ff0000"><i># loaded at once. Normally, only the columns specified</font></i><font color=black>
+	</font><font color="#ff0000"><i># by the testset are loaded.</font></i><font color=black>
+	
+	via_IDX = ( substr( testset, 1, <b>length</b>( PREFIX ) ) == PREFIX);
+	<b>if</b> ( via_IDX )
+	{
+		testset = substr( testset, <b>length</b>(PREFIX)+1 );
+		rc = FRM_open( table, </font><font color="#00bb00">"&lt;&lt;ALL&gt;&gt;"</font><font color=black>, tid );
+	}
+	<b>else</b>
+	{
+		rc = FRM_open( table, testset, tid );
+	}
+	<b>if</b> ( rc != E_OK )
+	{
+		wrlog_set_stop( testset, rc );
+		<b>return</b> rc;
+	}
+	DDT_ACCESS_init( table, testset );
+	<b>while</b> ( DDT_ACCESS_has_more( table ) )
+	{
+		rc = E_OK;
+		test = DDT_ACCESS_get_next( table );
+		<b>if</b> ( via_IDX || FRM_is_parameter( tid, test ) == E_OK )
+		{
+			wrlog_test_start( test, table, script );
+			<b>if</b> ( FRM_DRV_is_retry() &amp;&amp; FRM_DRV_retry_lookup_log( table, test ) == 0 )
+			{
+				<b>report_msg</b>( </font><font color="#00bb00">"Test: "</font><font color=black> &amp; test &amp; </font><font color="#00bb00">"\t--&gt; won't be retried"</font><font color=black> );
+				rc = 0;
+			}
+			<b>else</b>
+			{
+				FRM_DRV_retry_log_test1( table, test );
+				<b>report_msg</b>( </font><font color="#00bb00">"Test: "</font><font color=black> &amp; test &amp; </font><font color="#00bb00">"\t--&gt; is being processed"</font><font color=black> );
+				<b>if</b> ( FRM_DRV_is_new_test_driver() )
+				{
+					<b>if</b> ( isCompiledModule( script &amp; </font><font color="#00bb00">"_lib"</font><font color=black> )
+					  || isCompiledModule( script ) )
+					{
+						expr = sprintf( </font><font color="#00bb00">"treturn call_close &#92;&#34;DRV/emos_test_driver&#92;&#34; ( &#92;&#34;%s&#92;&#34;, &#92;&#34;%s&#92;&#34;, &#92;&#34;%s&#92;&#34; );"</font><font color=black>, script, tid, test );
+					}
+					<b>else</b>
+					{
+						expr = sprintf( </font><font color="#00bb00">"treturn call_close &#92;&#34;%s&#92;&#34; ( &#92;&#34;%s&#92;&#34;, &#92;&#34;%s&#92;&#34;, TRUE );"</font><font color=black>, script, tid, test );
+					}
+				}
+				<b>else</b>
+				{
+					expr = sprintf( </font><font color="#00bb00">"treturn call_close &#92;&#34;%s&#92;&#34; ( &#92;&#34;%s&#92;&#34;, &#92;&#34;%s&#92;&#34;, TRUE );"</font><font color=black>, script, tid, test );
+				}
+				rc = <b>eval</b>( expr );
+				<b>tl_step</b>( test, rc, script &amp; </font><font color="#00bb00">" returned rc=["</font><font color=black> &amp; rc &amp; </font><font color="#00bb00">"]"</font><font color=black> ); 
+				FRM_DRV_retry_log_test2( rc );
+				set_rc += rc;
+				
+				<b>if</b> ( rc == E_OK )
+					FRM_RES_add_test_statistics(</font><font color="#00bb00">"# of successful tests"</font><font color=black> );
+				<b>else</b>
+					FRM_RES_add_test_statistics(</font><font color="#00bb00">"# of failed tests"</font><font color=black> );
+			}
+			wrlog_test_stop( test, rc );
+		}
+		<b>else</b>
+		{
+			wrlog_test_start( test, table, script );
+			<b>if</b> ( fail_on_unknown_test )
+			{
+				rc = E_NOT_FOUND;
+				msg = sprintf( </font><font color="#00bb00">"Test &#92;&#34;%s&#92;&#34; not found"</font><font color=black>, test );
+				<b>tl_step</b>( test, rc, msg );
+			}
+			<b>else</b>
+			{
+				rc = </font><font color="#00bb00">""</font><font color=black>;        </font><font color="#ff0000"><i># empty string is shown as ? in ttracx</font></i><font color=black>
+				msg = sprintf( </font><font color="#00bb00">"Test &#92;&#34;%s&#92;&#34; --&gt; UNKNOWN, ignored"</font><font color=black>, test );
+				<b>report_msg</b>( msg );
+			}
+			wrlog_test_data( </font><font color="#00bb00">"MSG"</font><font color=black>, msg );
+			wrlog_test_stop( test, rc );
+			set_rc += rc;
+			FRM_RES_add_test_statistics(</font><font color="#00bb00">"# of ignored/unknown tests"</font><font color=black> );
+		}
+		<b>if</b> ( rc == E_FRM_SET_STOP || rc == E_FRM_SUITE_STOP )
+		{
+			DDT_ACCESS_clean( table );
+			wrlog_set_stop( testset, rc );
+			<b>return</b> rc;
+		}
+	}
+	DDT_ACCESS_clean( table );
+	wrlog_set_stop( testset, set_rc );
+	<b>return</b> set_rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* The main lop for driving the test navigation.
+#* @param lib (in) library that contains application-specific test navigation functions
+#* @param tid (in) table ID of the Excel table that contains the sepcified &lt;code&gt;test&lt;/code&gt;
+#* @param test (in) name of the test (i.e. column) that is to be processed
+#* @return E_OK if successfull, else failure
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_test_driver ( <b>in</b> lib, <b>in</b> tid, <b>in</b> test )
+{
+	<b>auto</b> step;
+	<b>auto</b> mode;
+	<b>auto</b> step_rc;
+	<b>auto</b> rc;
+	<b>auto</b> i;	
+
+	rc = load_drv_lib( lib, 0, 1 );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+
+	rc+= AUT_DRV_report ( tid, test );
+	rc+= AUT_DRV_load ( tid, test );
+	rc+= AUT_DRV_init_steps( tid, test );
+	<b>if</b> ( rc != E_OK )
+	{
+		<b>return</b> rc;
+	}
+	step_rc = E_OK;
+	<b>while</b>( FRM_STP_has_more_steps( tid, test ) )
+	{
+		rc = FRM_STP_get_next_step( tid, test, step, mode );
+		<b>if</b> ( rc == E_FILE_EOF )
+		{
+			<b>break</b>;
+		}
+		<b>if</b> ( rc == E_FRM_TEST_STOP || rc == E_FRM_SET_STOP || rc == E_FRM_SUITE_STOP )
+		{
+			<b>return</b> rc;
+		}
+		<b>if</b> ( rc != E_OK )
+		{
+			step_rc++;
+			<b>continue</b>;
+		}
+		<b>do</b>
+		{
+			rc = AUT_DRV_call_block( tid, test, step, mode );
+			<b>if</b> ( rc == E_FRM_NOT_IMPLEMENTED )
+			{
+				step_rc++;
+				<b>tl_step</b>( step, rc, </font><font color="#00bb00">"Test block ["</font><font color=black> &amp; step &amp; </font><font color="#00bb00">"] not implemented yet"</font><font color=black> );
+				wrlog_block_stop ( step, </font><font color="#00bb00">"unimplemented"</font><font color=black> );
+			}
+			<b>else</b> <b>if</b> ( rc == E_FRM_UNKNOWN )
+			{
+				step_rc++;
+				<b>tl_step</b>( step, rc, </font><font color="#00bb00">"Test block ["</font><font color=black> &amp; step &amp; </font><font color="#00bb00">"] unknown"</font><font color=black> );
+				wrlog_block_stop ( step, </font><font color="#00bb00">"unknown"</font><font color=black> );
+			}
+			<b>else</b>
+			{
+				rc = FRM_DRV_handle_processed_block( step, test, rc, step_rc );
+				<b>switch</b>( rc )
+				{
+				<b>case</b> E_FRM_TEST_STOP:
+				<b>case</b> E_FRM_SET_STOP:
+				<b>case</b> E_FRM_SUITE_STOP:
+					<b>return</b> rc;
+				}
+			}
+		} <b>while</b> ( rc == E_FRM_RETRY );
+	}
+	<b>return</b> step_rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Formats the report for unimplemented test blocks. Note that this function
+#* increases the inout variable &lt;code&gt;frm_rc&lt;/code&gt; by 1.
+#* @param block (in)	the name of the test block
+#* @param frm_rc (inout)	the status variable (increased by 1 upon the exit)
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_handle_unimplemented_block( <b>in</b> block, <b>inout</b> frm_rc )
+{
+		frm_rc++;
+		<b>tl_step</b>( block, frm_rc, </font><font color="#00bb00">"Test block ["</font><font color=black> &amp; block &amp; </font><font color="#00bb00">"] not implemnted"</font><font color=black> );
+		wrlog_block_stop ( block, </font><font color="#00bb00">"unimplemented"</font><font color=black> );
+		<b>return</b> frm_rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Formats the report for unknown test blocks. Note that this function
+#* increases the inout variable &lt;code&gt;frm_rc&lt;/code&gt; by 1.
+#* @param block (in)	the name of the test block
+#* @param frm_rc (inout)	the status variable (increased by 1 upon the exit)
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_handle_unknown_block( <b>in</b> block, <b>inout</b> frm_rc )
+{
+		frm_rc++;
+		<b>tl_step</b>( block, frm_rc, </font><font color="#00bb00">"Test block ["</font><font color=black> &amp; block &amp; </font><font color="#00bb00">"] unknown"</font><font color=black> );
+		wrlog_block_stop ( block, </font><font color="#00bb00">"unknown"</font><font color=black> );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Formats the report for procesed test blocks. Note that this function
+#* increases the inout variable &lt;code&gt;frm_rc&lt;/code&gt; by 1 in case of &lt;code&gt;rc!=0&lt;/code&gt;.
+#* @param block (in)	the name of the test block
+#* @param test (in)	the name of the test case
+#* @param rc (in)	status returned by the processed test block
+#* @param frm_rc (in)	the current value of the status variable
+#* @return 0 to continue with the test case, 1 to stop the execution of the test case
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_handle_processed_block( <b>in</b> block, <b>in</b> test, <b>in</b> rc, <b>inout</b> frm_rc )
+{
+	<b>auto</b> rc2;
+	wrlog_block_stop ( block, rc );
+	<b>if</b> ( rc != E_OK )
+	{
+		<b>tl_step</b>( block, rc, </font><font color="#00bb00">"Test block=["</font><font color=black> &amp; block &amp; </font><font color="#00bb00">"], rc=["</font><font color=black> &amp; rc &amp; </font><font color="#00bb00">"]"</font><font color=black> );
+		rc2 = create_list_dialog( </font><font color="#00bb00">"Test block failed"</font><font color=black>, block, error_modes );
+		</font><font color="#ff0000"><i># "1 - Continue,2 - Stop test,3 - Stop test set,4 - Stop test suite,5 - Retry block"</font></i><font color=black>
+		<b>switch</b>( substr( rc2, 1, 1 ) )
+		{
+		<b>case</b> 1: frm_rc = rc; <b>break</b>;
+		<b>case</b> 2: frm_rc = E_FRM_TEST_STOP; <b>break</b>;
+		<b>case</b> 3: frm_rc = E_FRM_SET_STOP; <b>break</b>;
+		<b>case</b> 4: frm_rc = E_FRM_SUITE_STOP; <b>break</b>;
+		<b>case</b> 5: frm_rc = E_FRM_RETRY; <b>break</b>;
+		<b>default</b>:	</font><font color="#ff0000"><i># either batch mode or Cancel</font></i><font color=black>
+			frm_rc = (def_error_mode == E_FRM_CONTINUE) ? rc : def_error_mode;
+		}
+		<b>return</b> frm_rc;
+	}
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Loads driver libs.
+#* &lt;p&gt;NOTE1&lt;br&gt;
+#*	Each invocation of LINK|LINA|LINX instruction will cause a new "reload"
+#*	of the specified driver library. This is necessary in order to ensure
+#*	proper loading when multiple divers are used (big projects tend to use
+#*	this strategy). If you want to skeep such unecessary reloading, you may
+#*	remove the name of the driver from the LINK commands wherever you are
+#*	sure that the proper driver has already been loaded, for example
+#*	&lt;pre&gt;
+#*		LINK~drv/xxx~~1_1
+#*		LINK~~~1_2
+#*		LINK~~~1_3
+#*	&lt;/pre&gt;
+#* &lt;p&gt;NOTE2&lt;br&gt;
+#*	For compatibility reasons with older projects you should name your new
+#*	driver libraries using the "_lib" suffix. If you preserve the rest of
+#*	the driver name (e.g. if "DRV/xxx" is changed to "DRV/xxx_lib", then you 
+#*	need not modify anything in your Excel tables because this routine will
+#*	automatically append "_lib" to all names that do not use this suffix.
+#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> load_drv_lib ( <b>in</b> lib, <b>in</b> p1, <b>in</b> p2 )
+{
+	<b>auto</b> rc;
+	
+	<b>if</b> ( lib == </font><font color="#00bb00">""</font><font color=black> )
+		<b>return</b> E_OK;
+
+	<b>if</b> ( isCompiledModule( lib ) )
+	 	<b>return</b> reload( lib, p1, p2 );
+	<b>else</b>
+	 	<b>return</b> reload( lib &amp; </font><font color="#00bb00">"_lib"</font><font color=black>, p1, p2 );
+}
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Executes several test sets as defined by the parameter &lt;code&gt;callArr[]&lt;/code&gt;.
+#* &lt;p&gt;NOTE1&lt;br&gt;
+#*	Input array must be a two-dimensional array. First dimension must be sequentially
+#*  indexed from 0 onwards. The second dimension must be sequentially numbered from
+#*  0 onwards where 0 holds "test driver name", 1 hodls "test table name", and 2 holds
+#*	"test set name". The easiest way to initialise such array in the callong script
+#*	is via the following construct:
+#*	&lt;pre&gt;
+#*		static callArr[] = {
+#*			 { "drv/main", "table1.xls", "1-5" }
+#*			,{ "drv/main", "table2.xls", "1-3" }
+#*			,{ "drv/xxxx", "table2.xls", "3-9" }
+#*		};
+#*	&lt;/pre&gt;
+#* @param callArr (inout) array contianing test set instructions (see above)
+#* @return E_OK if success else error
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_DRV_execute_set_array( <b>inout</b> callArr[] )
+{
+	<b>extern</b> DATA_HOME;
+	<b>auto</b> rc, rc2;
+	<b>auto</b> driver, table, set;
+	<b>auto</b> i, count=0;
+	<b>for</b> (i <b>in</b> callArr ) count++;
+	<b>if</b> ( count%3 != 0 )
+	{
+		</font><font color="#ff0000"><i># malformed input array (# of elements not the multipe of 3)</font></i><font color=black>
+		<b>return</b> E_ILLEGAL_PARAMETER;
+	}
+	count/=3;
+	rc2 = 0;
+	FRM_close_all();
+	<b>for</b> (i=0; i&lt;count; i++)
+	{
+		driver = callArr[i,0];
+		table = callArr[i,1];
+		set = callArr[i,2];
+		wrlog_set_start( set );
+		<b>if</b> ( driver == </font><font color="#00bb00">""</font><font color=black> || callArr[i,1] == </font><font color="#00bb00">""</font><font color=black> || set == </font><font color="#00bb00">""</font><font color=black> )
+			rc = E_ILLEGAL_PARAMETER;
+		<b>else</b>
+			rc = FRM_DRV_test_set_driver( driver, table, set );
+		wrlog_set_stop( set, rc );
+		<b>if</b>( rc == E_FRM_SET_STOP || rc == E_FRM_SUITE_STOP )
+		{
+			rc2 = rc;
+			<b>break</b>;
+		}
+		rc2 += rc;
+	}
+	FRM_close_all();
+	<b>return</b> rc2;
+}
+</pre></body></html>

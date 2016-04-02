@@ -1,0 +1,48 @@
+<html>
+<title>Package: LIB</title>
+<body>
+This package contains all WinRunner libraries for this project.
+A library or "compiled module" in WinRunner terminology is a particular kind of test 
+script which contains functions that can be used from other scripts. EMOS Framework
+technique is based on the extensive use of libraries. For this reason it is important
+to control the growth of this directory for example by the conventions named below.
+
+<h3>Directory Structure</h3>
+<ul>
+  <li><b>FRM</b> with time we expect any project to have plenty of Framework 
+  libraries. Their number and size will depend on the complexity of the AUT and on the 
+  number of automated tests. We place all such libraries in the FRM subpackage (and 
+  its subpackages).</li>
+  <li>Other libraries are usually placed right here in LIB package using the naming
+  conventions described below. If you develop a family of related libraries, you
+  may probably want to place them in a subpackage of your choice. Don't forget
+  to give it a short name and to prefix all libraries and functions with that name.</li>
+</ul>
+<h3>Naming conventions</h3>
+<ul>
+  <li><b>name prefix</b> choose a short uppercase prefix for each library (e.g. "AUT_")</li>
+  <li><b>middle part</b> choose any middle part you want</li>
+  <li><b>name postfix</b> add "<b>_lib</b>" postfix to each library name</li>
+</ul>
+<b>Remember 1)</b> WinRunner allows you to load functions with same name 
+(which hide each other) without issuing an error or even a warning. This can cause 
+very strange surprises that may cost you days to debug. The best "medicine" in 
+avoiding naming collisions in WinRunner is by the means of name spaces (i.e. distinct 
+name prefixes). Since WinRunner does not have such a concept built in we must aproach 
+it with the discipline (i.e. naming convention). Our style is to give all public functions in 
+a particular library the same prefix (e.g. ORA_ for Oracle specific functions) and repeat 
+the same prefix in the name of the library itself. This will not only avoid name collisions 
+but will also help you finding out where do the functions "come from" as you read or 
+debug your code.
+<p>
+<b>Remember 2)</b> Neither WinRunner nor TestDirector help you distinguish 
+between main tests and compiled modules (the same icon is shown for both, you 
+have to look in the test properties to find out). Attaching "_lib" or some other naming 
+convenction makes life a bit easier.
+<h3>Other conventions</h3>
+<ul>
+  <li><b>AUT</b> stands for Application Under Test and we use it often to identify
+  the project-specific libraries/functions. Feel free to invent the better name.</li>
+</ul>
+</body>
+</html>

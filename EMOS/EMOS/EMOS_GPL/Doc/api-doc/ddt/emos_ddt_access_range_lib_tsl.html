@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_DDT_ACCESS_Range_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.1.1.1 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2004/03/24 20:13:57 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Archive: /MERCURY/Projects/EMOS_GPL/DDT/emos_ddt_access_range_lib/script $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**# </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This library defines an "iterator" (as much as one can emulate a real </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	iterator in a language such as TSL) for data tables (ddt-interface).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The main benefits of this iterator are:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	   1.) you can loop through any table in an uniform way,</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	   2.) you can choose one of four algorithms to iterate through the range:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	         * sequntial (forward)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	         * sequential (reverse)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	         * random (values may get repeated)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	         * random (values will not be repeated)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	   3.) you can simultaneously have iterators for multiple data tables</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	       (ane at a time per table!)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	   4.) you can use it to iterate any range of numbers (unrelated to data </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	       tables).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;ul&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt; For more detailed instruction see comments for DDT_ACCESS_lib.&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;li&gt; This iterator does not (yet) support the syntax like DDT_ACCESS_lib.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*		You can only specify a range with &lt;code&gt;from&lt;/code&gt; and &lt;code&gt;to&lt;/code&gt; parameters. It would</font></i><font color=black>
+</font><font color="#ff0000"><i>#*		be great if someone could find time to implement this.&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;/ul&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* PUBLIC CONSTANTS:</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;ul&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	&lt;li&gt;DDT_ACCESS_SEQUENTIAL&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	&lt;li&gt;DDT_ACCESS_REVERSE_ACCESS&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	&lt;li&gt;DDT_ACCESS_RANDOM&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	&lt;li&gt;DDT_ACCESS_RANDOM_NOREPEAT&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	&lt;li&gt;DDT_ACCESS_INVALID_MODE&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	&lt;li&gt;DDT_ACCESS_DEFAULT_MODE&lt;/li&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;/ul&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#====================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># public variables</font></i><font color=black>
+</font><font color="#ff0000"><i>#====================================================</font></i><font color=black>
+
+<b>public</b> <b>const</b> DDT_ACCESS_SEQUENTIAL = 1;
+<b>public</b> <b>const</b> DDT_ACCESS_REVERSE = 2;
+<b>public</b> <b>const</b> DDT_ACCESS_RANDOM = 3;
+<b>public</b> <b>const</b> DDT_ACCESS_RANDOM_NOREPEAT = 4;
+
+<b>public</b> <b>const</b> DDT_ACCESS_INVALID_MODE = -666;
+<b>public</b> <b>const</b> DDT_ACCESS_DEFAULT_MODE = DDT_ACCESS_SEQUENTIAL;
+
+</font><font color="#ff0000"><i>#====================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># private variables</font></i><font color=black>
+</font><font color="#ff0000"><i>#====================================================</font></i><font color=black>
+
+<b>static</b> accessMode[];
+<b>static</b> minPos[], maxPos[], curPos[];
+<b>static</b> posUnused[];
+<b>static</b> indexArray[];
+
+</font><font color="#ff0000"><i>#====================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># public functions</font></i><font color=black>
+</font><font color="#ff0000"><i>#====================================================</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Initialises the range-access algorithm.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table (in)	the name od the iterator (data table)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param from (in)	begining  of range</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param to (in)		end of range</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param mode (in)	one of four possible access modes</font></i><font color=black>
+</font><font color="#ff0000"><i>#*				[default: DDT_ACCESS_SEQUENTIAL]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	initialisation succeeded</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	initialisation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_ACCESS_init_range( <b>in</b> table, <b>in</b> from, <b>in</b> to, <b>in</b> mode )
+{
+	<b>auto</b> rc;
+
+	<b>if</b> ( from*1 &lt;= 0 )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+	<b>if</b> ( to*1 &lt; from*1 )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+
+	minPos[table] = from*1;
+	maxPos[table] = to*1;
+
+	init_index_array( table );
+
+	<b>switch</b> ( mode )
+	{
+		<b>case</b> DDT_ACCESS_SEQUENTIAL:
+			curPos[table] = minPos[table] - 1;
+			<b>break</b>;
+		<b>case</b> DDT_ACCESS_REVERSE:
+			curPos[table] = maxPos[table] + 1;
+			<b>break</b>;
+		<b>case</b> DDT_ACCESS_RANDOM:
+			curPos[table] = 0;
+			<b>break</b>;
+		<b>case</b> DDT_ACCESS_RANDOM_NOREPEAT:
+			curPos[table] = 0;
+			<b>break</b>;
+		<b>default</b>:
+			<b>return</b>  DDT_ACCESS_INVALID_MODE;
+	}
+	accessMode[table] = mode;
+
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Removes range-access for given table and frees the internal buffers.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table (in)	the name od the iterator (data table)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_ACCESS_clean_range ( <b>in</b> table )
+{
+	delete_dimension( accessMode, table );
+	delete_dimension( minPos, table );
+	delete_dimension( maxPos, table );
+	delete_dimension( curPos, table );
+	delete_dimension( posUnused, table );
+	delete_dimension( indexArray, table );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Indicates whether there subsequent call to </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	DDT_get_next_in_range() is about to succeed.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table (in)	the name od the iterator (data table)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	TRUE:	there is still something left to be processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	FALSE:	all tests processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_ACCESS_has_more_in_range ( <b>in</b> table )
+{
+	<b>switch</b> ( accessMode[table] )
+	{
+		<b>case</b> DDT_ACCESS_SEQUENTIAL:
+		<b>case</b> DDT_ACCESS_REVERSE:
+		<b>case</b> DDT_ACCESS_RANDOM:
+		<b>case</b> DDT_ACCESS_RANDOM_NOREPEAT:
+			<b>break</b>;
+		<b>default</b>:
+			<b>return</b>  0;
+	}
+	<b>return</b> posUnused[table];
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Returns the index of the next test to be processed.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table (in)	the name od the iterator (data table)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	&gt;0:	test number</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	&lt;0:	error ocurred</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DDT_ACCESS_get_next_in_range ( <b>in</b> table )
+{
+	<b>switch</b> ( accessMode[table] )
+	{
+		<b>case</b> DDT_ACCESS_SEQUENTIAL:
+			curPos[table]++;
+			<b>break</b>;
+		<b>case</b> DDT_ACCESS_REVERSE:
+			curPos[table]--;
+			<b>break</b>;
+		<b>case</b> DDT_ACCESS_RANDOM:
+			curPos[table] = get_random_pos( table );
+			<b>break</b>;
+		<b>case</b> DDT_ACCESS_RANDOM_NOREPEAT:
+			curPos[table] = get_norepeat_random_pos( table );
+			<b>break</b>;
+		<b>default</b>:
+			<b>return</b>  DDT_ACCESS_INVALID_MODE;
+	}
+	<b>return</b> set_pos_used( table, curPos[table] );
+}
+
+<b>static</b> <b>function</b> delete_index_array( <b>in</b> table )
+{
+	delete_dimension( indexArray, table );
+	delete minPos[table];
+	delete maxPos[table];
+	delete curPos[table];
+	delete posUnused[table];
+}
+
+<b>static</b> <b>function</b> init_index_array( <b>in</b> table )
+{
+	<b>auto</b> i;
+	delete_dimension( indexArray, table );
+	<b>for</b> ( i=minPos[table]; i &lt;= maxPos[table]; i++ )
+		indexArray[table, i] = 0;
+	posUnused[table] = maxPos[table];
+}
+
+<b>static</b> <b>function</b> set_pos_used( <b>in</b> table, <b>in</b> pos )
+{
+	<b>if</b> ( indexArray[table, pos] == 0 )
+	{
+		indexArray[table, pos] = 1;
+		posUnused[table]--;
+	}
+	<b>return</b> pos;
+}
+
+<b>static</b> <b>function</b> get_random_pos( <b>in</b> table )
+{
+	<b>return</b> <b>int</b>( rand() * ( maxPos[table] - minPos[table] + 1) ) + minPos[table];
+}
+
+<b>static</b> <b>function</b> get_norepeat_random_pos( <b>in</b> table )
+{
+	<b>auto</b> x;
+	<b>while</b> (1)
+	{
+		x = get_random_pos( table );
+		<b>if</b> ( indexArray[table, x] == 0 )
+			<b>break</b>;
+	}
+	<b>return</b> set_pos_used( table, x );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This function will delete a dimension from a multidimensional array.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt; WARNING!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	It will delete ALL dimensions with the same name. For example</font></i><font color=black>
+</font><font color="#ff0000"><i>#*   assume your three-dimensional array "arr" has the following content:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		arr["x",1,"x"] = "x1x";</font></i><font color=black>
+</font><font color="#ff0000"><i>#*		arr["x",1,"y"] = "x1y";</font></i><font color=black>
+</font><font color="#ff0000"><i>#*		arr["y",1,"x"] = "y1x";</font></i><font color=black>
+</font><font color="#ff0000"><i>#*		arr["y",1,"y"] = "y1Y";&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	then the following command</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		delete_dimension( arr, "x" );&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	will delete everything BUT</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		arr["y",1,"y"] = "y1Y";&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param arr (inout)	array to be processed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param dim (in)	dimension(s) to be removed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> delete_dimension( <b>inout</b> arr[], <b>in</b> dim )
+{
+	<b>auto</b> i;
+	<b>for</b> ( i <b>in</b> arr )
+		<b>if</b> ( match (i, dim) )
+			delete arr[i];
+}
+
+</font><font color="#ff0000"><i>###########################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_DDT_ACCESS_Range_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>###########################################################################</font></i><font color=black>
+</pre></body></html>

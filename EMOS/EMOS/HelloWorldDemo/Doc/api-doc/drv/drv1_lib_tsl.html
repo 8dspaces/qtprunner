@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># LIBRARY:	drv1_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.4 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/23 19:31:51 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/TPL/Scripts/DRV/drv1_lib/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/***
+#*	This main test implements a "dummy" step driver which you may use to
+#*	implement the real one.
+#*
+#*	The purpose of a step driver is to interpret the corresponding "Teststep"
+#*	cell of each test case. With "interpreting" we mean the process of splitting
+#*	the cell (Teststep) into individual steps and individually processing
+#*	each of them either by a built-in FRM functionality (e.g. LNK or EXE steps)
+#*	or by calling the specialised function.
+#*
+#*	This "dummy" template implements all the necessary interractions with the
+#*	emos_FRM_STP_lib and very carefully handles the return code in order to
+#*	produce correct WinRunner test results. All you need to do is to load the
+#*	apropriate libraries and handle the individual keywords (step names).
+#*
+#* &lt;p&gt;NOTE:
+#*	Do not rename the function names because tey are called from
+#*	the generic EMOS test driver
+#*
+#* &lt;p&gt;REQUIREMENTS/PREREQUISITES:
+#*	The rest of the test suite should be developed according to FRM-principles
+#*	in order to make any use of this script.
+#*
+#* &lt;p&gt;RETURN VALUE:
+#*	&lt;ul&gt;
+#*	&lt;li&gt;&lt;b&gt;0&lt;/b&gt;:		successfull completion&lt;/li&gt;
+#*	&lt;li&gt;&lt;b&gt;&amp;gt;0&lt;/b&gt;:		unsuccessfull comletion&lt;/li&gt;
+#*	&lt;/ul&gt;
+#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Implements the test reporting logic.
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> AUT_DRV_report ( <b>in</b> tid, <b>in</b> test )
+{
+	<b>auto</b> comment;
+	<b>report_msg</b>( </font><font color="#00bb00">"====================="</font><font color=black> );
+	<b>report_msg</b>( </font><font color="#00bb00">"Table: "</font><font color=black> &amp; FRM_get_name( tid ) );
+	<b>report_msg</b>( </font><font color="#00bb00">"Test: "</font><font color=black> &amp; test );
+	<b>if</b> ( FRM_get_cell( tid, test, </font><font color="#00bb00">"Description"</font><font color=black>, comment ) == E_OK )
+	{
+		wrlog_test_data( </font><font color="#00bb00">"DESCRIPTION"</font><font color=black>, comment );
+		<b>report_msg</b>( </font><font color="#00bb00">"Description: "</font><font color=black> &amp; comment );
+	}
+	<b>report_msg</b>( </font><font color="#00bb00">"====================="</font><font color=black> );
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Load the necessary LIBs &amp; GUIs here
+#* &lt;p&gt;NOTE:
+#*	You should use FRM_load_XXX() instead of ordinry load().
+#*	This way you enable EMOS Framework to manage the libs and automatically
+#*	unload them when they are not needed any more.
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> AUT_DRV_load ( <b>in</b> tid, <b>in</b> test )
+{
+	<b>auto</b> rc = E_OK;
+	</font><font color="#ff0000"><i>#rc+=FRM_load_gui( tid, GUI_HOME &amp; "&#92;&#92;" &amp; "???.gui" );</font></i><font color=black>
+	rc+=FRM_load_lib( tid, </font><font color="#00bb00">"LIB/FRM/frm_lib1_lib"</font><font color=black>, 0, 1 );
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Initialises the test steps.
+#* &lt;p&gt;NOTE:
+#*	Use the third parameter to customise the name of the Testsequence row.
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> AUT_DRV_init_steps( <b>in</b> tid, <b>in</b> test )
+{
+</font><font color="#ff0000"><i>#	return FRM_STP_init_steps( tid, test ); # default = Testvorgang</font></i><font color=black>
+	<b>return</b> FRM_STP_init_steps( tid, test, </font><font color="#00bb00">"Testsequence"</font><font color=black> );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Implements the test keywords, i.e. links the names of the test blocks
+#* with te corresponding block functions.
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> AUT_DRV_call_block( <b>in</b> tid, <b>in</b> test, <b>in</b> step, <b>inout</b> mode )
+{
+	<b>auto</b> rc;
+	<b>switch</b>( tolower( step ) )
+	{
+	<b>case</b> </font><font color="#00bb00">"testblock"</font><font color=black>:
+		rc = FRM_testblock( tid, test, step, mode );	<b>break</b>;
+	</font><font color="#ff0000"><i># --default steps--</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">"not-implemented-yet step"</font><font color=black>:
+		rc = E_FRM_NOT_IMPLEMENTED; <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_UNKNOWN;
+	}
+	<b>return</b> rc;
+}
+
+</pre></body></html>

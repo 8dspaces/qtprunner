@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+<b>static</b> <b>const</b> MY_DLL = getvar( </font><font color="#00bb00">"testname"</font><font color=black> ) &amp; </font><font color="#00bb00">"&#92;&#92;regdean.dll"</font><font color=black>;
+
+<b>static</b> <b>function</b> loadRegistry()
+{
+	<b>return</b> load_dll(MY_DLL);
+}
+</font><font color="#ff0000"><i># load the dll</font></i><font color=black>
+<b>public</b> <b>const</b> LOAD_REGISTRY_STATUS = loadRegistry();
+
+
+<b>public</b> <b>function</b> unloadRegistry()
+{
+	<b>return</b> unload_dll(MY_DLL);
+}
+
+<b>public</b> <b>function</b> OpenRegistryKey (<b>in</b> root, <b>in</b> key)
+{
+	<b>auto</b> hKey, keys[], i;
+	<b>auto</b> numKeys = split (key, keys, </font><font color="#00bb00">";"</font><font color=black>);
+	hKey = GetReservedKey (root);
+	<b>for</b> (i=1; i&lt;=numKeys; i++)
+	{
+		hKey = GetSubKey (hKey, keys[i]);
+	}
+	<b>return</b> hKey;
+}
+
+<b>public</b> <b>const</b> HKEY_CLASSES_ROOT  = 0;
+<b>public</b> <b>const</b> HKEY_CURRENT_USER  = 1;
+<b>public</b> <b>const</b> HKEY_LOCAL_MACHINE = 2;
+<b>public</b> <b>const</b> HKEY_USERS         = 3;
+
+<b>extern</b> <b>unsigned</b> <b>long</b> GetReservedKey (<b>int</b> root);
+<b>extern</b> <b>unsigned</b> <b>long</b> GetSubKey (<b>unsigned</b> <b>long</b> hKey, <b>string</b> subKey);
+<b>extern</b> <b>string</b> GetValueData (<b>unsigned</b> <b>long</b> hKey, <b>string</b> subKey, <b>string</b> value);
+<b>extern</b> <b>int</b> SetValueData (<b>unsigned</b> <b>long</b> hKey, <b>string</b> subKey, <b>string</b> value, <b>string</b> data);
+
+</font><font color="#ff0000"><i>#hKey = OpenRegistryKey( HKEY_LOCAL_MACHINE, "SOFTWARE;Allianz;AZ-Setup;Installed" );</font></i><font color=black>
+</font><font color="#ff0000"><i>#data = GetValueData( hKey, "AAGT", "Version" );</font></i><font color=black>
+</font><font color="#ff0000"><i>#rc = SetValueData( hKey, "AAGT", "Version", "foo" );</font></i><font color=black>
+</pre></body></html>

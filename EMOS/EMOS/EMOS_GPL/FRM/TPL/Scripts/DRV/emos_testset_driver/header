@@ -1,0 +1,33 @@
+#! asci,100,100,Test Header,Thu May 31 08:58:58 2001
+
+[General]
+TDDB_ID=0
+NAME=D:\Projekte\EMOS\EMOS_FRM\WR\FRM\TPL\Scripts\testset_driver
+TYPE=TP
+AUTHOR=drajovic
+DATE=991291908
+FUNCTION=
+SPEC=
+FSEARCH=
+TSEARCH=
+SUM_DESCRIPTION=
+DESCRIPTION=
+COMMENTS=
+ADDONS=
+DATA_TBL=default.xls
+VERSION=6.02
+
+[Params]
+PARAM_CNT=3
+NAME_0=arg_script
+TYPE_0=VOID
+MAN_0=NO
+DES_0=Test driver
+NAME_1=arg_table
+TYPE_1=VOID
+MAN_1=NO
+DES_1=Data table
+NAME_2=arg_testset
+TYPE_2=VOID
+MAN_2=NO
+DES_2=Testset

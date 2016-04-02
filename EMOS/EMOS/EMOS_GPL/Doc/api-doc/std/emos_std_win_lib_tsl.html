@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_win_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.1.1.1 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2004/03/24 20:14:04 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Archive: /MERCURY/Projects/EMOS_GPL/STD/emos_std_win_lib/script $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This library contains alternative implementations for standard functions</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	that operate on windows (win_x() functions).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Another sort of functions in this library are functions that implement some</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	additional functionality that would probably fit into Mercury's logic</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	for win_x() functions.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This function invokes win_activate() before calling set_window(). It also</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	takes care of the timeout (which does not normally work with win_activate()).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	If for some reason standard set_window() does not work, try this function</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	before trying something else.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param win (in)	window name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param time (in)	(optional) timeout</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_set_window( <b>in</b> win1, <b>in</b> time1 )
+{
+	<b>static</b> rc, t000;
+
+	<b>if</b> (win_exists(win1) != E_OK)
+	{
+</font><font color="#ff0000"><i>#		window existiert noch nicht</font></i><font color=black>
+
+		<b>if</b> (time1 * 1 == 0)	rc = set_window(win1);
+		<b>else</b>				rc = set_window(win1,time1);
+		
+		<b>if</b> (rc == E_OK) 	rc = win_activate(win1);
+	}
+	<b>else</b>
+	{
+</font><font color="#ff0000"><i>#		window existiert schon</font></i><font color=black>
+
+		<b>if</b> (time1 * 1 == 0)
+		{
+			rc = win_activate(win1);
+			<b>if</b> (rc == E_OK) rc = set_window(win1);
+		}
+		<b>else</b>
+		{
+			set_timeout( time1 );
+			rc = win_activate(win1);
+			restore_timeout();
+			<b>if</b> (rc == E_OK) rc = set_window(win1,time1);
+		}
+	}
+	<b>return</b>(rc);
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Waits for window to close.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param win (in)	window name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param time (in)	(optional) timeout</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	success; window closed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_check_win_closed( <b>in</b> win, <b>in</b> timeout )
+{
+	<b>auto</b> rc, t, i;
+	t = timeout*1;
+	<b>if</b> ( t &lt; 0 || t &gt; 300 )
+		t = 5;  </font><font color="#ff0000"><i># default timeout = 5 seconds</font></i><font color=black>
+	rc = win_exists( win );
+	<b>for</b>( i = 0; i &lt; t &amp;&amp; rc == E_OK; i++ )
+	{
+		rc = win_exists( win );
+		wait(1);
+	}
+	<b>switch</b> ( rc )
+	{
+	<b>case</b> E_NOT_FOUND:
+	<b>case</b> E_NOT_DISPLAYED:
+		<b>return</b> E_OK;
+	<b>case</b> E_OK:
+		<b>tl_step</b>( win, rc, </font><font color="#00bb00">"Window not closed within "</font><font color=black> &amp; t &amp; </font><font color="#00bb00">" seconds"</font><font color=black> );
+		<b>return</b> E_EXIST;
+	<b>default</b>:
+		<b>return</b> rc;
+	}
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* Attempts to close all given windows. </font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param wins (inout[])    array indexed from 0 upwards containg names of windows to close</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return returns E_OK if none of the specified windows existed by the time this function exited</font></i><font color=black>
+</font><font color="#ff0000"><i>#*      otherwise E_EXISTS is returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_win_close_all( <b>inout</b> wins[] )
+{
+	<b>auto</b> count, i;
+	<b>for</b> ( i <b>in</b> wins ) count++;
+	</font><font color="#ff0000"><i># loop1: attempts to close all windows</font></i><font color=black>
+	<b>for</b> ( i=0; i&lt;count; i++ )
+	{
+		<b>if</b> ( win_exists( wins[i] ) == E_OK )
+		{
+			<b>if</b> ( win_close( wins[i] ) == E_OK )
+			{
+				</font><font color="#ff0000"><i># sometimes win_close() does not work but still returns E_OK</font></i><font color=black>
+				<b>if</b> (  win_exists( wins[i] ) == E_OK )
+				{
+					<b>if</b> ( set_window( wins[i] ) == E_OK )
+					{
+						type (</font><font color="#00bb00">"&lt;kAlt_L&gt;-&lt;kF4&gt;&lt;kAlt_L&gt;+"</font><font color=black>);
+					}
+					<b>if</b> ( win_exists( wins[i] ) == E_OK )
+					{
+						<b>continue</b>;  </font><font color="#ff0000"><i># still exists, don't bother any more</font></i><font color=black>
+					}
+				}
+				i = -1;		</font><font color="#ff0000"><i># window closed, restart the loop</font></i><font color=black>
+				<b>continue</b>;
+			}
+		}
+	}
+	</font><font color="#ff0000"><i># loop2: checks that none of the windows is still open</font></i><font color=black>
+	<b>for</b> ( i=0; i&lt;count; i++ )
+	{
+		<b>if</b> ( win_exists( wins[i] ) == E_OK )
+		{
+			<b>return</b> E_EXIST;
+		}
+	}
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>###########################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_win_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>###########################################################################</font></i><font color=black>
+</pre></body></html>

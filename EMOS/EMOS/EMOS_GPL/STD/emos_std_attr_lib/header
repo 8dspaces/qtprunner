@@ -1,0 +1,21 @@
+#! asci,100,100,Test Header,Fri Jun 29 21:47:20 2001
+
+[General]
+TDDB_ID=0
+NAME=D:\Projekte\EMOS\EMOS_FRM\WR\STD\emos_std_attr_lib
+TYPE=CM
+AUTHOR=drajovic
+DATE=993730103
+FUNCTION=
+SPEC=
+FSEARCH=
+TSEARCH=
+SUM_DESCRIPTION=
+DESCRIPTION=
+COMMENTS=
+ADDONS=EMOS Framework
+DATA_TBL=default.xls
+VERSION=6.02
+
+[Params]
+PARAM_CNT=0

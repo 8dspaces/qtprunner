@@ -1,0 +1,1940 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	FRM_GUI_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straße 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.4 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/23 19:31:51 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/FRM/emos_frm_gui_lib/script $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**#</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This library implements the "essence" of EMOS test design strategy.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* It provides "wrappers" for most frequently used "standard" functions such</font></i><font color=black>
+</font><font color="#ff0000"><i>#* as edit_set(), list_select_item(), etc. The main point with this wrapper-</font></i><font color=black>
+</font><font color="#ff0000"><i>#* functions is that they natively interface the low-level FRM-functions and,</font></i><font color=black>
+</font><font color="#ff0000"><i>#* most of all, transparently implement the notion of SET/CHK/ATR/GEN mode for </font></i><font color=black>
+</font><font color="#ff0000"><i>#* each function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> case_sensitive = TRUE;
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Sets a generic indicator wheter to perform case-sensitive comparison or not.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Functions that perform this kind of comparison are responsible to use this</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	indicator.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param m	(in)	mode, TRUE or FALSE [default: TRUE]</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_set_case_sensitive ( <b>in</b> m )
+{
+	<b>if</b> ( m )
+		case_sensitive = TRUE;
+	<b>else</b>
+		case_sensitive = FALSE;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Returns the state of comparison indicator.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	TRUE:		case-sensitive comparison enabled</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	FALSE:		case-sensitive comparison disabled</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_is_case_sensitive ()
+{
+	<b>return</b> case_sensitive;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for win_type() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a win_type() on a specified &amp;lt;window&amp;gt; using the value </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	from the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	navigation (read-only)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing value to be typed.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function uses the value from the data table as a second parameter to the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	win_type() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	We could retrieve some text from the window and compare it. In practice is</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	this rather useless because there is either too much or no text all.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	For testing win_type() is normally only useful to check keyboard navigation</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	or when you have no other chance (e.g. DOS applications). In the second</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	case you would use the SET mode to completely drive the application (i.e.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	navigate and enter date) but you could hardly be able to check anything.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	There is some chance if font is known, so you could try with win_get_text()</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	and the like. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Behaves the same as the SET-mode! </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Checks the content of the specified window attributes using win_check_info().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Attribues are specified in pairs &lt;code&gt;attribute:value&lt;/code&gt;. If more than</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	a single atribute needs to be checked, each pair must be separated with a</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	newline character (in Excel: Alt-Return).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Ignores the cell (i.e. skips the cell).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param window	(in)	GUI-window where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param suffix	(in)	(optional) as string which ia automatically appended to any</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                value.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param force_suffix	(in)	(optional) set this to TRUE if you want the &amp;lt;suffix&amp;gt; to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                be typed even if no value present.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_win_type ( <b>in</b> table, <b>in</b> test, <b>in</b> window, <b>in</b> suffix, <b>in</b> force_suffix )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_SET_win_type( table, test, window, suffix, force_suffix ); <b>break</b>;
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_ATR_win_type( table, test, window ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_win_type( table, test, window, suffix ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_win_type</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_win_type ( <b>in</b> table, <b>in</b> test, <b>in</b> window, <b>in</b> suffix, <b>in</b> force_suffix )
+{
+	<b>auto</b> val = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> rc, force = FALSE;
+	<b>if</b> ( force_suffix*1 != 0 )
+		force = TRUE;
+	rc = FRM_get_next( table, test, val );
+	<b>switch</b> ( rc ) 
+	{
+	<b>case</b> E_OK:      	<b>break</b>;
+	<b>case</b> E_FRM_SKIP:	<b>if</b> (force) <b>break</b>;
+	<b>default</b>:    		<b>return</b> rc;
+	}
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( window );
+	<b>return</b> FRM_rc2( win_type( window, val &amp; suffix ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_CHK_win_type</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_CHK_win_type ( <b>in</b> table, <b>in</b> test, <b>in</b> window, <b>in</b> suffix )
+{
+	<b>auto</b> val, text;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( window );
+	FRM_rc2( obj_get_text( window, text ), </font><font color="#00bb00">"obj_get_text"</font><font color=black>  );
+	<b>return</b> FRM_rc2( (text != val), text &amp; </font><font color="#00bb00">" expected: "</font><font color=black> &amp; val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_ATR_win_type</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_ATR_win_type ( <b>in</b> table, <b>in</b> test, <b>in</b> window )
+{
+	<b>auto</b> val, attr, info;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( window );
+	rc = EMOS_ATTR_init_list( val );
+	<b>while</b> ( rc == E_OK &amp;&amp; EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( win_check_info( window, attr, info ), </font><font color="#00bb00">"attr: '"</font><font color=black> &amp; attr &amp; </font><font color="#00bb00">"' value: '"</font><font color=black> &amp; info &amp; </font><font color="#00bb00">"'"</font><font color=black> );
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_win_type</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_win_type ( <b>in</b> table, <b>in</b> test, <b>in</b> window, <b>in</b> suffix )
+{
+	FRM_skip( table );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for obj_type() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a obj_type() on a specified &amp;lt;object&amp;gt; using the value </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	from the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	data-entry (read/write)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing value to be typed or checked.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function uses the value from the data table as a second parameter to the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	obj_type() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function compares the value from the data table with the value returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	by obj_get_text(). Please note that comparison is case-sensitive.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Checks the content of the specified object attributes using obj_check_info().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Attribues are specified in pairs &lt;code&gt;attribute:value&lt;/code&gt;. If more than</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	a single atribute needs to be checked, each pair must be separated with a</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	newline character (in Excel: Alt-Return).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Uses obj_get_text() to retrieve the content of the &amp;lt;object&amp;gt;. Note that</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	that no conversion takes place before generating the test data.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param suffix	(in)	(optional) as string which ia automatically appended to any</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                value.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param force_suffix	(in)(optional) set this to TRUE if you want the &amp;lt;suffix&amp;gt; to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                be typed even if no value present.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_obj_type ( <b>in</b> table, <b>in</b> test, <b>in</b> object, <b>in</b> suffix, <b>in</b> force_suffix )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+		rc = FRM_SET_obj_type( table, test, object, suffix, force_suffix ); <b>break</b>;
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_CHK_obj_type( table, test, object, suffix ); <b>break</b>;
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_ATR_obj_type( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_obj_type( table, test, object, suffix ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_obj_type</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_obj_type ( <b>in</b> table, <b>in</b> test, <b>in</b> object, <b>in</b> suffix, <b>in</b> force_suffix )
+{
+	<b>auto</b> val = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> rc, force = FALSE;
+	<b>if</b> ( force_suffix*1 != 0 )
+		force = TRUE;
+	rc = FRM_get_next( table, test, val );
+	<b>switch</b> ( rc ) 
+	{
+	<b>case</b> E_OK:  		<b>break</b>;
+	<b>case</b> E_FRM_SKIP:	<b>if</b> (force) <b>break</b>;
+	<b>default</b>:    		<b>return</b> rc;
+	}
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( obj_type( object, val &amp; suffix ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_CHK_obj_type</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_CHK_obj_type ( <b>in</b> table, <b>in</b> test, <b>in</b> object, <b>in</b> suffix )
+{
+	<b>auto</b> val, text;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	FRM_rc2( obj_get_text( object, text ), </font><font color="#00bb00">"obj_get_text"</font><font color=black> );
+	<b>return</b> FRM_rc2( (text != val), text &amp; </font><font color="#00bb00">" expected: "</font><font color=black> &amp; val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_ATR_obj_type</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_ATR_obj_type ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val, attr, info;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	<b>while</b> ( rc == E_OK &amp;&amp; EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( obj_check_info( object, attr, info ), </font><font color="#00bb00">"attr: '"</font><font color=black> &amp; attr &amp; </font><font color="#00bb00">"' value: '"</font><font color=black> &amp; info &amp; </font><font color="#00bb00">"'"</font><font color=black> );
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_obj_type</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_obj_type ( <b>in</b> table, <b>in</b> test, <b>in</b> object, <b>in</b> suffix )
+{
+	<b>auto</b> val = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> rc = obj_exists( object );
+	<b>if</b> ( rc == E_OK )
+	{
+		rc = obj_get_text( object, val );
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	We implement here our own equivalent of obj_wait_info(). Use it when you</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	need to synchronize the script wth the application.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Our implementation does not use obj_wait_info() because this function does </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	not handle regular expressions. Instead we retrieve the value with obj_get_info()</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	and perform the match.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	navigation (read-only)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing formated value &lt;code&gt;|reg.exp|attribute|time[|exact]&lt;/code&gt;.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The string starts with the separator (in our example | but you can use any</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	character as long as it only occurs in specified positions). &lt;code&gt;reg.exp&lt;/code&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	is the regular expression to be waited for. &lt;code&gt;attribute&lt;/code&gt; is the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	attribute which conten is being waited for. &lt;code&gt;time&lt;/code&gt; is the number</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	of seconds to be waited for. &lt;code&gt;exact&lt;/code&gt;true/false flag indicating</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	whether an exact (1) or a tollerant match (0) is wanted. This ais an optional</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	parameter. By default the tollerant match is performed.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function parses the value from the data table and waits for the given</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	value to appear.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	the same as in SET mode</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	the same as in SET mode</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Generates a dummy template of the formated string</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_obj_wait_info ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_SET_obj_wait_info( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_obj_type( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_obj_wait_info</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_obj_wait_info ( <b>in</b> table, <b>in</b> test, <b>in</b> object, <b>in</b> poll_sec, <b>in</b> poll_msec )
+{
+	<b>extern</b> RLENGTH;
+
+	<b>auto</b> val = </font><font color="#00bb00">""</font><font color=black>;			</font><font color="#ff0000"><i># value specified in the data table</font></i><font color=black>
+	<b>auto</b> info;				</font><font color="#ff0000"><i># info retrieved</font></i><font color=black>
+
+	<b>auto</b> sep;				</font><font color="#ff0000"><i># separator (defined by the first character in value)</font></i><font color=black>
+	<b>auto</b> regex;				</font><font color="#ff0000"><i># reg.ex. to wait for</font></i><font color=black>
+	<b>auto</b> attr;				</font><font color="#ff0000"><i># property to wait for</font></i><font color=black>
+	<b>auto</b> time;				</font><font color="#ff0000"><i># max. time to wait (seconds)</font></i><font color=black>
+	<b>auto</b> exact = FALSE;		</font><font color="#ff0000"><i># exact match?</font></i><font color=black>
+
+	<b>auto</b> sec, msec;
+	<b>auto</b> arr[], count, i;
+	<b>auto</b> msg, rc;
+
+	rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	</font><font color="#ff0000"><i># parse value</font></i><font color=black>
+	sep = substr( val, 1, 1 );
+	count = split( val, arr, sep );
+	<b>if</b> ( count &lt; 2 )
+	{
+		rc = E_ILLEGAL_PARAMETER;
+		msg = sprintf( </font><font color="#00bb00">"%s: invalid expression"</font><font color=black> , val );
+		<b>return</b> FRM_rc2( rc, msg );
+	}
+	regex = arr[2];
+	attr = alltrim( arr[3] );
+	time = arr[4];
+	exact = arr[5];
+	<b>if</b> ( attr == </font><font color="#00bb00">""</font><font color=black> )
+		attr = </font><font color="#00bb00">"value"</font><font color=black>;	
+	<b>if</b> ( time == </font><font color="#00bb00">""</font><font color=black> )
+		time=11;
+	<b>if</b> ( time &lt; 0 )
+		time*=-1;
+	sec = (poll_sec==</font><font color="#00bb00">""</font><font color=black> ? 0 : poll_sec);
+	msec = (poll_msec==</font><font color="#00bb00">""</font><font color=black> ? 666 : poll_msec);
+	</font><font color="#ff0000"><i># wait for value</font></i><font color=black>
+	<b>for</b>( i=0; i&lt;time; i++ )
+	{
+		rc = obj_get_info( object, attr, info );
+		<b>if</b> ( rc == E_OK &amp;&amp; match( info, regex ) )
+		{
+			<b>if</b> ( !exact || RLENGTH == len(info) ) 
+				<b>return</b> FRM_rc2( E_OK, val );
+		}
+		wait( sec, msec );
+	}
+	<b>if</b> ( rc == E_OK )
+		rc = E_WAIT_INFO_TIMEOUT;
+	<b>return</b> FRM_rc2( rc, val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_obj_wait_info</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_obj_wait_info ( <b>in</b> table, <b>in</b> test, <b>in</b> object, <b>in</b> attr )
+{
+	<b>auto</b> val = </font><font color="#00bb00">"|reg.exp|attribute|time[|exact]"</font><font color=black>; 
+	FRM_GEN_set( table, test, object, val, E_OK );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for static_get_text() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a static_get_text() on a specified &amp;lt;object&amp;gt; using the value </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	from the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	data-entry (read)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing value to be checked (SET is not supported for static texts).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Performs the same as in CHK mode.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function uses the value from the data table as a second parameter to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	static_check_text() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Checks the content of the specified object attributes using static_check_info().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Attribues are specified in pairs &lt;code&gt;attribute:value&lt;/code&gt;. If more than</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	a single atribute needs to be checked, each pair must be separated with a</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	newline character (in Excel: Alt-Return).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Uses static_get_text() to retrieve the content of the edit object. Note that</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	an empty string is converted to "&amp;lt;&amp;lt;clear&amp;gt;&amp;gt;" as generated test data.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_static_get ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_CHK_static_get( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_ATR_static_get( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_static_get( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_static_get</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_static_get ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_CHK_static_get</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_CHK_static_get ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+</font><font color="#ff0000"><i>#	return FRM_rc2( static_check_text( object, val, case_sensitive ), val );</font></i><font color=black>
+	<b>return</b> FRM_rc2( static_check_text( object, val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_ATR_static_get</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_ATR_static_get ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val, attr, info;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	<b>while</b> ( rc == E_OK &amp;&amp; EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( static_check_info( object, attr, info ), </font><font color="#00bb00">"attr: '"</font><font color=black> &amp; attr &amp; </font><font color="#00bb00">"' value: '"</font><font color=black> &amp; info &amp; </font><font color="#00bb00">"'"</font><font color=black> );
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_static_get</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_static_get ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> rc = obj_exists( object );
+	<b>if</b> ( rc == E_OK )
+	{
+		rc = static_get_text( object, val );
+		<b>if</b> ( rc == E_OK &amp;&amp; val == </font><font color="#00bb00">""</font><font color=black> )
+			val = </font><font color="#00bb00">"&lt;&lt;clear&gt;&gt;"</font><font color=black>; 
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for edit_set() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a edit_set() on a specified &amp;lt;object&amp;gt; using the value </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	from the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	data-entry (read/write)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing value to be set or checked.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function uses the value from the data table as a second parameter to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	edit_set() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function uses the value from the data table as a second parameter to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	edit_check_text() function. Please note that third parameter (case-sensitive</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	flag) can be specified via FRM_set_case_sensitive().</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Checks the content of the specified object attributes using edit_check_info().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Attribues are specified in pairs &lt;code&gt;attribute:value&lt;/code&gt;. If more than</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	a single atribute needs to be checked, each pair must be separated with a</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	newline character (in Excel: Alt-Return).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Uses edit_get_text() to retrieve the content of the edit object. Note that</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	an empty string is converted to "&amp;lt;&amp;lt;clear&amp;gt;&amp;gt;" as generated test data.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_edit_set ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+		rc = FRM_SET_edit_set( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_CHK_edit_set( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_ATR_edit_set( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_edit_set( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_edit_set</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_edit_set ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( edit_set( object, val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_CHK_edit_set</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_CHK_edit_set ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( edit_check_text( object, val, case_sensitive ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_ATR_edit_set</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_ATR_edit_set ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val, attr, info;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	<b>while</b> ( rc == E_OK &amp;&amp; EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( edit_check_info( object, attr, info ), </font><font color="#00bb00">"attr: '"</font><font color=black> &amp; attr &amp; </font><font color="#00bb00">"' value: '"</font><font color=black> &amp; info &amp; </font><font color="#00bb00">"'"</font><font color=black> );
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_edit_set</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_edit_set ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> rc = obj_exists( object );
+	<b>if</b> ( rc == E_OK )
+	{
+		rc = edit_get_text( object, val );
+		<b>if</b> ( rc == E_OK &amp;&amp; val == </font><font color="#00bb00">""</font><font color=black> )
+			val = </font><font color="#00bb00">"&lt;&lt;clear&gt;&gt;"</font><font color=black>; 
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for list_select_item() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a list_select_item() on a specified &amp;lt;object&amp;gt; </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	using the value from the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	data-entry (read/write)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing names or indices of the desired list items.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function uses the value from the data table as a second parameter to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	list_select_item() function. Third and fourth parameters are not</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	supported.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function uses the value from the data table as a second parameter to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	list_check_selected() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Checks the content of the specified object attributes using list_check_info().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Attribues are specified in pairs &lt;code&gt;attribute:value&lt;/code&gt;. If more than</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	a single atribute needs to be checked, each pair must be separated with a</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	newline character (in Excel: Alt-Return).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Uses list_get_selected() to retrieve the selection and generate test data.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_list_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+		rc = FRM_SET_list_select_item( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_CHK_list_select_item( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_ATR_list_select_item( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_list_select_item( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_list_select_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_list_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( list_select_item( object, val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_CHK_list_select_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_CHK_list_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( list_check_selected( object, val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_ATR_list_select_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_ATR_list_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val, attr, info;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	<b>while</b> ( rc == E_OK &amp;&amp; EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( list_check_info( object, attr, info ), </font><font color="#00bb00">"attr: '"</font><font color=black> &amp; attr &amp; </font><font color="#00bb00">"' value: '"</font><font color=black> &amp; info &amp; </font><font color="#00bb00">"'"</font><font color=black> );
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_list_select_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_list_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> num;
+	<b>auto</b> rc = obj_exists( object );
+	<b>if</b> ( rc == E_OK )
+	{
+		rc = list_get_selected( object, val, num );
+		<b>if</b> ( rc == E_OK &amp;&amp; val == -1 )
+			val = </font><font color="#00bb00">""</font><font color=black>;
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for list_activate_item() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a list_activate_item() using the value from the data </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	navigation (read-only, can be generated)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing logical name or the index (e.g. #1) of the item to be </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	activated.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function reads the value from the data table and uses it as a parameter</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	to a native list_activate_item() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	There is nothing to be checked with a double click on a list item.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Behaves the same as the SET-mode! </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Checks the content of the specified object attributes using list_check_info().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Attribues are specified in pairs &lt;code&gt;attribute:value&lt;/code&gt;. If more than</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	a single atribute needs to be checked, each pair must be separated with a</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	newline character (in Excel: Alt-Return).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Supported although type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	We have found it practical to generate the item name of the currently </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	selected item.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_list_activate_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_SET_list_activate_item( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_ATR_list_select_item( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_list_activate_item( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_list_activate_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_list_activate_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( list_activate_item( object, val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_list_activate_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_list_activate_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> num;
+	<b>auto</b> rc = obj_exists( object );
+	<b>if</b> ( rc == E_OK )
+	{
+		rc = list_get_selected( object, val, num );
+		<b>if</b> ( rc == E_OK &amp;&amp; val == -1 )
+			val = </font><font color="#00bb00">""</font><font color=black>;
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for list_select_multi_items() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a list_select_multi_items() on a specified &amp;lt;object&amp;gt; </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	using the value from the data table. Make sure to format the string </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	according to the rules for the native function (i.e. comma-separated).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	data-entry (read/write)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing names or indices of the desired list items.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function uses the value from the data table as a second parameter to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	list_select_multi_items() function. Third and fourth parameters are not</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	supported.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	It probably won't work because native functions list_check_mult_selected() </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	and list_check_selection() do not seem to be available for public. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Our implementation is based on list_check_selected(). We were too lazy to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	implement our own checking. If you want to do it yourself, then function</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	list_get_selected() is something to start with.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Checks the content of the specified object attributes using list_check_info().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Attribues are specified in pairs &lt;code&gt;attribute:value&lt;/code&gt;. If more than</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	a single atribute needs to be checked, each pair must be separated with a</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	newline character (in Excel: Alt-Return).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Uses list_get_selected() to retrieve the selection. Before generating the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	test data the separators returned by list_get_selected() are converted to</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	something compatible with list_select_multi_items().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_list_select_multi_items ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+		rc = FRM_SET_list_select_multi_items( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_CHK_list_select_multi_items( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_ATR_list_select_item( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_list_select_multi_items( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_list_select_multi_items</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_list_select_multi_items ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( list_select_multi_items( object, val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_CHK_list_select_multi_items</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_CHK_list_select_multi_items ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( list_check_selected( object, val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_list_select_multi_items</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_list_select_multi_items ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> num;
+	<b>auto</b> rc = obj_exists( object );
+	<b>if</b> ( rc == E_OK )
+	{
+		rc = list_get_selected( object, val, num );
+	}
+	FRM_GEN_set( table, test, object, replace( val,</font><font color="#00bb00">"^"</font><font color=black>,</font><font color="#00bb00">","</font><font color=black>), rc );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The new "wrapper" for menu_select_item() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a menu_select_item() using the value from the data </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	navigation (read-only)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing logical name or the index (e.g. #1) of the tab to be </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	selected.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function reads the value from the data table and uses it as a parameter</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	to a native menu_select_item() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	There is nothing to be checked with menu_select_item().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Behaves the same as the SET-mode! </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Behaves the same as the SET-mode! </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Ignores the cell (i.e. skips the cell).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param timeout	(in)	(optional) sometimes menues aren't reaady when WR thinks</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                they are; use the &amp;lt;timeout&amp;gt; to force the function</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                menu_wait_info( object, "enabled", timeout ) to be called</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                before the actual menu_select_item() is invoked.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_menu_select_item1 ( <b>in</b> table, <b>in</b> test, <b>in</b> timeout )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_SET_menu_select_item1( table, test, timeout ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_menu_select_item1( table, test ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_menu_select_item1</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_menu_select_item1 ( <b>in</b> table, <b>in</b> test, <b>in</b> timeout )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	</font><font color="#ff0000"><i># watch this!</font></i><font color=black>
+	<b>if</b> ( timeout*1 &gt; 0 )
+	{
+		rc = EMOS_menu_wait_info1( val, </font><font color="#00bb00">"enabled"</font><font color=black>, 1, timeout*1 );
+	} 
+	FRM_log_frm_info( table, test, val );
+</font><font color="#ff0000"><i>#	FRM_log_obj_info( object );</font></i><font color=black>
+	<b>return</b> FRM_rc2( EMOS_menu_select_item1( val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_menu_select_item1</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_menu_select_item1 ( <b>in</b> table, <b>in</b> test )
+{
+	FRM_skip( table );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for menu_select_item() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a menu_select_item() using the value from the data </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	navigation (read-only)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing logical name or the index (e.g. #1) of the tab to be </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	selected.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function reads the value from the data table and uses it as a parameter</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	to a native menu_select_item() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	There is nothing to be checked with menu_select_item().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Behaves the same as the SET-mode! </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Behaves the same as the SET-mode! </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Ignores the cell (i.e. skips the cell).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param timeout	(in)	(optional) sometimes menues aren't reaady when WR thinks</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                they are; use the &amp;lt;timeout&amp;gt; to force the function</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                menu_wait_info( object, "enabled", timeout ) to be called</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                before the actual menu_select_item() is invoked.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_menu_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> timeout )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_SET_menu_select_item( table, test, timeout ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_menu_select_item( table, test ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_menu_select_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_menu_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> timeout )
+{
+	<b>auto</b> val;
+	<b>auto</b> arr[], count;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	</font><font color="#ff0000"><i># watch this!</font></i><font color=black>
+	<b>if</b> ( timeout*1 &gt; 0 )
+	{
+		rc = menu_wait_info( val, </font><font color="#00bb00">"enabled"</font><font color=black>, 1, timeout*1 );
+	} 
+	FRM_log_frm_info( table, test, val );
+	count = split( val, arr, </font><font color="#00bb00">";"</font><font color=black> );
+	FRM_log_obj_info( arr[count] );
+	<b>return</b> FRM_rc2( menu_select_item( val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_menu_select_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_menu_select_item ( <b>in</b> table, <b>in</b> test )
+{
+	FRM_skip( table );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for tab_select_item() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a tab_select_item() on a specified &amp;lt;object&amp;gt; using the </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	value from the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	navigation (read-only, can be generated)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing logical name or the index (e.g. #1) of the tab to be </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	selected.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function reads the value from the data table and uses it as a parameter</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	to a native tab_select_item() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	One could check whether a tab is selected. In practice however this is not</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	as much used and in FRM concept soon becomes irritating. For this reason</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	we have implemnted this function as type navigation which means that</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	checking is not supported (although we do have the code for it).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Behaves the same as the SET-mode! </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Checks the content of the specified object attributes using tab_get_info()</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	and match().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Attribues are specified in pairs &lt;code&gt;attribute:value&lt;/code&gt;. If more than</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	a single atribute needs to be checked, each pair must be separated with a</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	newline character (in Excel: Alt-Return).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Supported although type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	We have found it practical to generate the tab name/index although we</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	ignore it in CHK mode.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_tab_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_SET_tab_select_item( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_ATR_tab_select_item( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_tab_select_item( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_tab_select_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_tab_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( tab_select_item( object, val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_CHK_tab_select_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_CHK_tab_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> item = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> num;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = tab_get_selected( object, item, num );
+	<b>if</b> ( rc == E_OK )
+	{
+		<b>if</b> ( val != item &amp;&amp; val != </font><font color="#00bb00">"#"</font><font color=black>&amp;num )
+			rc = E_DIFF;
+	}
+	<b>return</b> FRM_rc2( rc, val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_ATR_menu_select_item1</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_ATR_tab_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val, attr, info;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	<b>while</b> ( rc == E_OK &amp;&amp; EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=tab_get_info( object, attr, val );
+		rc+=FRM_rc2( !match(val, info), </font><font color="#00bb00">"attr: "</font><font color=black> &amp; attr &amp; </font><font color="#00bb00">" expected: "</font><font color=black> &amp; info &amp; </font><font color="#00bb00">" found:"</font><font color=black> &amp; val );
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_tab_select_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_tab_select_item ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> item = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> num;
+	<b>auto</b> rc = obj_exists( object );
+	<b>if</b> ( rc == E_OK )
+	{
+		rc = tab_get_selected( object, item, num );
+		<b>if</b> ( rc == E_OK &amp;&amp; item == </font><font color="#00bb00">""</font><font color=black> )
+			item = </font><font color="#00bb00">"#"</font><font color=black> &amp; num;
+	}
+	FRM_GEN_set( table, test, object, item, rc );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for button_press() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	You may use the function in two ways. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	1.) If you specify the &amp;lt;object&amp;gt;, then the value from the data table is </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	    evaluated. If the value resambles to Yes, the &amp;lt;object&amp;gt; is "pressed". </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	2.) If you do not provide the &amp;lt;object&amp;gt; parameter, then the value from the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	    data table is used as the name of the object to be "pressed".</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The second alternative is an elegant way of pressing on OK, Cancel and</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	similar buttons.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	navigation (read-only)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing either Y/YES/ON (or german equivalent J/JA/ON) or</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	the logical name of the button to be pressed.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function reads the value from the data table and uses it as a parameter</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	to a native button_press() function according to aforementioned description.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	There is nothing to be checked with button_press().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Behaves the same as the SET-mode! </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Checks the content of the specified object attributes using button_check_info().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Attribues are specified in pairs &lt;code&gt;attribute:value&lt;/code&gt;. If more than</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	a single atribute needs to be checked, each pair must be separated with a</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	newline character (in Excel: Alt-Return).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Ignores the cell (i.e. skips the cell).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	(optional) GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_button_press ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_SET_button_press( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_ATR_button_press( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_button_press( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_button_press</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_button_press ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	</font><font color="#ff0000"><i># if &lt;object&gt; not defined,then use &lt;val&gt; as object and just press</font></i><font color=black>
+	<b>if</b>( object == </font><font color="#00bb00">""</font><font color=black> )
+	{
+    	FRM_log_obj_info( val );
+		<b>return</b> FRM_rc2( button_press( val ), val );
+	}
+	</font><font color="#ff0000"><i># else of &lt;object&gt; defined, then pres only if &lt;val&gt; == "ja" or "on"</font></i><font color=black>
+	<b>switch</b> ( tolower( val ) )
+	{
+		<b>case</b> </font><font color="#00bb00">"j"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"ja"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"y"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"yes"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"on"</font><font color=black>:	
+			<b>break</b>;
+		<b>default</b>:
+			<b>return</b> E_OK;
+	}
+   	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( button_press( object ), object );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_ATR_button_press</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_ATR_button_press ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val, attr, info;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	</font><font color="#ff0000"><i># if no object defined, no attributes can be tested</font></i><font color=black>
+	<b>if</b>( object == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		<b>return</b> E_OK;
+	}	
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	<b>while</b> ( rc == E_OK &amp;&amp; EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( button_check_info(object, attr, info), </font><font color="#00bb00">"attr: "</font><font color=black> &amp; attr &amp; </font><font color="#00bb00">" expected: "</font><font color=black> &amp; info &amp; </font><font color="#00bb00">" found:"</font><font color=black> &amp; val );
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_button_press</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_button_press ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	FRM_skip( table );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for toolbar_button_press() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a toolbar_button_press() on a specified &amp;lt;object&amp;gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	using the value from the data table.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	navigation (read-only)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing either the logical name of the toolbar button or the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	index (e.g. #1).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function reads the value from the data table and uses it as a parameter</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	to a native toolbar_button_press() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	There is nothing to be checked with toolbar_button_press().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Behaves the same as the SET-mode! </font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not implemented yet!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not supported for type: navigation!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Ignores the cell (i.e. skips the cell).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_toolbar_button_press ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+	<b>case</b> FRM_CHK_MODE:
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_SET_toolbar_button_press( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_toolbar_button_press( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_toolbar_button_press</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_toolbar_button_press ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	rc = FRM_rc2( toolbar_button_press( object, val ), val );
+	</font><font color="#ff0000"><i># Toolbars oft kommen mit Tooltext was u.U. andere Aktionen</font></i><font color=black>
+	</font><font color="#ff0000"><i># verhindern könnte (z.B. Reiter werden nicht gefunden)</font></i><font color=black>
+	</font><font color="#ff0000"><i># Um das zu verhindern bewegen wir mit der folgender Zeile</font></i><font color=black>
+	</font><font color="#ff0000"><i># die Maus aus der "Gefahrenzone" raus. </font></i><font color=black>
+	move_locator_abs( 1, 1 );
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_toolbar_button_press</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_toolbar_button_press ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	FRM_skip( table );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	A standard "wrapper" for button_set() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function performs a button_set() on a specified &amp;lt;object&amp;gt; using the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	value from the data table. You can use it for both radio buttons and</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	check buttons. The supported states are ON and OFF. DIMMED is not supported.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	data-entry (read/write)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing either Y/YES/ON or N/NO/OFF (or German version J/JA/ON and</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	N/NEIN/OFF).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function evaluates the value from the data table. If Yes, the &amp;lt;object&amp;gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	is set to ON. Otherwise the &amp;lt;object&amp;gt; is set to OFF.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function evaluates the value from the data table. If Yes, the &amp;lt;object&amp;gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	is expected to be in ON-state. Otherwise the &amp;lt;object&amp;gt; is expected to be in</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	OFF-state.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Checks the content of the specified object attributes using button_check_info().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Attribues are specified in pairs &lt;code&gt;attribute:value&lt;/code&gt;. If more than</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	a single atribute needs to be checked, each pair must be separated with a</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	newline character (in Excel: Alt-Return).</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The evaluates the state of the &amp;lt;object&amp;gt;. If ON, then "ON" is generated.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	If OFF, then "OFF" is generted. If any other state is determined (e.g.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	DIMMED), then "???" is generated. Nonexisting objects are silently ignored.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param object	(in)	GUI-object where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_button_set ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+		rc = FRM_SET_button_set( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_CHK_MODE:
+		rc = FRM_CHK_button_set( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_ATR_button_set( table, test, object ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_button_set( table, test, object ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_button_set</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_button_set ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	val = tolower( val );
+	<b>switch</b> ( val )
+	{
+		<b>case</b> </font><font color="#00bb00">"j"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"ja"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"y"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"yes"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"on"</font><font color=black>:	
+			val = ON;
+			<b>break</b>;
+		<b>case</b> </font><font color="#00bb00">"n"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"no"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"nein"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"off"</font><font color=black>:
+			val = OFF;
+			<b>break</b>;
+		<b>default</b>:
+			val = OFF;
+	}
+	<b>return</b> FRM_rc2( button_set( object, val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_CHK_button_set</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_CHK_button_set ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	val = tolower( val );
+	<b>switch</b> ( val )
+	{
+		<b>case</b> </font><font color="#00bb00">"j"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"ja"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"y"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"yes"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"on"</font><font color=black>:	
+			val = ON;
+			<b>break</b>;
+		<b>case</b> </font><font color="#00bb00">"n"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"no"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"nein"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"off"</font><font color=black>:
+			val = OFF;
+			<b>break</b>;
+		<b>default</b>:
+			val = OFF;
+	}
+	<b>return</b> FRM_rc2( button_check_state( object, val ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_ATR_button_set</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_ATR_button_set ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val, attr, info;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	<b>while</b> ( rc == E_OK &amp;&amp; EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( button_check_info( object, attr, info ), </font><font color="#00bb00">"attr: '"</font><font color=black> &amp; attr &amp; </font><font color="#00bb00">"' value: '"</font><font color=black> &amp; info &amp; </font><font color="#00bb00">"'"</font><font color=black> );
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_button_set</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_button_set ( <b>in</b> table, <b>in</b> test, <b>in</b> object )
+{
+	<b>auto</b> val = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> num;
+	<b>auto</b> rc = obj_exists( object );
+	<b>if</b> ( rc == E_OK )
+	{
+		rc = button_get_state( object, val );
+		<b>switch</b> ( val )
+		{
+		<b>case</b> ON:	val = </font><font color="#00bb00">"ON"</font><font color=black>; <b>break</b>;
+		<b>case</b> OFF:	val = </font><font color="#00bb00">"OFF"</font><font color=black>; <b>break</b>;
+		<b>default</b>:	val = </font><font color="#00bb00">"???"</font><font color=black>;
+		}
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Convenience function for GUI constructs consisting of two radio buttons</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	where one stands for "yes" and the other one for "no". A special-purpose </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	"wrapper" for button_set() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	data-entry (read/write)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing either "Yes"/"No", "Y"/"N" or the German equivalent</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	( "Ja"/"Nein", "J"/"N")</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function evaluates the value from the data table. In case of Yes,</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	the &amp;lt;yesObject&amp;gt; is set. Otherwise &amp;lt;noObject&amp;gt; is set.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function evaluates the value from the data table. In case of Yes,</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	the &amp;lt;yesObject&amp;gt; is expected to be set. Otherwise &amp;lt;noObject&amp;gt; is expected</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	to be set.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not implemented! Behaves the same as CHK-MODE. If you need this functionallity,</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	then you maust define each individual button and use FRM_button_set().</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function first evaluates the &amp;lt;yesObject&amp;gt;. If set, then "Y" is generated.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Otherwise the &amp;lt;noObject&amp;gt; is evaluated. If set, then "N" is generated.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	If either none of objects exist or none of them is set, then no data is</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	generated.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param yesObject	(in)logical name of the Yes radio button</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param noObject	(in)logical name of the No radio button</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_button_set_YesNo ( <b>in</b> table, <b>in</b> test, <b>in</b> yesObject, <b>in</b> noObject )
+{
+	<b>return</b> FRM_button_set_JaNein ( table, test, yesObject, noObject );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	German version of FRM_button_set_YesNo.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param jaObject	(in)	logical name of the Yes radio button</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param neinObject	(in)	logical name of the No radio button</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @see FRM_button_set_YesNo</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_button_set_JaNein ( <b>in</b> table, <b>in</b> test, <b>in</b> jaObject, <b>in</b> neinObject )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+		rc = FRM_SET_button_set_JaNein( table, test, jaObject, neinObject ); <b>break</b>;
+	<b>case</b> FRM_CHK_MODE:
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_CHK_button_set_JaNein( table, test, jaObject, neinObject ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_button_set_JaNein( table, test, jaObject, neinObject ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_button_set_JaNein</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_button_set_JaNein ( <b>in</b> table, <b>in</b> test, <b>in</b> jaObject, <b>in</b> neinObject )
+{
+	<b>auto</b> object;
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	<b>switch</b> ( tolower( val ) )
+	{
+		<b>case</b> </font><font color="#00bb00">"j"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"ja"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"y"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"yes"</font><font color=black>:
+			object = jaObject;
+			<b>break</b>;
+		<b>default</b>:
+			object = neinObject;
+	}
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( button_set( object, ON ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_CHK_button_set_JaNein</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_CHK_button_set_JaNein ( <b>in</b> table, <b>in</b> test, <b>in</b> jaObject, <b>in</b> neinObject )
+{
+	<b>auto</b> object;
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	<b>switch</b> ( tolower( val ) )
+	{
+		<b>case</b> </font><font color="#00bb00">"j"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"ja"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"y"</font><font color=black>:
+		<b>case</b> </font><font color="#00bb00">"yes"</font><font color=black>:
+			object = jaObject;
+			<b>break</b>;
+		<b>default</b>:
+			object = neinObject;
+	}
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	<b>return</b> FRM_rc2( button_check_state( object, ON ), val );
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_button_set_JaNein</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_button_set_JaNein ( <b>in</b> table, <b>in</b> test, <b>in</b> jaObject, <b>in</b> neinObject )
+{
+	<b>auto</b> val = </font><font color="#00bb00">""</font><font color=black>;
+	<b>auto</b> rc;
+	<b>if</b> ( obj_exists( jaObject ) == E_OK )
+	{
+		rc = button_get_state( jaObject, val );
+		<b>if</b> ( rc == E_OK &amp;&amp; val == ON )
+		{
+			FRM_GEN_set( table, test, jaObject, </font><font color="#00bb00">"Y"</font><font color=black>, rc );
+			<b>return</b>;
+		}
+	}
+	<b>if</b> ( obj_exists( neinObject ) == E_OK )
+	{
+		rc = button_get_state( neinObject, val );
+		<b>if</b> ( rc == E_OK &amp;&amp; val == ON )
+		{
+			FRM_GEN_set( table, test, neinObject, </font><font color="#00bb00">"N"</font><font color=black>, rc );
+			<b>return</b>;
+		}
+	}
+	FRM_skip( table );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Convenience function for a group of related	radio buttons. </font></i><font color=black>
+</font><font color="#ff0000"><i>#*  A special-purpose "wrapper" for button_set() function.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function accepts a vector (one-dimensional array) containing names of</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	the radio buttons (GUI map) indexed by some keyword. The keywords are used</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	in data tables to identify particular button and can differ from the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	actual object name.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	In this way one can address multiple radio buttons (one at a time) with</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	one data cell.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;FRM-GUI-TYPE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	data-entry (read/write)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;TEST DATA FORMAT:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	String containing the keyword which identifies the particular radio button.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;SET-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function reads the keyword from the data table. It then tries to set the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	button indexed by the particular keyword.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;CHK-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function reads the keyword from the data table. It then checks whether</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	the button indexed by the particular keyword is set.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;ATR-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Not implemented! Behaves the same as CHK-MODE. If you need this functionallity,</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	then you maust define each individual button and use FRM_button_set().</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;GEN-MODE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The function scans the &amp;lt;objArr&amp;gt; in a random sequence and checks if the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	particular object (radio button) is set. If yes, then the corresponding</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	keyword is generated as test data. Object that do not exist are silently</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	ignored.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param table	(in)	table name</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param test	(in)	test name (column)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param objArr[]	(inout) a vector containing logical GUI object names indexed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                by the keyword. NOTE: make sure to specify keywords in</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	                lowercase!!!</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	operation successful</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	operation failed</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> FRM_radio_button_set ( <b>in</b> table, <b>in</b> test, <b>inout</b> objArr[] )
+{
+	<b>auto</b> rc;
+	wrlog_prim_start();
+	<b>switch</b> ( FRM_get_mode( table ) )
+	{
+	<b>case</b> FRM_SET_MODE:
+		rc = FRM_SET_radio_button_set( table, test, objArr ); <b>break</b>;
+	<b>case</b> FRM_CHK_MODE:
+	<b>case</b> FRM_ATR_MODE:
+		rc = FRM_CHK_radio_button_set( table, test, objArr ); <b>break</b>;
+	<b>case</b> FRM_GEN_MODE:
+		rc = FRM_GEN_radio_button_set( table, test, objArr ); <b>break</b>;
+	<b>default</b>:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	<b>return</b> (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_SET_radio_button_set</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_SET_radio_button_set ( <b>in</b> table, <b>in</b> test, <b>inout</b> objArr[] )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	val = tolower( val );
+	<b>if</b> ( val <b>in</b> objArr )
+	{
+       	FRM_log_obj_info( objArr[val] );
+		<b>return</b> FRM_rc2( button_set( objArr[val], ON ), val );
+	}
+	<b>return</b> E_NOT_FOUND;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_CHK_radio_button_set</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_CHK_radio_button_set ( <b>in</b> table, <b>in</b> test, <b>inout</b> objArr[] )
+{
+	<b>auto</b> val;
+	<b>auto</b> rc = FRM_get_next( table, test, val );
+	<b>if</b> ( rc != E_OK ) 
+    	<b>return</b> rc;
+	FRM_log_frm_info( table, test, val );
+	val = tolower( val );
+	<b>if</b> ( val <b>in</b> objArr )
+	{
+       	FRM_log_obj_info( objArr[val] );
+		<b>return</b> FRM_rc2( button_check_state( objArr[val], ON ), val );
+	}
+	<b>return</b> E_NOT_FOUND;
+}
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: FRM_GEN_radio_button_set</font></i><font color=black>
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_GEN_radio_button_set ( <b>in</b> table, <b>in</b> test, <b>inout</b> objArr[] )
+{
+	<b>auto</b> val;
+	<b>auto</b> i;
+	<b>auto</b> rc;
+	<b>for</b> ( i <b>in</b> objArr )
+	{
+		<b>if</b> ( obj_exists( objArr[i] == E_OK ) )
+		{
+			rc = button_get_state( objArr[i], val );
+			<b>if</b> ( rc == E_OK &amp;&amp; val == ON )
+			{
+				FRM_GEN_set( table, test, objArr[i], i, rc );
+				<b>return</b>;
+			}
+		}
+	}
+	FRM_skip( table );	
+}
+
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	FRM_GUI_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</pre></body></html>

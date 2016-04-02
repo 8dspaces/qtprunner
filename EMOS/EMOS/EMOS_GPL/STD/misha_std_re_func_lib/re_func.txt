@@ -1,0 +1,158 @@
+########### RE function library ######################
+#
+# Regular expression functions search and match for WinRunner
+#
+# Copyright (c) 2003 Misha Verplak
+#
+# Supporting regex++ c++ library at www.boost.org:
+# Copyright (c) 1998-2001 Dr John Maddock
+#
+# Permission is granted to use, modify and redistribute this
+# software provided both copyrights appear in all copies.
+#
+# This script and dll provides WinRunner with perl-like
+# regular expression search and match functions, to supplement
+# the limited builtin function match() and add GUI properties
+# "label_like" and "id_like" for window recognition.
+#
+# Version:  0.2  2003-01-21
+#
+# Known bugs:
+# . Garbage in re can cause regex library to crash
+
+# regular expressions from DLL
+extern int re_match(string str, string re, out int m_pos, out int m_len, inout string detail <252>);
+extern int re_search(string str, string re, out int m_pos, out int m_len, inout string detail <252>);
+
+public function re_func_init()
+{
+	auto re_func_dll;
+
+	# replace with location of dll
+	re_func_dll = getenv("M_ROOT") "\\lib\\re_func\\re_func.dll";
+
+	# to access exported functions
+	load_dll(re_func_dll);
+
+	# to use re's in a GUI property
+	add_record_attr("label_like", re_func_dll, "re_query_label", "re_verify_label");
+	add_record_attr("id_like", re_func_dll, "re_query_id", "re_verify_id");
+
+
+	# function generator declarations
+
+	generator_add_function("re_search","Search a string for a regular expression.\n"
+	"Returns 0 no match, 1 found match, gets position and length.\n"
+	"Submatch results in 'detail', use re_get_details() or re_get_match().",5,
+	"search_string","type_edit","\"string to search\"",
+	"regular_expression","type_edit","\"regexp\"", "Out position","type_edit","position",
+	"Out length","type_edit","len", "Out detail","type_edit","detail");
+	generator_add_category("regex");
+	generator_add_function_to_category("regex","re_search");
+	generator_set_default_function("regex","re_search");
+
+	generator_add_function("re_match","Match a regular expression to a whole string.\n"
+	"Returns 0 no match, 1 found match, gets position and length.\n"
+	"Submatch results in 'detail', use re_get_details() or re_get_match().",5,
+	"match_string","type_edit","\"string to match\"",
+	"regular_expression","type_edit","\"regexp\"", "Out position","type_edit","position",
+	"Out length","type_edit","len", "Out detail","type_edit","detail");
+	generator_add_function_to_category("regex","re_match");
+
+	generator_add_function("re_get_detail","Get the (sub)match position and length from the detail.\n"
+	"Typically used after re_search() or re_match()\nsubmatch can be 0 for whole match",6,
+	"detail","type_edit","detail", "submatch","type_edit","0", "Out nsubs","type_edit","nsubs",
+	"Out line","type_edit","line", "Out position","type_edit","position", "Out length","type_edit","len");
+	generator_add_function_to_category("regex","re_get_detail");
+
+	generator_add_function("re_get_match","Get the (sub)matched string from the detail.\n"
+	"Typically used after re_search() or re_match()\nsubmatch can be 0 for whole match",4,
+	"original_string","type_edit","orig_str", "detail","type_edit","detail",
+	"submatch","type_edit","0", "Out match_str","type_edit","match_str");
+	generator_add_function_to_category("regex","re_get_match");
+
+	generator_add_function("re_print_detail","Print the re match details to the debug window.\n"
+	"Typically used after re_search() or re_match().",1, "detail","type_edit","detail");
+	generator_add_function_to_category("regex","re_print_detail");
+
+}
+
+# internal function to decode detail from DLL
+function _detail_decode(detail, position, nbytes)
+{
+	auto v, v_hi;
+	v = int(ascii(substr(detail, position, 1))/2);
+	if(nbytes == 2)
+	{
+		v_hi = int(ascii(substr(detail, position+1, 1))/2);
+		v += v_hi*256;
+	}
+	return v;
+}
+
+# dump the detail to WinRunner's debug window
+#
+# structure of the detail string:
+#  (1 byte ) size of this detail, ie. number of submatches + 1
+#  (2 bytes) line number where match occurred, counting from 1
+# [(2 bytes) position of (sub)match, 0-th submatch is whole match
+# [(2 bytes) length of (sub)match
+# [--------- repeated to a maximum of 50 submatches ---]
+#
+public function re_print_detail(detail)
+{
+	auto size, line, i, pos, len, s;
+
+	size = _detail_decode(detail, 1, 1);
+	print "size " size;
+	if (size == 0) return E_OK;
+	print "submatches " (size-1);
+	line = _detail_decode(detail, 2, 2);
+	print "line " line;
+
+	for (s=0; s<size; s++)
+	{
+		pos = _detail_decode(detail, s*4+4, 2);
+		len = _detail_decode(detail, s*4+6, 2);
+		print "sub(" s ") pos: " pos " len: " len;
+	}
+	return E_OK;
+}
+
+# get the (sub)match position and length from the detail
+public function re_get_detail(in detail, in submatch, out nsubs, out line, out position, out len)
+{
+	auto size;
+
+	nsubs = 0;
+	position = 0;
+	len = 0;
+	line = 0;
+
+	size = _detail_decode(detail, 1, 1);
+	if (size == 0) return E_NOT_FOUND;
+	nsubs = size-1;
+	if (submatch < 0) return E_OUT_OF_RANGE;
+	if (submatch+1 > size) return E_OUT_OF_RANGE;
+
+	line = _detail_decode(detail, 2, 2);
+	position = _detail_decode(detail, submatch*4+4, 2);
+	len = _detail_decode(detail, submatch*4+6, 2);
+	return E_OK;
+}
+
+# get the (sub)matched string from the detail
+public function re_get_match(in orig_str, in detail, in submatch, out match_str)
+{
+	auto rc, nsubs, position, len, line;
+
+	match_str = "";
+
+	rc = re_get_detail(detail, submatch, nsubs, line, position, len);
+	if (rc != E_OK) return rc;
+
+	match_str = substr(orig_str, position+1, len);
+	return E_OK;
+}
+
+#------------------------------------------------------

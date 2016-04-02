@@ -1,0 +1,4 @@
+General, Switched TestCase, , , Action1 > Iteration (Test-Action) = 1-1
+Pass, Step 1, Window Should Open, All OK, No Details
+Warning, Step 2, Window Should Open, It Didn't, Some Details
+Fail, Step 3, Window Should Open, App. Crashed, Bla Bla Bla

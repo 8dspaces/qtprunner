@@ -1,0 +1,75 @@
+################################################################################
+# TSL-LIBRARY:	EMOS_STD_wrlog_lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.4 $
+# $Author: drajovic $
+# $Date: 2005/01/23 19:22:20 $
+# $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/STD/emos_std_wrlog_lib/script $
+# $NoKeywords: $
+################################################################################
+
+#/***
+#* This library implements the dummy interface to EMOS remote logging functionallity for WinRunner.
+#* The real interface is available through a product EMOS WrLog.
+#*/
+
+public function wrlog_init_tcp_interface( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_init_file_interface( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_init_pipe_interface( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_terminate_tcp_interface( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_terminate_file_interface( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_terminate_pipe_interface( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function log_txt( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function log_cmd( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_print ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_println ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_suite_start ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_suite_data ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_suite_stop ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_suite_tick ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_set_start ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_set_data ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_set_stop ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_test_start ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_test_data ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_test_stop ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_block_start ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_block_data ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_block_stop ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_prim_start ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_prim_data ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_prim_stop ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_prim_obj_info ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_prim_frm_info ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_debug_call_info ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_timer_start ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_timer_data ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_timer_stop ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}
+public function wrlog_timer_tick ( in dummy1, in dummy2, in dummy3, in dummy4, in dummy5, in dummy6 ){}

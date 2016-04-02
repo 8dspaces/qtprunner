@@ -1,0 +1,118 @@
+<html>
+<!-- Sitemap 1.0 -->
+<object type="text/site properties">
+  <param name="FrameName" value="bsscright">
+  <param name="SiteType" value="toc">
+  <param name="Image Width" value="16">
+</object>
+<ul>
+  <li><object type="text/sitemap">
+    <param name="Name" value="Welcome">
+    <param name="Local" value="Welcome.htm">
+  </object>
+  <li><object type="text/sitemap">
+    <param name="Name" value="Introduction">
+    <param name="Local" value="Introduction.htm">
+  </object>
+  <li><object type="text/sitemap">
+    <param name="Name" value="User's Guide">
+  </object>
+  <ul>
+    <li><object type="text/sitemap">
+      <param name="Name" value="Principles">
+      <param name="Local" value="Principles.htm">
+    </object>
+    <li><object type="text/sitemap">
+      <param name="Name" value="Basic Concepts">
+    </object>
+    <ul>
+      <li><object type="text/sitemap">
+        <param name="Name" value="Introduction">
+        <param name="Local" value="Basic_Concepts.htm">
+      </object>
+      <li><object type="text/sitemap">
+        <param name="Name" value="Test Data">
+      </object>
+      <ul>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Introduction">
+          <param name="Local" value="Basic_Concepts.htm#test_data">
+        </object>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Test Primitive">
+          <param name="Local" value="Basic_Concepts.htm#test_primitive">
+        </object>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Test Block">
+          <param name="Local" value="Basic_Concepts.htm#test_block">
+        </object>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Test Case">
+          <param name="Local" value="Basic_Concepts.htm#test_case">
+        </object>
+        </ul>
+      <li><object type="text/sitemap">
+        <param name="Name" value="Test Groups">
+      </object>
+      <ul>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Introduction">
+          <param name="Local" value="Basic_Concepts.htm#test_groups">
+        </object>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Test Suite">
+          <param name="Local" value="Basic_Concepts.htm#test_suite">
+        </object>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Test Set">
+          <param name="Local" value="Basic_Concepts.htm#test_set">
+        </object>
+        </ul>
+      <li><object type="text/sitemap">
+        <param name="Name" value="Test Scripts">
+        <param name="Local" value="Basic_Concepts.htm#test_scripts">
+      </object>
+      <ul>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Introduction">
+          <param name="Local" value="Basic_Concepts.htm#test_scripts">
+        </object>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Block Function">
+          <param name="Local" value="Basic_Concepts.htm#block_function">
+        </object>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Function Library">
+          <param name="Local" value="Basic_Concepts.htm#function_library">
+        </object>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Test Driver">
+          <param name="Local" value="Basic_Concepts.htm#test_driver">
+        </object>
+        <li><object type="text/sitemap">
+          <param name="Name" value="Kick-off">
+          <param name="Local" value="Basic_Concepts.htm#kickoff">
+        </object>
+        </ul>
+      </ul>
+    <li><object type="text/sitemap">
+      <param name="Name" value="Test Environment Setup">
+      <param name="Local" value="Setup.htm#test_environment">
+    </object>
+    <ul>
+      <li><object type="text/sitemap">
+        <param name="Name" value="Naming Conventions">
+        <param name="Local" value="Setup.htm#naming_convention">
+      </object>
+      <li><object type="text/sitemap">
+        <param name="Name" value="Create Base Structure">
+        <param name="Local" value="Setup.htm#base_structure">
+      </object>
+      <li><object type="text/sitemap">
+        <param name="Name" value="Modify Startup Test">
+        <param name="Local" value="Setup.htm#startup_test">
+      </object>
+      </ul>
+    </ul>
+</ul>
+</html>

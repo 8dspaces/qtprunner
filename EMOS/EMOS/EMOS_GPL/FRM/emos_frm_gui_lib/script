@@ -1,0 +1,1937 @@
+################################################################################
+# TSL-LIBRARY:	FRM_GUI_Lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straße 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.4 $
+# $Author: drajovic $
+# $Date: 2005/01/23 19:31:51 $
+# $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/FRM/emos_frm_gui_lib/script $
+# $NoKeywords: $
+################################################################################
+
+#**#
+#* This library implements the "essence" of EMOS test design strategy.
+#* It provides "wrappers" for most frequently used "standard" functions such
+#* as edit_set(), list_select_item(), etc. The main point with this wrapper-
+#* functions is that they natively interface the low-level FRM-functions and,
+#* most of all, transparently implement the notion of SET/CHK/ATR/GEN mode for 
+#* each function.
+#*/
+
+static case_sensitive = TRUE;
+
+#**
+#*	Sets a generic indicator wheter to perform case-sensitive comparison or not.
+#*	Functions that perform this kind of comparison are responsible to use this
+#*	indicator.
+#*
+#* @param m	(in)	mode, TRUE or FALSE [default: TRUE]
+#*/
+
+public function FRM_set_case_sensitive ( in m )
+{
+	if ( m )
+		case_sensitive = TRUE;
+	else
+		case_sensitive = FALSE;
+}
+
+#**
+#*	Returns the state of comparison indicator.
+#*
+#* @return
+#*	TRUE:		case-sensitive comparison enabled
+#*	FALSE:		case-sensitive comparison disabled
+#*/
+public function FRM_is_case_sensitive ()
+{
+	return case_sensitive;
+}
+
+#**
+#*	A standard "wrapper" for win_type() function.
+#*	The function performs a win_type() on a specified &lt;window&gt; using the value 
+#*	from the data table.
+#* <p>FRM-GUI-TYPE:
+#*	navigation (read-only)
+#* <p>TEST DATA FORMAT:
+#*	String containing value to be typed.
+#* <p>SET-MODE:
+#*	The function uses the value from the data table as a second parameter to the
+#*	win_type() function.
+#* <p>CHK-MODE:
+#*	Not supported for type: navigation!
+#*	We could retrieve some text from the window and compare it. In practice is
+#*	this rather useless because there is either too much or no text all.
+#*	For testing win_type() is normally only useful to check keyboard navigation
+#*	or when you have no other chance (e.g. DOS applications). In the second
+#*	case you would use the SET mode to completely drive the application (i.e.
+#*	navigate and enter date) but you could hardly be able to check anything.
+#*	There is some chance if font is known, so you could try with win_get_text()
+#*	and the like. 
+#*	Behaves the same as the SET-mode! 
+#* <p>ATR-MODE:
+#*	Checks the content of the specified window attributes using win_check_info().
+#*	Attribues are specified in pairs <code>attribute:value</code>. If more than
+#*	a single atribute needs to be checked, each pair must be separated with a
+#*	newline character (in Excel: Alt-Return).
+#* <p>GEN-MODE:
+#*	Not supported for type: navigation!
+#*	Ignores the cell (i.e. skips the cell).
+#*
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param window	(in)	GUI-window where actions are to be performed
+#* @param suffix	(in)	(optional) as string which ia automatically appended to any
+#*	                value.
+#* @param force_suffix	(in)	(optional) set this to TRUE if you want the &lt;suffix&gt; to
+#*	                be typed even if no value present.
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_win_type ( in table, in test, in window, in suffix, in force_suffix )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+		rc = FRM_SET_win_type( table, test, window, suffix, force_suffix ); break;
+	case FRM_ATR_MODE:
+		rc = FRM_ATR_win_type( table, test, window ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_win_type( table, test, window, suffix ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_win_type
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_win_type ( in table, in test, in window, in suffix, in force_suffix )
+{
+	auto val = "";
+	auto rc, force = FALSE;
+	if ( force_suffix*1 != 0 )
+		force = TRUE;
+	rc = FRM_get_next( table, test, val );
+	switch ( rc ) 
+	{
+	case E_OK:      	break;
+	case E_FRM_SKIP:	if (force) break;
+	default:    		return rc;
+	}
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( window );
+	return FRM_rc2( win_type( window, val & suffix ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_CHK_win_type
+#-------------------------------------------------------------------------------
+
+static function FRM_CHK_win_type ( in table, in test, in window, in suffix )
+{
+	auto val, text;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( window );
+	FRM_rc2( obj_get_text( window, text ), "obj_get_text"  );
+	return FRM_rc2( (text != val), text & " expected: " & val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_ATR_win_type
+#-------------------------------------------------------------------------------
+
+static function FRM_ATR_win_type ( in table, in test, in window )
+{
+	auto val, attr, info;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( window );
+	rc = EMOS_ATTR_init_list( val );
+	while ( rc == E_OK && EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( win_check_info( window, attr, info ), "attr: '" & attr & "' value: '" & info & "'" );
+	}
+	return rc;
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_win_type
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_win_type ( in table, in test, in window, in suffix )
+{
+	FRM_skip( table );
+}
+
+#**
+#*	A standard "wrapper" for obj_type() function.
+#*	The function performs a obj_type() on a specified &lt;object&gt; using the value 
+#*	from the data table.
+#* <p>FRM-GUI-TYPE:
+#*	data-entry (read/write)
+#* <p>TEST DATA FORMAT:
+#*	String containing value to be typed or checked.
+#* <p>SET-MODE:
+#*	The function uses the value from the data table as a second parameter to the
+#*	obj_type() function.
+#* <p>CHK-MODE:
+#*	The function compares the value from the data table with the value returned
+#*	by obj_get_text(). Please note that comparison is case-sensitive.
+#* <p>ATR-MODE:
+#*	Checks the content of the specified object attributes using obj_check_info().
+#*	Attribues are specified in pairs <code>attribute:value</code>. If more than
+#*	a single atribute needs to be checked, each pair must be separated with a
+#*	newline character (in Excel: Alt-Return).
+#* <p>GEN-MODE:
+#*	Uses obj_get_text() to retrieve the content of the &lt;object&gt;. Note that
+#*	that no conversion takes place before generating the test data.
+#*
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	GUI-object where actions are to be performed
+#* @param suffix	(in)	(optional) as string which ia automatically appended to any
+#*	                value.
+#* @param force_suffix	(in)(optional) set this to TRUE if you want the &lt;suffix&gt; to
+#*	                be typed even if no value present.
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_obj_type ( in table, in test, in object, in suffix, in force_suffix )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+		rc = FRM_SET_obj_type( table, test, object, suffix, force_suffix ); break;
+	case FRM_CHK_MODE:
+		rc = FRM_CHK_obj_type( table, test, object, suffix ); break;
+	case FRM_ATR_MODE:
+		rc = FRM_ATR_obj_type( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_obj_type( table, test, object, suffix ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_obj_type
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_obj_type ( in table, in test, in object, in suffix, in force_suffix )
+{
+	auto val = "";
+	auto rc, force = FALSE;
+	if ( force_suffix*1 != 0 )
+		force = TRUE;
+	rc = FRM_get_next( table, test, val );
+	switch ( rc ) 
+	{
+	case E_OK:  		break;
+	case E_FRM_SKIP:	if (force) break;
+	default:    		return rc;
+	}
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	return FRM_rc2( obj_type( object, val & suffix ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_CHK_obj_type
+#-------------------------------------------------------------------------------
+
+static function FRM_CHK_obj_type ( in table, in test, in object, in suffix )
+{
+	auto val, text;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	FRM_rc2( obj_get_text( object, text ), "obj_get_text" );
+	return FRM_rc2( (text != val), text & " expected: " & val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_ATR_obj_type
+#-------------------------------------------------------------------------------
+
+static function FRM_ATR_obj_type ( in table, in test, in object )
+{
+	auto val, attr, info;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	while ( rc == E_OK && EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( obj_check_info( object, attr, info ), "attr: '" & attr & "' value: '" & info & "'" );
+	}
+	return rc;
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_obj_type
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_obj_type ( in table, in test, in object, in suffix )
+{
+	auto val = "";
+	auto rc = obj_exists( object );
+	if ( rc == E_OK )
+	{
+		rc = obj_get_text( object, val );
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+#**
+#*	We implement here our own equivalent of obj_wait_info(). Use it when you
+#*	need to synchronize the script wth the application.
+#*	Our implementation does not use obj_wait_info() because this function does 
+#*	not handle regular expressions. Instead we retrieve the value with obj_get_info()
+#*	and perform the match.
+#* <p>FRM-GUI-TYPE:
+#*	navigation (read-only)
+#* <p>TEST DATA FORMAT:
+#*	String containing formated value <code>|reg.exp|attribute|time[|exact]</code>.
+#*	The string starts with the separator (in our example | but you can use any
+#*	character as long as it only occurs in specified positions). <code>reg.exp</code>
+#*	is the regular expression to be waited for. <code>attribute</code> is the
+#*	attribute which conten is being waited for. <code>time</code> is the number
+#*	of seconds to be waited for. <code>exact</code>true/false flag indicating
+#*	whether an exact (1) or a tollerant match (0) is wanted. This ais an optional
+#*	parameter. By default the tollerant match is performed.
+#* <p>SET-MODE:
+#*	The function parses the value from the data table and waits for the given
+#*	value to appear.
+#* <p>CHK-MODE:
+#*	the same as in SET mode
+#* <p>ATR-MODE:
+#*	the same as in SET mode
+#* <p>GEN-MODE:
+#*	Generates a dummy template of the formated string
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	GUI-object where actions are to be performed
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_obj_wait_info ( in table, in test, in object )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+	case FRM_ATR_MODE:
+		rc = FRM_SET_obj_wait_info( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_obj_type( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_obj_wait_info
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_obj_wait_info ( in table, in test, in object, in poll_sec, in poll_msec )
+{
+	extern RLENGTH;
+
+	auto val = "";			# value specified in the data table
+	auto info;				# info retrieved
+
+	auto sep;				# separator (defined by the first character in value)
+	auto regex;				# reg.ex. to wait for
+	auto attr;				# property to wait for
+	auto time;				# max. time to wait (seconds)
+	auto exact = FALSE;		# exact match?
+
+	auto sec, msec;
+	auto arr[], count, i;
+	auto msg, rc;
+
+	rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	# parse value
+	sep = substr( val, 1, 1 );
+	count = split( val, arr, sep );
+	if ( count < 2 )
+	{
+		rc = E_ILLEGAL_PARAMETER;
+		msg = sprintf( "%s: invalid expression" , val );
+		return FRM_rc2( rc, msg );
+	}
+	regex = arr[2];
+	attr = alltrim( arr[3] );
+	time = arr[4];
+	exact = arr[5];
+	if ( attr == "" )
+		attr = "value";	
+	if ( time == "" )
+		time=11;
+	if ( time < 0 )
+		time*=-1;
+	sec = (poll_sec=="" ? 0 : poll_sec);
+	msec = (poll_msec=="" ? 666 : poll_msec);
+	# wait for value
+	for( i=0; i<time; i++ )
+	{
+		rc = obj_get_info( object, attr, info );
+		if ( rc == E_OK && match( info, regex ) )
+		{
+			if ( !exact || RLENGTH == len(info) ) 
+				return FRM_rc2( E_OK, val );
+		}
+		wait( sec, msec );
+	}
+	if ( rc == E_OK )
+		rc = E_WAIT_INFO_TIMEOUT;
+	return FRM_rc2( rc, val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_obj_wait_info
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_obj_wait_info ( in table, in test, in object, in attr )
+{
+	auto val = "|reg.exp|attribute|time[|exact]"; 
+	FRM_GEN_set( table, test, object, val, E_OK );
+}
+
+#**
+#*	A standard "wrapper" for static_get_text() function.
+#*	The function performs a static_get_text() on a specified &lt;object&gt; using the value 
+#*	from the data table.
+#* <p>FRM-GUI-TYPE:
+#*	data-entry (read)
+#* <p>TEST DATA FORMAT:
+#*	String containing value to be checked (SET is not supported for static texts).
+#* <p>SET-MODE:
+#*	Performs the same as in CHK mode.
+#* <p>CHK-MODE:
+#*	The function uses the value from the data table as a second parameter to
+#*	static_check_text() function.
+#* <p>ATR-MODE:
+#*	Checks the content of the specified object attributes using static_check_info().
+#*	Attribues are specified in pairs <code>attribute:value</code>. If more than
+#*	a single atribute needs to be checked, each pair must be separated with a
+#*	newline character (in Excel: Alt-Return).
+#* <p>GEN-MODE:
+#*	Uses static_get_text() to retrieve the content of the edit object. Note that
+#*	an empty string is converted to "&lt;&lt;clear&gt;&gt;" as generated test data.
+#*
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	GUI-object where actions are to be performed
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_static_get ( in table, in test, in object )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+		rc = FRM_CHK_static_get( table, test, object ); break;
+	case FRM_ATR_MODE:
+		rc = FRM_ATR_static_get( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_static_get( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_static_get
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_static_get ( in table, in test, in object )
+{
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_CHK_static_get
+#-------------------------------------------------------------------------------
+
+static function FRM_CHK_static_get ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+#	return FRM_rc2( static_check_text( object, val, case_sensitive ), val );
+	return FRM_rc2( static_check_text( object, val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_ATR_static_get
+#-------------------------------------------------------------------------------
+
+static function FRM_ATR_static_get ( in table, in test, in object )
+{
+	auto val, attr, info;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	while ( rc == E_OK && EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( static_check_info( object, attr, info ), "attr: '" & attr & "' value: '" & info & "'" );
+	}
+	return rc;
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_static_get
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_static_get ( in table, in test, in object )
+{
+	auto val = "";
+	auto rc = obj_exists( object );
+	if ( rc == E_OK )
+	{
+		rc = static_get_text( object, val );
+		if ( rc == E_OK && val == "" )
+			val = "<<clear>>"; 
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+#**
+#*	A standard "wrapper" for edit_set() function.
+#*	The function performs a edit_set() on a specified &lt;object&gt; using the value 
+#*	from the data table.
+#* <p>FRM-GUI-TYPE:
+#*	data-entry (read/write)
+#* <p>TEST DATA FORMAT:
+#*	String containing value to be set or checked.
+#* <p>SET-MODE:
+#*	The function uses the value from the data table as a second parameter to
+#*	edit_set() function.
+#* <p>CHK-MODE:
+#*	The function uses the value from the data table as a second parameter to
+#*	edit_check_text() function. Please note that third parameter (case-sensitive
+#*	flag) can be specified via FRM_set_case_sensitive().
+#* <p>ATR-MODE:
+#*	Checks the content of the specified object attributes using edit_check_info().
+#*	Attribues are specified in pairs <code>attribute:value</code>. If more than
+#*	a single atribute needs to be checked, each pair must be separated with a
+#*	newline character (in Excel: Alt-Return).
+#* <p>GEN-MODE:
+#*	Uses edit_get_text() to retrieve the content of the edit object. Note that
+#*	an empty string is converted to "&lt;&lt;clear&gt;&gt;" as generated test data.
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	GUI-object where actions are to be performed
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_edit_set ( in table, in test, in object )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+		rc = FRM_SET_edit_set( table, test, object ); break;
+	case FRM_CHK_MODE:
+		rc = FRM_CHK_edit_set( table, test, object ); break;
+	case FRM_ATR_MODE:
+		rc = FRM_ATR_edit_set( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_edit_set( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_edit_set
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_edit_set ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	return FRM_rc2( edit_set( object, val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_CHK_edit_set
+#-------------------------------------------------------------------------------
+
+static function FRM_CHK_edit_set ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	return FRM_rc2( edit_check_text( object, val, case_sensitive ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_ATR_edit_set
+#-------------------------------------------------------------------------------
+
+static function FRM_ATR_edit_set ( in table, in test, in object )
+{
+	auto val, attr, info;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	while ( rc == E_OK && EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( edit_check_info( object, attr, info ), "attr: '" & attr & "' value: '" & info & "'" );
+	}
+	return rc;
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_edit_set
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_edit_set ( in table, in test, in object )
+{
+	auto val = "";
+	auto rc = obj_exists( object );
+	if ( rc == E_OK )
+	{
+		rc = edit_get_text( object, val );
+		if ( rc == E_OK && val == "" )
+			val = "<<clear>>"; 
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+#**
+#*	A standard "wrapper" for list_select_item() function.
+#*	The function performs a list_select_item() on a specified &lt;object&gt; 
+#*	using the value from the data table.
+#* <p>FRM-GUI-TYPE:
+#*	data-entry (read/write)
+#* <p>TEST DATA FORMAT:
+#*	String containing names or indices of the desired list items.
+#* <p>SET-MODE:
+#*	The function uses the value from the data table as a second parameter to
+#*	list_select_item() function. Third and fourth parameters are not
+#*	supported.
+#* <p>CHK-MODE:
+#*	The function uses the value from the data table as a second parameter to
+#*	list_check_selected() function.
+#* <p>ATR-MODE:
+#*	Checks the content of the specified object attributes using list_check_info().
+#*	Attribues are specified in pairs <code>attribute:value</code>. If more than
+#*	a single atribute needs to be checked, each pair must be separated with a
+#*	newline character (in Excel: Alt-Return).
+#* <p>GEN-MODE:
+#*	Uses list_get_selected() to retrieve the selection and generate test data.
+#*
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	GUI-object where actions are to be performed
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_list_select_item ( in table, in test, in object )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+		rc = FRM_SET_list_select_item( table, test, object ); break;
+	case FRM_CHK_MODE:
+		rc = FRM_CHK_list_select_item( table, test, object ); break;
+	case FRM_ATR_MODE:
+		rc = FRM_ATR_list_select_item( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_list_select_item( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_list_select_item
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_list_select_item ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	return FRM_rc2( list_select_item( object, val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_CHK_list_select_item
+#-------------------------------------------------------------------------------
+
+static function FRM_CHK_list_select_item ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	return FRM_rc2( list_check_selected( object, val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_ATR_list_select_item
+#-------------------------------------------------------------------------------
+
+static function FRM_ATR_list_select_item ( in table, in test, in object )
+{
+	auto val, attr, info;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	while ( rc == E_OK && EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( list_check_info( object, attr, info ), "attr: '" & attr & "' value: '" & info & "'" );
+	}
+	return rc;
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_list_select_item
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_list_select_item ( in table, in test, in object )
+{
+	auto val = "";
+	auto num;
+	auto rc = obj_exists( object );
+	if ( rc == E_OK )
+	{
+		rc = list_get_selected( object, val, num );
+		if ( rc == E_OK && val == -1 )
+			val = "";
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+#**
+#*	A standard "wrapper" for list_activate_item() function.
+#*	The function performs a list_activate_item() using the value from the data 
+#*	table.
+#* <p>FRM-GUI-TYPE:
+#*	navigation (read-only, can be generated)
+#* <p>TEST DATA FORMAT:
+#*	String containing logical name or the index (e.g. #1) of the item to be 
+#*	activated.
+#* <p>SET-MODE:
+#*	The function reads the value from the data table and uses it as a parameter
+#*	to a native list_activate_item() function.
+#* <p>CHK-MODE:
+#*	Not supported for type: navigation!
+#*	There is nothing to be checked with a double click on a list item.
+#*	Behaves the same as the SET-mode! 
+#* <p>ATR-MODE:
+#*	Checks the content of the specified object attributes using list_check_info().
+#*	Attribues are specified in pairs <code>attribute:value</code>. If more than
+#*	a single atribute needs to be checked, each pair must be separated with a
+#*	newline character (in Excel: Alt-Return).
+#* <p>GEN-MODE:
+#*	Supported although type: navigation!
+#*	We have found it practical to generate the item name of the currently 
+#*	selected item.
+#*
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	GUI-object where actions are to be performed
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_list_activate_item ( in table, in test, in object )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+		rc = FRM_SET_list_activate_item( table, test, object ); break;
+	case FRM_ATR_MODE:
+		rc = FRM_ATR_list_select_item( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_list_activate_item( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_list_activate_item
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_list_activate_item ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	return FRM_rc2( list_activate_item( object, val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_list_activate_item
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_list_activate_item ( in table, in test, in object )
+{
+	auto val = "";
+	auto num;
+	auto rc = obj_exists( object );
+	if ( rc == E_OK )
+	{
+		rc = list_get_selected( object, val, num );
+		if ( rc == E_OK && val == -1 )
+			val = "";
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+#**
+#*	A standard "wrapper" for list_select_multi_items() function.
+#*	The function performs a list_select_multi_items() on a specified &lt;object&gt; 
+#*	using the value from the data table. Make sure to format the string 
+#*	according to the rules for the native function (i.e. comma-separated).
+#* <p>FRM-GUI-TYPE:
+#*	data-entry (read/write)
+#* <p>TEST DATA FORMAT:
+#*	String containing names or indices of the desired list items.
+#* <p>SET-MODE:
+#*	The function uses the value from the data table as a second parameter to
+#*	list_select_multi_items() function. Third and fourth parameters are not
+#*	supported.
+#* <p>CHK-MODE:
+#*	It probably won't work because native functions list_check_mult_selected() 
+#*	and list_check_selection() do not seem to be available for public. 
+#*	Our implementation is based on list_check_selected(). We were too lazy to
+#*	implement our own checking. If you want to do it yourself, then function
+#*	list_get_selected() is something to start with.
+#* <p>ATR-MODE:
+#*	Checks the content of the specified object attributes using list_check_info().
+#*	Attribues are specified in pairs <code>attribute:value</code>. If more than
+#*	a single atribute needs to be checked, each pair must be separated with a
+#*	newline character (in Excel: Alt-Return).
+#* <p>GEN-MODE:
+#*	Uses list_get_selected() to retrieve the selection. Before generating the
+#*	test data the separators returned by list_get_selected() are converted to
+#*	something compatible with list_select_multi_items().
+#*
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	GUI-object where actions are to be performed
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_list_select_multi_items ( in table, in test, in object )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+		rc = FRM_SET_list_select_multi_items( table, test, object ); break;
+	case FRM_CHK_MODE:
+		rc = FRM_CHK_list_select_multi_items( table, test, object ); break;
+	case FRM_ATR_MODE:
+		rc = FRM_ATR_list_select_item( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_list_select_multi_items( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_list_select_multi_items
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_list_select_multi_items ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	return FRM_rc2( list_select_multi_items( object, val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_CHK_list_select_multi_items
+#-------------------------------------------------------------------------------
+
+static function FRM_CHK_list_select_multi_items ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	return FRM_rc2( list_check_selected( object, val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_list_select_multi_items
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_list_select_multi_items ( in table, in test, in object )
+{
+	auto val = "";
+	auto num;
+	auto rc = obj_exists( object );
+	if ( rc == E_OK )
+	{
+		rc = list_get_selected( object, val, num );
+	}
+	FRM_GEN_set( table, test, object, replace( val,"^",","), rc );
+}
+
+#**
+#*	The new "wrapper" for menu_select_item() function.
+#*	The function performs a menu_select_item() using the value from the data 
+#*	table.
+#* <p>FRM-GUI-TYPE:
+#*	navigation (read-only)
+#* <p>TEST DATA FORMAT:
+#*	String containing logical name or the index (e.g. #1) of the tab to be 
+#*	selected.
+#* <p>SET-MODE:
+#*	The function reads the value from the data table and uses it as a parameter
+#*	to a native menu_select_item() function.
+#* <p>CHK-MODE:
+#*	Not supported for type: navigation!
+#*	There is nothing to be checked with menu_select_item().
+#*	Behaves the same as the SET-mode! 
+#* <p>ATR-MODE:
+#*	Not supported for type: navigation!
+#*	Behaves the same as the SET-mode! 
+#* <p>GEN-MODE:
+#*	Not supported for type: navigation!
+#*	Ignores the cell (i.e. skips the cell).
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param timeout	(in)	(optional) sometimes menues aren't reaady when WR thinks
+#*	                they are; use the &lt;timeout&gt; to force the function
+#*	                menu_wait_info( object, "enabled", timeout ) to be called
+#*	                before the actual menu_select_item() is invoked.
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_menu_select_item1 ( in table, in test, in timeout )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+	case FRM_ATR_MODE:
+		rc = FRM_SET_menu_select_item1( table, test, timeout ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_menu_select_item1( table, test ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_menu_select_item1
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_menu_select_item1 ( in table, in test, in timeout )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	# watch this!
+	if ( timeout*1 > 0 )
+	{
+		rc = EMOS_menu_wait_info1( val, "enabled", 1, timeout*1 );
+	} 
+	FRM_log_frm_info( table, test, val );
+#	FRM_log_obj_info( object );
+	return FRM_rc2( EMOS_menu_select_item1( val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_menu_select_item1
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_menu_select_item1 ( in table, in test )
+{
+	FRM_skip( table );
+}
+
+#**
+#*	A standard "wrapper" for menu_select_item() function.
+#*	The function performs a menu_select_item() using the value from the data 
+#*	table.
+#* <p>FRM-GUI-TYPE:
+#*	navigation (read-only)
+#* <p>TEST DATA FORMAT:
+#*	String containing logical name or the index (e.g. #1) of the tab to be 
+#*	selected.
+#* <p>SET-MODE:
+#*	The function reads the value from the data table and uses it as a parameter
+#*	to a native menu_select_item() function.
+#* <p>CHK-MODE:
+#*	Not supported for type: navigation!
+#*	There is nothing to be checked with menu_select_item().
+#*	Behaves the same as the SET-mode! 
+#* <p>ATR-MODE:
+#*	Not supported for type: navigation!
+#*	Behaves the same as the SET-mode! 
+#* <p>GEN-MODE:
+#*	Not supported for type: navigation!
+#*	Ignores the cell (i.e. skips the cell).
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param timeout	(in)	(optional) sometimes menues aren't reaady when WR thinks
+#*	                they are; use the &lt;timeout&gt; to force the function
+#*	                menu_wait_info( object, "enabled", timeout ) to be called
+#*	                before the actual menu_select_item() is invoked.
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_menu_select_item ( in table, in test, in timeout )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+	case FRM_ATR_MODE:
+		rc = FRM_SET_menu_select_item( table, test, timeout ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_menu_select_item( table, test ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_menu_select_item
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_menu_select_item ( in table, in test, in timeout )
+{
+	auto val;
+	auto arr[], count;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	# watch this!
+	if ( timeout*1 > 0 )
+	{
+		rc = menu_wait_info( val, "enabled", 1, timeout*1 );
+	} 
+	FRM_log_frm_info( table, test, val );
+	count = split( val, arr, ";" );
+	FRM_log_obj_info( arr[count] );
+	return FRM_rc2( menu_select_item( val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_menu_select_item
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_menu_select_item ( in table, in test )
+{
+	FRM_skip( table );
+}
+
+#**
+#*	A standard "wrapper" for tab_select_item() function.
+#*	The function performs a tab_select_item() on a specified &lt;object&gt; using the 
+#*	value from the data table.
+#* <p>FRM-GUI-TYPE:
+#*	navigation (read-only, can be generated)
+#* <p>TEST DATA FORMAT:
+#*	String containing logical name or the index (e.g. #1) of the tab to be 
+#*	selected.
+#* <p>SET-MODE:
+#*	The function reads the value from the data table and uses it as a parameter
+#*	to a native tab_select_item() function.
+#* <p>CHK-MODE:
+#*	Not supported for type: navigation!
+#*	One could check whether a tab is selected. In practice however this is not
+#*	as much used and in FRM concept soon becomes irritating. For this reason
+#*	we have implemnted this function as type navigation which means that
+#*	checking is not supported (although we do have the code for it).
+#*	Behaves the same as the SET-mode! 
+#* <p>ATR-MODE:
+#*	Checks the content of the specified object attributes using tab_get_info()
+#*	and match().
+#*	Attribues are specified in pairs <code>attribute:value</code>. If more than
+#*	a single atribute needs to be checked, each pair must be separated with a
+#*	newline character (in Excel: Alt-Return).
+#* <p>GEN-MODE:
+#*	Supported although type: navigation!
+#*	We have found it practical to generate the tab name/index although we
+#*	ignore it in CHK mode.
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	GUI-object where actions are to be performed
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_tab_select_item ( in table, in test, in object )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+		rc = FRM_SET_tab_select_item( table, test, object ); break;
+	case FRM_ATR_MODE:
+		rc = FRM_ATR_tab_select_item( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_tab_select_item( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_tab_select_item
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_tab_select_item ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	return FRM_rc2( tab_select_item( object, val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_CHK_tab_select_item
+#-------------------------------------------------------------------------------
+
+static function FRM_CHK_tab_select_item ( in table, in test, in object )
+{
+	auto val;
+	auto item = "";
+	auto num;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = tab_get_selected( object, item, num );
+	if ( rc == E_OK )
+	{
+		if ( val != item && val != "#"&num )
+			rc = E_DIFF;
+	}
+	return FRM_rc2( rc, val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_ATR_menu_select_item1
+#-------------------------------------------------------------------------------
+
+static function FRM_ATR_tab_select_item ( in table, in test, in object )
+{
+	auto val, attr, info;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	while ( rc == E_OK && EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=tab_get_info( object, attr, val );
+		rc+=FRM_rc2( !match(val, info), "attr: " & attr & " expected: " & info & " found:" & val );
+	}
+	return rc;
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_tab_select_item
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_tab_select_item ( in table, in test, in object )
+{
+	auto item = "";
+	auto num;
+	auto rc = obj_exists( object );
+	if ( rc == E_OK )
+	{
+		rc = tab_get_selected( object, item, num );
+		if ( rc == E_OK && item == "" )
+			item = "#" & num;
+	}
+	FRM_GEN_set( table, test, object, item, rc );
+}
+
+#**
+#*	A standard "wrapper" for button_press() function.
+#*	You may use the function in two ways. 
+#*	1.) If you specify the &lt;object&gt;, then the value from the data table is 
+#*	    evaluated. If the value resambles to Yes, the &lt;object&gt; is "pressed". 
+#*	2.) If you do not provide the &lt;object&gt; parameter, then the value from the
+#*	    data table is used as the name of the object to be "pressed".
+#*	The second alternative is an elegant way of pressing on OK, Cancel and
+#*	similar buttons.
+#* <p>FRM-GUI-TYPE:
+#*	navigation (read-only)
+#* <p>TEST DATA FORMAT:
+#*	String containing either Y/YES/ON (or german equivalent J/JA/ON) or
+#*	the logical name of the button to be pressed.
+#* <p>SET-MODE:
+#*	The function reads the value from the data table and uses it as a parameter
+#*	to a native button_press() function according to aforementioned description.
+#* <p>CHK-MODE:
+#*	Not supported for type: navigation!
+#*	There is nothing to be checked with button_press().
+#*	Behaves the same as the SET-mode! 
+#* <p>ATR-MODE:
+#*	Checks the content of the specified object attributes using button_check_info().
+#*	Attribues are specified in pairs <code>attribute:value</code>. If more than
+#*	a single atribute needs to be checked, each pair must be separated with a
+#*	newline character (in Excel: Alt-Return).
+#* <p>GEN-MODE:
+#*	Not supported for type: navigation!
+#*	Ignores the cell (i.e. skips the cell).
+#*
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	(optional) GUI-object where actions are to be performed
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_button_press ( in table, in test, in object )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+		rc = FRM_SET_button_press( table, test, object ); break;
+	case FRM_ATR_MODE:
+		rc = FRM_ATR_button_press( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_button_press( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_button_press
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_button_press ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	# if <object> not defined,then use <val> as object and just press
+	if( object == "" )
+	{
+    	FRM_log_obj_info( val );
+		return FRM_rc2( button_press( val ), val );
+	}
+	# else of <object> defined, then pres only if <val> == "ja" or "on"
+	switch ( tolower( val ) )
+	{
+		case "j":
+		case "ja":
+		case "y":
+		case "yes":
+		case "on":	
+			break;
+		default:
+			return E_OK;
+	}
+   	FRM_log_obj_info( object );
+	return FRM_rc2( button_press( object ), object );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_ATR_button_press
+#-------------------------------------------------------------------------------
+
+static function FRM_ATR_button_press ( in table, in test, in object )
+{
+	auto val, attr, info;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	# if no object defined, no attributes can be tested
+	if( object == "" )
+	{
+		return E_OK;
+	}	
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	while ( rc == E_OK && EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( button_check_info(object, attr, info), "attr: " & attr & " expected: " & info & " found:" & val );
+	}
+	return rc;
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_button_press
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_button_press ( in table, in test, in object )
+{
+	FRM_skip( table );
+}
+
+#**
+#*	A standard "wrapper" for toolbar_button_press() function.
+#*	The function performs a toolbar_button_press() on a specified &lt;object&gt;
+#*	using the value from the data table.
+#* <p>FRM-GUI-TYPE:
+#*	navigation (read-only)
+#* <p>TEST DATA FORMAT:
+#*	String containing either the logical name of the toolbar button or the
+#*	index (e.g. #1).
+#* <p>SET-MODE:
+#*	The function reads the value from the data table and uses it as a parameter
+#*	to a native toolbar_button_press() function.
+#* <p>CHK-MODE:
+#*	Not supported for type: navigation!
+#*	There is nothing to be checked with toolbar_button_press().
+#*	Behaves the same as the SET-mode! 
+#* <p>ATR-MODE:
+#*	Not implemented yet!
+#* <p>GEN-MODE:
+#*	Not supported for type: navigation!
+#*	Ignores the cell (i.e. skips the cell).
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	GUI-object where actions are to be performed
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_toolbar_button_press ( in table, in test, in object )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+	case FRM_CHK_MODE:
+	case FRM_ATR_MODE:
+		rc = FRM_SET_toolbar_button_press( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_toolbar_button_press( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_toolbar_button_press
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_toolbar_button_press ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	rc = FRM_rc2( toolbar_button_press( object, val ), val );
+	# Toolbars oft kommen mit Tooltext was u.U. andere Aktionen
+	# verhindern könnte (z.B. Reiter werden nicht gefunden)
+	# Um das zu verhindern bewegen wir mit der folgender Zeile
+	# die Maus aus der "Gefahrenzone" raus. 
+	move_locator_abs( 1, 1 );
+	return rc;
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_toolbar_button_press
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_toolbar_button_press ( in table, in test, in object )
+{
+	FRM_skip( table );
+}
+
+#**
+#*	A standard "wrapper" for button_set() function.
+#*	The function performs a button_set() on a specified &lt;object&gt; using the
+#*	value from the data table. You can use it for both radio buttons and
+#*	check buttons. The supported states are ON and OFF. DIMMED is not supported.
+#* <p>FRM-GUI-TYPE:
+#*	data-entry (read/write)
+#* <p>TEST DATA FORMAT:
+#*	String containing either Y/YES/ON or N/NO/OFF (or German version J/JA/ON and
+#*	N/NEIN/OFF).
+#* <p>SET-MODE:
+#*	The function evaluates the value from the data table. If Yes, the &lt;object&gt;
+#*	is set to ON. Otherwise the &lt;object&gt; is set to OFF.
+#* <p>CHK-MODE:
+#*	The function evaluates the value from the data table. If Yes, the &lt;object&gt;
+#*	is expected to be in ON-state. Otherwise the &lt;object&gt; is expected to be in
+#*	OFF-state.
+#* <p>ATR-MODE:
+#*	Checks the content of the specified object attributes using button_check_info().
+#*	Attribues are specified in pairs <code>attribute:value</code>. If more than
+#*	a single atribute needs to be checked, each pair must be separated with a
+#*	newline character (in Excel: Alt-Return).
+#* <p>GEN-MODE:
+#*	The evaluates the state of the &lt;object&gt;. If ON, then "ON" is generated.
+#*	If OFF, then "OFF" is generted. If any other state is determined (e.g.
+#*	DIMMED), then "???" is generated. Nonexisting objects are silently ignored.
+#*
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param object	(in)	GUI-object where actions are to be performed
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_button_set ( in table, in test, in object )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+		rc = FRM_SET_button_set( table, test, object ); break;
+	case FRM_CHK_MODE:
+		rc = FRM_CHK_button_set( table, test, object ); break;
+	case FRM_ATR_MODE:
+		rc = FRM_ATR_button_set( table, test, object ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_button_set( table, test, object ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_button_set
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_button_set ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	val = tolower( val );
+	switch ( val )
+	{
+		case "j":
+		case "ja":
+		case "y":
+		case "yes":
+		case "on":	
+			val = ON;
+			break;
+		case "n":
+		case "no":
+		case "nein":
+		case "off":
+			val = OFF;
+			break;
+		default:
+			val = OFF;
+	}
+	return FRM_rc2( button_set( object, val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_CHK_button_set
+#-------------------------------------------------------------------------------
+
+static function FRM_CHK_button_set ( in table, in test, in object )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	val = tolower( val );
+	switch ( val )
+	{
+		case "j":
+		case "ja":
+		case "y":
+		case "yes":
+		case "on":	
+			val = ON;
+			break;
+		case "n":
+		case "no":
+		case "nein":
+		case "off":
+			val = OFF;
+			break;
+		default:
+			val = OFF;
+	}
+	return FRM_rc2( button_check_state( object, val ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_ATR_button_set
+#-------------------------------------------------------------------------------
+
+static function FRM_ATR_button_set ( in table, in test, in object )
+{
+	auto val, attr, info;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	rc = EMOS_ATTR_init_list( val );
+	while ( rc == E_OK && EMOS_ATTR_has_more() )
+	{
+		rc+=EMOS_ATTR_get_next( attr, info );
+		rc+=FRM_rc2( button_check_info( object, attr, info ), "attr: '" & attr & "' value: '" & info & "'" );
+	}
+	return rc;
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_button_set
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_button_set ( in table, in test, in object )
+{
+	auto val = "";
+	auto num;
+	auto rc = obj_exists( object );
+	if ( rc == E_OK )
+	{
+		rc = button_get_state( object, val );
+		switch ( val )
+		{
+		case ON:	val = "ON"; break;
+		case OFF:	val = "OFF"; break;
+		default:	val = "???";
+		}
+	}
+	FRM_GEN_set( table, test, object, val, rc );
+}
+
+#**
+#*	Convenience function for GUI constructs consisting of two radio buttons
+#*	where one stands for "yes" and the other one for "no". A special-purpose 
+#*	"wrapper" for button_set() function.
+#* <p>FRM-GUI-TYPE:
+#*	data-entry (read/write)
+#* <p>TEST DATA FORMAT:
+#*	String containing either "Yes"/"No", "Y"/"N" or the German equivalent
+#*	( "Ja"/"Nein", "J"/"N")
+#* <p>SET-MODE:
+#*	The function evaluates the value from the data table. In case of Yes,
+#*	the &lt;yesObject&gt; is set. Otherwise &lt;noObject&gt; is set.
+#* <p>CHK-MODE:
+#*	The function evaluates the value from the data table. In case of Yes,
+#*	the &lt;yesObject&gt; is expected to be set. Otherwise &lt;noObject&gt; is expected
+#*	to be set.
+#* <p>ATR-MODE:
+#*	Not implemented! Behaves the same as CHK-MODE. If you need this functionallity,
+#*	then you maust define each individual button and use FRM_button_set().
+#* <p>GEN-MODE:
+#*	The function first evaluates the &lt;yesObject&gt;. If set, then "Y" is generated.
+#*	Otherwise the &lt;noObject&gt; is evaluated. If set, then "N" is generated.
+#*	If either none of objects exist or none of them is set, then no data is
+#*	generated.
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param yesObject	(in)logical name of the Yes radio button
+#* @param noObject	(in)logical name of the No radio button
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_button_set_YesNo ( in table, in test, in yesObject, in noObject )
+{
+	return FRM_button_set_JaNein ( table, test, yesObject, noObject );
+}
+
+#**
+#*	German version of FRM_button_set_YesNo.
+#*
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param jaObject	(in)	logical name of the Yes radio button
+#* @param neinObject	(in)	logical name of the No radio button
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#* @see FRM_button_set_YesNo
+#*/
+public function FRM_button_set_JaNein ( in table, in test, in jaObject, in neinObject )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+		rc = FRM_SET_button_set_JaNein( table, test, jaObject, neinObject ); break;
+	case FRM_CHK_MODE:
+	case FRM_ATR_MODE:
+		rc = FRM_CHK_button_set_JaNein( table, test, jaObject, neinObject ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_button_set_JaNein( table, test, jaObject, neinObject ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_button_set_JaNein
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_button_set_JaNein ( in table, in test, in jaObject, in neinObject )
+{
+	auto object;
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	switch ( tolower( val ) )
+	{
+		case "j":
+		case "ja":
+		case "y":
+		case "yes":
+			object = jaObject;
+			break;
+		default:
+			object = neinObject;
+	}
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	return FRM_rc2( button_set( object, ON ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_CHK_button_set_JaNein
+#-------------------------------------------------------------------------------
+
+static function FRM_CHK_button_set_JaNein ( in table, in test, in jaObject, in neinObject )
+{
+	auto object;
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	switch ( tolower( val ) )
+	{
+		case "j":
+		case "ja":
+		case "y":
+		case "yes":
+			object = jaObject;
+			break;
+		default:
+			object = neinObject;
+	}
+	FRM_log_frm_info( table, test, val );
+   	FRM_log_obj_info( object );
+	return FRM_rc2( button_check_state( object, ON ), val );
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_button_set_JaNein
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_button_set_JaNein ( in table, in test, in jaObject, in neinObject )
+{
+	auto val = "";
+	auto rc;
+	if ( obj_exists( jaObject ) == E_OK )
+	{
+		rc = button_get_state( jaObject, val );
+		if ( rc == E_OK && val == ON )
+		{
+			FRM_GEN_set( table, test, jaObject, "Y", rc );
+			return;
+		}
+	}
+	if ( obj_exists( neinObject ) == E_OK )
+	{
+		rc = button_get_state( neinObject, val );
+		if ( rc == E_OK && val == ON )
+		{
+			FRM_GEN_set( table, test, neinObject, "N", rc );
+			return;
+		}
+	}
+	FRM_skip( table );
+}
+
+#**
+#*	Convenience function for a group of related	radio buttons. 
+#*  A special-purpose "wrapper" for button_set() function.
+#*	The function accepts a vector (one-dimensional array) containing names of
+#*	the radio buttons (GUI map) indexed by some keyword. The keywords are used
+#*	in data tables to identify particular button and can differ from the
+#*	actual object name.
+#*	In this way one can address multiple radio buttons (one at a time) with
+#*	one data cell.
+#* <p>FRM-GUI-TYPE:
+#*	data-entry (read/write)
+#* <p>TEST DATA FORMAT:
+#*	String containing the keyword which identifies the particular radio button.
+#* <p>SET-MODE:
+#*	The function reads the keyword from the data table. It then tries to set the
+#*	button indexed by the particular keyword.
+#* <p>CHK-MODE:
+#*	The function reads the keyword from the data table. It then checks whether
+#*	the button indexed by the particular keyword is set.
+#* <p>ATR-MODE:
+#*	Not implemented! Behaves the same as CHK-MODE. If you need this functionallity,
+#*	then you maust define each individual button and use FRM_button_set().
+#* <p>GEN-MODE:
+#*	The function scans the &lt;objArr&gt; in a random sequence and checks if the
+#*	particular object (radio button) is set. If yes, then the corresponding
+#*	keyword is generated as test data. Object that do not exist are silently
+#*	ignored.
+#* @param table	(in)	table name
+#* @param test	(in)	test name (column)
+#* @param objArr[]	(inout) a vector containing logical GUI object names indexed
+#*	                by the keyword. NOTE: make sure to specify keywords in
+#*	                lowercase!!!
+#* @return
+#*	E_OK:	operation successful
+#*	!E_OK:	operation failed
+#*/
+public function FRM_radio_button_set ( in table, in test, inout objArr[] )
+{
+	auto rc;
+	wrlog_prim_start();
+	switch ( FRM_get_mode( table ) )
+	{
+	case FRM_SET_MODE:
+		rc = FRM_SET_radio_button_set( table, test, objArr ); break;
+	case FRM_CHK_MODE:
+	case FRM_ATR_MODE:
+		rc = FRM_CHK_radio_button_set( table, test, objArr ); break;
+	case FRM_GEN_MODE:
+		rc = FRM_GEN_radio_button_set( table, test, objArr ); break;
+	default:
+		rc = E_FRM_ILLEGAL_MODE;
+	}
+	wrlog_prim_stop( rc );
+	return (rc==E_FRM_SKIP ? E_OK : rc);
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_SET_radio_button_set
+#-------------------------------------------------------------------------------
+
+static function FRM_SET_radio_button_set ( in table, in test, inout objArr[] )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	val = tolower( val );
+	if ( val in objArr )
+	{
+       	FRM_log_obj_info( objArr[val] );
+		return FRM_rc2( button_set( objArr[val], ON ), val );
+	}
+	return E_NOT_FOUND;
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_CHK_radio_button_set
+#-------------------------------------------------------------------------------
+
+static function FRM_CHK_radio_button_set ( in table, in test, inout objArr[] )
+{
+	auto val;
+	auto rc = FRM_get_next( table, test, val );
+	if ( rc != E_OK ) 
+    	return rc;
+	FRM_log_frm_info( table, test, val );
+	val = tolower( val );
+	if ( val in objArr )
+	{
+       	FRM_log_obj_info( objArr[val] );
+		return FRM_rc2( button_check_state( objArr[val], ON ), val );
+	}
+	return E_NOT_FOUND;
+}
+
+#-------------------------------------------------------------------------------
+# FUNCTION: FRM_GEN_radio_button_set
+#-------------------------------------------------------------------------------
+
+static function FRM_GEN_radio_button_set ( in table, in test, inout objArr[] )
+{
+	auto val;
+	auto i;
+	auto rc;
+	for ( i in objArr )
+	{
+		if ( obj_exists( objArr[i] == E_OK ) )
+		{
+			rc = button_get_state( objArr[i], val );
+			if ( rc == E_OK && val == ON )
+			{
+				FRM_GEN_set( table, test, objArr[i], i, rc );
+				return;
+			}
+		}
+	}
+	FRM_skip( table );	
+}
+
+################################################################################
+# TSL-LIBRARY:	FRM_GUI_Lib
+################################################################################

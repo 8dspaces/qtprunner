@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_ATTR_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.2 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2004/11/07 22:26:27 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/STD/emos_std_attr_lib/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/***
+#* This library implements the iterator ot the attribute list that is used
+#* in framework's ATR mode.
+#*/</font></i><font color=black>
+
+<b>static</b> attrs[];
+<b>static</b> attrCount = 0;
+<b>static</b> currAttr  = 0;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#*
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_ATTR_init_list( <b>in</b> list )
+{
+	<b>auto</b> arr[], arr2[];
+	<b>auto</b> count, count2;
+	<b>auto</b> i;
+	</font><font color="#ff0000"><i># reset the old values</font></i><font color=black>
+	<b>for</b> ( i <b>in</b> attrs ) delete attrs[i];
+	attrCount = 0;
+	currAttr = 0;
+	
+	</font><font color="#ff0000"><i># attr-info pairs are split by newlines</font></i><font color=black>
+	count = split( list, arr, </font><font color="#00bb00">"\n"</font><font color=black> );
+	<b>if</b> ( count &lt; 1 )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+	<b>for</b> ( i=0; i&lt;count; i++ )
+	{
+		</font><font color="#ff0000"><i># attr and info are split by colon </font></i><font color=black>
+		</font><font color="#ff0000"><i># however since the colon may be the content of the value-part</font></i><font color=black>
+		</font><font color="#ff0000"><i># we split the string after the first colon found</font></i><font color=black>
+		count2 = index( arr[i+1], </font><font color="#00bb00">":"</font><font color=black> );
+		<b>if</b> ( count2 == 0 )
+			<b>return</b> E_ILLEGAL_PARAMETER;
+		attrs[i,0] = strip_both( substr( arr[i+1], 1, count2-1 ) );
+		attrs[i,1] = strip_both( substr( arr[i+1], count2+1 ) );
+		attrCount++;
+	}
+	currAttr = 0;
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#*
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_ATTR_has_more()
+{
+	<b>return</b> ( attrCount &gt; currAttr );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#*
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_ATTR_get_next( <b>out</b> attr, <b>out</b> info )
+{
+	<b>if</b> ( !EMOS_ATTR_has_more() )
+		<b>return</b> E_OUT_OF_RANGE;
+	attr = attrs[currAttr, 0];
+	info = attrs[currAttr, 1];
+	currAttr++;
+	<b>return</b> E_OK;
+}
+</pre></body></html>

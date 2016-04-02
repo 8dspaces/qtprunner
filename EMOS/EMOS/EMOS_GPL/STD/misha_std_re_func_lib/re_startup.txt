@@ -1,0 +1,7 @@
+########### add to startup script ########################
+
+# from function library
+load(getenv("M_ROOT") & "\\lib\\re_func", 1, 1);
+re_func_init();
+
+#------------------------------------------------------

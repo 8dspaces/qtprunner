@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># LIB: &lt;name&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.3 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/28 11:18:42 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/TPL/Scripts/LIB/FRM/frm_lib1_lib/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_testblock ( <b>in</b> table, <b>in</b> test, <b>in</b> idx, <b>in</b> mode )
+{
+	<b>auto</b> rc;
+	<b>auto</b> val;
+	rc = FRM_init_block( table, test, idx, mode );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	</font><font color="#ff0000"><i># see FlightDemo example for a more realistic example</font></i><font color=black>
+	</font><font color="#ff0000"><i># which is available as a separate download due to its size</font></i><font color=black>
+	rc = FRM_get_next( table, test, val );
+	pause( val );
+	<b>return</b> rc;
+}
+</pre></body></html>

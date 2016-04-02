@@ -1,0 +1,582 @@
+################################################################################
+# TSL-LIBRARY:	EMOS_STD_menue_lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straße 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.1.1.1 $
+# $Author: drajovic $
+# $Date: 2004/03/24 20:14:03 $
+# $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/STD/emos_std_menue_lib/script $
+# $NoKeywords: $
+################################################################################
+
+#**#
+#*	This library contains alternative implementations for standard functions
+#*	that operate on menues (menu_x() functions).
+#*	Another sort of functions in this library are functions that implement some
+#*	additional functionality that would probably fit into Mercury's logic
+#*	for menu_x() functions.
+#*/
+
+static const COMPLETE_PATH = 1;
+static const LAST_ENTRY = 2;
+
+static menu_selection_mode = LAST_ENTRY;
+
+#**
+#*	Call this function to cause menu_select_item to select the complete menu path.
+#*  <p>Note:<br>
+#*  Behaves the same as WinRunner, the only problem is that it does not always work.
+#*/
+
+public function EMOS_menu_set_complete_path_selection()
+{
+    menu_selection_mode = COMPLETE_PATH;
+}
+
+#**
+#*	Call this function to cause menu_select_item to select only the last item
+#*  instead of the complete menu path.
+#*  <p>Example:<br>
+#*     instead of calling menu_select_item( "aaa;bbb;ccc" )<br>
+#*     this mode causes menu_select_item( "ccc" ) to be called
+#*  <p>Note:<br>
+#*  This is the default mode.<br>
+#*  It uses an undocumented feature of WR that appears to work more often than
+#*  the documented one.
+#*/
+
+public function EMOS_menu_set_last_entry_selection()
+{
+    menu_selection_mode = LAST_ENTRY;
+}
+
+#**
+#*	Returns TRUE if COMPLETE_PATH selection is activated.
+#* @return TRUE if COMPLETE_PATH selection FALSE otherwise
+#*/
+
+public function EMOS_menu_is_complete_path_selection()
+{
+    return (menu_selection_mode == COMPLETE_PATH) ? TRUE : FALSE;
+}
+
+#**
+#*	Returns TRUE if LAST_ENTRY selection is activated.
+#* @return TRUE if LAST_ENTRY selection FALSE otherwise
+#*/
+
+public function EMOS_menu_is_last_entry_selection()
+{
+    return (menu_selection_mode == LAST_ENTRY) ? TRUE : FALSE;
+}
+
+#**
+#*	This function is specially designed for a particular DOS application. This
+#*	application has its own representation of a menu bar. WinRunner is capable
+#*	of recognising text within the menu bar.
+#*	This function clicks on a particular string (item) within the menu bar.
+#*<p> NOTE!
+#*	Please note that position and size of the menu bar is hard-coded.
+#* @param win (in)	name of the window that contains the menu bar
+#* @param item (in)	the string to be selected
+#* @return
+#*	E_OK:	Success
+#*	!E_OK:	Error
+#*/
+
+public function DOS_menu_select_item( in win, in item )
+{
+	auto rc, arr[], i;
+	rc=win_find_text( win, item, arr, 5, 23, 1024, 45, TRUE );
+	if ( rc != E_OK )
+		return rc;
+	return win_mouse_click( win, arr[1], arr[2]-23 );
+}
+
+#**
+#* This function clicks on a menu item without requiring items to be learned.
+#* @param item the item to be selected
+#* @param win [optional] window where actions are to be performed
+#* @return 
+#*	E_OK: cuccess
+#*	!E_OK: failure
+#*/
+public function EMOS_menu_select_item1 ( in item, in win )
+{
+	auto dummy;
+	return EMOS_menu_item ( "sel", item, dummy, dummy, dummy, dummy, win );
+}
+
+#**
+#* This function returns the info of a menu item without requiring items to be learned.
+#* @param item the item to be selected
+#* @param attr attribute to be examined
+#* @param info (out) info retrieved
+#* @param win [optional] window where actions are to be performed
+#* @return 
+#*	E_OK: cuccess
+#*	!E_OK: failure
+#*/
+public function EMOS_menu_get_info1 ( in item, in attr, out info, in win )
+{
+	auto dummy;
+	return EMOS_menu_item ( "get", item, attr, dummy, info, dummy, win );
+}
+
+#**
+#* This function waits for the info of a menu item without requiring items to be learned.
+#* @param item the item to be selected
+#* @param attr attribute to be examined
+#* @param info info to be waited for
+#* @param time [optional] time to be waited for
+#* @param win [optional] window where actions are to be performed
+#* @return 
+#*	E_OK: cuccess
+#*	!E_OK: failure
+#*/
+public function EMOS_menu_wait_info1 ( in item, in attr, in info, in time, in win )
+{
+	auto dummy;
+	return EMOS_menu_item ( "wait", item, attr, info, dummy, time, win );
+}
+
+#**
+#* This function compares the expected with the actual info of a menu item without requiring items to be learned.
+#* @param item the item to be selected
+#* @param attr attribute to be examined
+#* @param info info to be checked
+#* @param win [optional] window where actions are to be performed
+#* @return 
+#*	E_OK: cuccess
+#*	!E_OK: failure
+#*/
+public function EMOS_menu_check_info1 ( in item, in attr, in info, in win )
+{
+	auto dummy;
+	return EMOS_menu_item ( "chk", item, attr, info, dummy, dummy, win );
+}
+
+#**
+#* This function implements the actual logic for processing menu items that are not in the GUI-map.
+#* @param action action to be performed
+#* @param item the item to be selected
+#* @param attr [optional] attribute to be examined
+#* @param inInfo [optional] info to be used
+#* @param outInfo (out) [optional] info to be returned
+#* @param time [optional] time to be waited for
+#* @param win [optional] window where actions are to be performed
+#* @return 
+#*	E_OK: cuccess
+#*	!E_OK: failure
+#*/
+
+static function EMOS_menu_item ( in action, in item, in attr, in inInfo, out outInfo, in time, in window )
+{
+	static const SEP = ";";
+	static const MENWIN = "EMOS_menu_win";
+	static const MENFILE = getenv( "TMP" ) & "\\" & "EMOSmenu";
+	auto win = (window == "") ? GUI_get_window() : window;
+
+	auto arr[], count, i;
+	auto descr, desc, info;
+	auto item_i, item_n;
+	auto rc;
+	
+	count = split( item, arr, SEP );
+	if ( count < 1 )
+		return E_ILLEGAL_PARAMETER;
+
+	# create & load a temporary GUI-file
+	rc =GUI_close( MENFILE );
+	rc+=GUI_buf_new( MENFILE );
+	rc+=GUI_load( MENFILE );
+	rc+=GUI_map_get_desc ( win, "", descr, info );
+	rc+=GUI_add( MENFILE, MENWIN, "", descr );
+	if ( rc != E_OK )
+		return rc;
+
+	# create the temporary item(s) using names 1;2;...
+	for ( i=1; i<count+1; i++ )
+	{
+		item_i = ( i == 1  ? i : item_i & SEP & i );
+		item_n = ( i == 1 ? arr[i] : item_n & SEP & arr[i] );
+		if ( match( arr[i], "#[0-9][0-9]*" ) == 1 )
+		{
+			desc = sprintf( "{ class: menu_item, parent: %s, position: %d }"
+						, (i==1 ? "none" : i-1)
+						, substr(arr[i], 2)-1 ); # position has offset 0
+		}
+		else
+		{
+			desc = sprintf( "{ class: menu_item, parent: %s, label: \"%s\" }"
+						, (i==1 ? "none" : i-1)
+						, arr[i] );
+		}
+		rc+=GUI_add( MENFILE, MENWIN, i, desc );
+	}
+	if ( rc != E_OK )
+	{
+		GUI_close( MENFILE );
+		return rc;
+	}
+	# perform the selection
+	rc+=set_window( MENWIN );
+
+    # watch this trick
+    # menu_select_item() is unreliable in its documented form which says
+    # that subitems must be comma-separated (e.g. menu_select_item( "File;New..." );
+    # It appears that menu_select_item( "New..." ) not only works but it is also more reliable.
+    # Here we decide what entry is going to be used
+
+    if ( EMOS_menu_is_last_entry_selection() )
+        item_i = i-1;
+
+	FRM_log_obj_info( item_i );
+    
+	switch ( action )
+	{
+		case "sel":
+            rc+=menu_select_item( item_i );
+			break;
+		case "get":
+			rc+=menu_get_info( item_i, attr, outInfo );
+			break;
+		case "wait":
+			rc+=menu_wait_info( item_i, attr, inInfo, time );
+			break;
+		case "chk":
+			rc+=menu_get_info( item_i, attr, info );
+			if ( info == inInfo )
+			{
+				tl_step( "EMOS_menu_check_info", PASS, sprintf("attr:%s, info:%s", attr, inInfo) );
+			}
+			else
+			{
+				tl_step( "EMOS_menu_check_info", FAIL, sprintf("attr:%s, exp:%s, act:%s", attr, inInfo, info) );
+				rc+=E_MISMATCH;
+			}
+			break;
+		default:
+			rc+=E_ILLEGAL_PARAMETER;
+			break;
+	}
+
+	# remove the temporary GUI-file
+	rc+=GUI_close( MENFILE );
+	#switch back to the original window (if possble)
+	if ( win_exists( win ) == E_OK )
+		rc+=set_window( win );
+	return rc;
+}
+
+#**
+#* This function clicks on a menu item without requiring items to be learned by
+#* untilysing the WinRunner's text recognition  cpabilities.
+#* <p>NOTE<p>
+#*	This is an alternative to EMOS_menu_item() when this one does not seem to be
+#*	stable enough (e.g. position of menu entries changes too often).
+#*	This worked in very well for some applications that we were punished to test.
+#*
+#* @param item the item to be selected
+#* @param arg_win_desc (in) (optional) physical menu window description [default: { class: object, MSW_id: 0, location: %d }]
+#* @return 
+#*	E_OK: cuccess
+#*	!E_OK: failure
+#*/
+
+
+public function EMOS_menu_item_via_text ( in item, in arg_win_desc )
+{
+	static const SEP = ";";
+	static const DEF_WIN_DESC = "{ class: object, MSW_id: 0, location: %d }"; 
+
+    auto win_desc;
+	auto arr[], count, i;
+	auto rc;
+	
+	if ( arg_win_desc == "" )
+	    win_desc = DEF_WIN_DESC;
+	else
+	    win_desc = arg_win_desc;
+	    
+	count = split( item, arr, SEP );
+	if ( count < 1 )
+		return E_ILLEGAL_PARAMETER;
+
+	for ( i=1; i<count+1; i++ )
+	{
+		rc+=win_exists( sprintf( win_desc, i-1 ) );
+#printf( "win=%s, exists=%s", sprintf( win_desc, i-1 ), rc );
+		if ( index( arr[i], " " ) )
+			rc+=win_move_locator_text ( sprintf( win_desc, i-1 ), arr[i], TRUE );
+		else
+			rc+=win_move_locator_text ( sprintf( win_desc, i-1 ), arr[i] );
+#printf( "%d: item=%s rc=%s", i, arr[i], rc );
+		if ( rc == E_OK )
+			click("Left", 2);
+	}
+	return rc;
+}
+
+#**
+#* This function clicks on a menu item without requiring items to be learned.
+#* NOTE: It was a nice try that at some point in time worked or at least seemed to.
+#* @param item the item to be selected
+#* @return 
+#*	E_OK: cuccess
+#*	!E_OK: failure
+#*/
+
+public function EMOS_menu_select_item2 ( in item )
+{
+	auto rc, descr;
+	rc = menu_get_desc( item, "class label parent", "class_index", "index", descr );
+	if ( rc != E_OK ) return rc;
+	return menu_select_item( descr );
+}
+
+#**
+#*	This function implements an alternative for native menu_select_item().
+#*	Try using it if the native function does not seem to work. For some
+#*	mysterious reason tis function indeed manages to select more items than the
+#*	native one. Note the different interface (parameter list).
+#*	If you need more info, I must disapoint you. You must either dig into the 
+#*	code yourself or try to get in touch with the author. I gave up.
+#* @param gui1 (in)	gui-File	
+#* @param win1 (in)	window
+#* @param men1 (in)	menu_item		
+#* @param win2 (inout)	window:	
+#*<pre>		win2 = "" , dann nur Path von menu_item gibt zurück.		
+#*		win2 = "*", dann sucht Name von Window in alle GUI-Filen
+#*	 			(wenn Sie wissen nicht, welche Window taucht auf).		
+#*		win2 # "*",dann sucht nicht (wenn Sie wissen, welche Window taucht auf).		
+#*</pre>
+#* @return
+#*	E_OK:	Erfolg
+#*	!E_OK:	 1	-	Object != menu-item or menu="sys_" or "parent"="none"
+#*			 3  -	menu-item existiert nicht aufm Bildschirm
+#*			 4	-	keine Beschreibung von aufgerufenem Fenster in GUI-Map 		
+#*			 5	-	Menu is disabled 		
+#*/
+
+public function EMOS_menu_select_item(in gui1, in win1, in men1, inout win2 )
+{
+	auto rc,gui2,men2;
+	
+	rc = menu_select_item1(gui1, win1, men1, 3, gui2, win2, men2);
+
+	return (rc);
+}
+
+#**
+#*	The empty (does nothing) exception handler needed for menu_select_item1().
+#* @param rc (in)
+#* @param func (in)
+#*/
+
+public function excep1(in rc, in func)
+{
+#		pause("Exception: rc=" & rc & ",   func=<\"" & func & "\">");
+}
+
+#===============================================================================
+# FUNCTION: menu_select_item1
+#===============================================================================
+# AUTHOR: Slavine
+# DESCRIPTION/PURPOSE:
+#	ruft auf belibiege menu_item
+# PARAMETERS:
+#	in  gui1 	- gui-File,		
+#	in  win1 	- window,	
+#	in  men1 	- menu_item,		
+#	in  ttt1	- warten (sec) auf neue window für menu_item(default 3 sec)  
+#	out gui2	- returns name von aufgerufener GUI-File für menu_item
+#	inout win2:	- window:	
+#		win2 = "" , dann nur Path von menu_item gibt zurück.		
+#		win2 = "*", dann sucht Name von Window in alle GUI-Filen
+#	 			wenn Sie wissen nicht, welche Window taucht auf.		
+#		win2 # "*",dann sucht nicht (wenn Sie wissen, welche Window taucht auf).		
+#
+#	out str_menu - returns string von menu_item (z.B. "File;Open...")	
+#
+# RETURN VALUE:
+#	E_OK:	Erfolg
+#	!E_OK:	 1	-	Object != menu-item or menu="sys_" or "parent"="none"
+#			 3  -	menu-item existiert nicht aufm Bildschirm
+#			 4	-	keine Beschreibung von aufgerufenem Fenster in GUI-Map 		
+#			 5	-	Menu is disabled 		
+#
+#===============================================================================
+#	z.B:
+#		win2 = "*";
+#		gui1 = GUI_HOME & "\\Schuecal2000.gui";
+#	 
+#	rc = open_menu(gui1,"Schuecal2000","Glaspreise",1,gui2, win2 ,str_menu);
+#	set_window(win2);
+#===============================================================================
+
+public function menu_select_item1( in gui, in win1, in men1, in ttt1, out gui2,
+													 inout win2, out menu_str)
+{
+		auto rc,rc1,desc1,t000,num_win,num_gui;
+		auto hWnd,hWnd1,hWnd2;
+		auto i,i0,i1,i2,i3,i4,i5,i6,i7,i8;
+		auto k0,k1,k2,k3,k4,k5,k6,k7,k8;
+		auto arr1[],windows[],gui1[];
+		auto rc11,rc12;
+
+#==== warten auf neue Window oder info ==========
+			if (ttt1 == 0) ttt1 = 3;
+#================================================
+
+		rc = GUI_buf_get_desc(gui,win1,men1,desc1);
+
+		if (    index(desc1,"menu_item")  ==  0 
+			 || substr(men1,1,4)  ==  "sys_"
+			 || substr(desc1,index(desc1,"parent:") + 8,6) == "\"none\"")
+			 return(1);
+		else
+		{
+			rc = GUI_list_buffers(gui1, num_gui);
+
+			i2 = 1;   i3 = 0;
+
+			while ( i2 <= length(desc1))
+			{
+				k0 = substr(desc1,i2);
+				i6 = index(k0,"label:");
+
+				if (i6 == 0)   break;
+				else
+				{ 
+					k1 = substr(k0,i6);
+					i4 = index(k1,"\"") + 1;
+					k2 = substr(k1, i4);
+
+					i5 = (index(k2,"\"")  <  index(k2,"\\") ) ? index(k2,"\"") - 1 : index(k2,"\\")  - 1;
+
+					arr1[++i3] = substr(k2,1,i5);
+						
+					i2 = i2 + i6 + i4 + i5 + 1;	
+				}
+			}
+
+			menu_str =  arr1[i3];
+			for( i7 = i3-1; i7 >=1; i7--)
+				menu_str = menu_str  &  ";"  &  arr1[i7];
+
+			EMOS_set_window(win1,10);
+				
+			load("win32api",1,1);
+			hWnd = GetForegroundWindow();
+
+			define_tsl_exception ("menu_get","excep1", E_ANY_ERROR,"menu_get_info");
+
+			t000 = getvar("timeout");	setvar("timeout",ttt1);
+
+#------------------------------------------------------
+			exception_on ("menu_get");
+				rc = menu_get_info(men1,"enabled",rc1);
+			exception_off ("menu_get");
+#------------------------------------------------------
+
+			setvar("timeout",t000);
+
+			if (rc   != 0)  return(3);
+			if (rc1  == 0)  return(5);
+			if (win2 == "") return(0);
+			
+			
+			define_tsl_exception ("set_win", "excep1", E_ANY_ERROR,"set_window");
+			define_tsl_exception ("menu_sel","excep1", E_ANY_ERROR,"menu_select_item");
+
+#------------------------------------------------------
+			exception_on ("menu_sel");
+				rc = menu_select_item (men1);
+			exception_off("menu_sel");
+#------------------------------------------------------
+
+			if (rc != 0)  return(3);
+
+			if (win2 != "*")
+			{
+				rc = EMOS_set_window(win2,ttt1);
+				return(0);
+			}
+
+			for( i7 = 1; i7 <= ttt1; i7++)
+			{
+				wait(1);
+				if (hWnd != GetForegroundWindow())	break;
+			}
+			if (i7 > ttt1)	return(0);	  # kein aufgerufene Fenster or selbst sich
+				
+			hWnd1 = GetForegroundWindow();
+
+
+			t000 = getvar("timeout");	setvar("timeout",0);
+
+			rc  = exception_on ("set_win");
+
+			for( i = 1; i <= num_gui; i++ )
+			{
+				rc = GUI_list_buf_windows(gui1[i],windows,num_win);
+	
+				for( i7 = 1; i7 <= num_win; i7++)
+				{
+					#-------------------------------
+					rc1 = set_window(windows[i7],0);
+					#-------------------------------
+				
+					if (rc1 == 0)
+					{
+						rc = win_get_info(windows[i7],"handle",hWnd2);
+
+						if (hWnd1 == hWnd2)
+						{
+							gui2 = gui1[i];
+							win2 = GUI_get_window();
+							break;
+						}
+					}
+				} 
+				if (hWnd1 == hWnd2) break;
+			} 
+			rc  = exception_off("set_win");
+			setvar("timeout",t000);
+
+			if (i7 <= num_win) return(0);
+			else			   return(4);
+		}
+}
+
+###########################################################################
+# TSL-LIBRARY:	EMOS_STD_menue_lib
+###########################################################################
+

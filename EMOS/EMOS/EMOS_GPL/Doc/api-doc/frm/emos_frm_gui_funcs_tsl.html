@@ -1,0 +1,513 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TEST:	EMOS_FRM_GUI_funcs</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This test is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This test is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this test; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.1.1.1 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2004/03/24 20:13:59 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/FRM/emos_frm_gui_funcs/script $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**# </font></i><font color=black>
+</font><font color="#ff0000"><i>#* This script defines function prototypes for selected public functions.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* The best way to load this is by calling generate_function_prototypes()</font></i><font color=black>
+</font><font color="#ff0000"><i>#* function from your startup script (after loading library "emos_libs"!).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>const</b> C0 = </font><font color="#00bb00">"EMOS"</font><font color=black>;
+<b>static</b> <b>const</b> C1 = </font><font color="#00bb00">"EMOS_FRM_GUI"</font><font color=black>;
+
+<b>static</b> <b>const</b> TE = </font><font color="#00bb00">"type_edit"</font><font color=black>;
+<b>static</b> <b>const</b> PO = </font><font color="#00bb00">"point_object"</font><font color=black>;
+
+<b>static</b> s1,s2;
+
+</font><font color="#ff0000"><i># generate categories</font></i><font color=black>
+
+rc = generator_add_category(C0);
+rc = generator_add_category(C1);
+rc = generator_add_subcategory(C0, C1);
+
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_win_type ( in table, in test, in window, in suffix, in force_suffix )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_win_type"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for win_type() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function performs a win_type() on a specified &lt;window&gt; using the value"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  from the data table."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  navigation (read-only)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing value to be typed."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function uses the value from the data table as a second parameter to the"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  win_type() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Not supported for type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  We could retrieve some text from the window and compare it. In practice is"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  this rather useless because there is either too much or no text all."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  For testing win_type() is normally only useful to check keyboard navigation"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  or when you have no other chance (e.g. DOS applications). In the second"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  case you would use the SET mode to completely drive the application (i.e."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  navigate and enter date) but you could hardly be able to check anything."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  There is some chance if font is known, so you could try with win_get_text()"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  and the like. "</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Behaves the same as the SET-mode!"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Not supported for type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Ignores the cell (i.e. skips the cell)."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,5,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"window:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>,
+		</font><font color="#00bb00">"suffix"</font><font color=black> ,TE,</font><font color="#00bb00">""</font><font color=black>,
+		</font><font color="#00bb00">"force_suffix"</font><font color=black>,TE,</font><font color="#00bb00">"FALSE"</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_obj_type ( in table, in test, in object, in suffix, in force_suffix )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_obj_type"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for obj_type() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function performs a obj_type() on a specified &lt;object&gt; using the value"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  from the data table."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  data-entry (read/write)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing value to be typed or checked."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function uses the value from the data table as a second parameter to the"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  obj_type() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function compares the value from the data table with the value returned"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  by obj_get_text(). Please note that comparison is case-sensitive."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Uses obj_get_text() to retrieve the content of the &lt;object&gt;. Note that"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  that no conversion takes place before generating the test data."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,5,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"object:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>,
+		</font><font color="#00bb00">"suffix"</font><font color=black> ,TE,</font><font color="#00bb00">""</font><font color=black>,
+		</font><font color="#00bb00">"force_suffix"</font><font color=black>,TE,</font><font color="#00bb00">"FALSE"</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_static_get ( in table, in test, in object )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_static_get"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for static_get_text() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function performs a static_get_text() on a specified &lt;object&gt; using the value"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  from the data table."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  data-entry (read)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing value to be set or checked."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Performs the same as in CHK mode."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function uses the value from the data table as a second parameter to"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  static_check_text() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Uses static_get_text() to retrieve the content of the edit object. Note that"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  an empty string is converted to &#92;&#34;&lt;&lt;clear&gt;&gt;&#92;&#34; as generated test data."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,3,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"object:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_edit_set ( in table, in test, in object )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_edit_set"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for edit_set() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function performs a edit_set() on a specified &lt;object&gt; using the value"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  from the data table."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  data-entry (read/write)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing value to be set or checked."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function uses the value from the data table as a second parameter to"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  edit_set() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function uses the value from the data table as a second parameter to"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  edit_check_text() function. Please note that third parameter (case-sensitive"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  flag) can be specified via FRM_set_case_sensitive()."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Uses edit_get_text() to retrieve the content of the edit object. Note that"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  an empty string is converted to &#92;&#34;&lt;&lt;clear&gt;&gt;&#92;&#34; as generated test data."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,3,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"object:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_list_select_item ( in table, in test, in object )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_list_select_item"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for list_select_item() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function performs a list_select_item() on a specified &lt;object&gt;"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  using the value from the data table."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  data-entry (read/write)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing names or indices of the desired list items."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function uses the value from the data table as a second parameter to"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  list_select_item() function. Third and fourth parameters are not"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  supported."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function uses the value from the data table as a second parameter to"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  list_check_selected() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Uses list_get_selected() to retrieve the selection and generate test data."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,3,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"object:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_list_activate_item ( in table, in test, in object )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_list_activate_item"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for list_activate_item() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function performs a list_activate_item() using the value from the data"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  table."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  navigation (read-only, can be generated)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing logical name or the index (e.g. #1) of the item to be"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  activated."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function reads the value from the data table and uses it as a parameter"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  to a native list_activate_item() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Not supported for type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  There is nothing to be checked with a double click on a list item."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Behaves the same as the SET-mode! "</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Supported although type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  We have found it practical to generate the item name of the currently"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  selected item."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,3,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"object:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_list_select_multi_items ( in table, in test, in object )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_list_select_multi_items"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for list_select_multi_items() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function performs a list_select_multi_items() on a specified &lt;object&gt;"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  using the value from the data table. Make sure to format the string "</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  according to the rules for the native function (i.e. comma-separated)."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  data-entry (read/write)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing names or indices of the desired list items."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function uses the value from the data table as a second parameter to"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  list_select_multi_items() function. Third and fourth parameters are not"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  supported."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  It probably won't work because native functions list_check_mult_selected()"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  and list_check_selection() do not seem to be available for public. "</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Our implementation is based on list_check_selected(). We were too lazy to"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  implement our own checking. If you want to do it yourself, then function"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  list_get_selected() is something to start with."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Uses list_get_selected() to retrieve the selection. Before generating the"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  test data the separators returned by list_get_selected() are converted to"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  something compatible with list_select_multi_items()."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,3,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"object:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_menu_select_item ( in table, in test, in timeout )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_menu_select_item"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for menu_select_item() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function performs a menu_select_item() using the value from the data"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  table."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  navigation (read-only)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing logical name or the index (e.g. #1) of the tab to be"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  selected."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function reads the value from the data table and uses it as a parameter"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  to a native menu_select_item() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Not supported for type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  There is nothing to be checked with menu_select_item()."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Behaves the same as the SET-mode! "</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Not supported for type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Ignores the cell (i.e. skips the cell)."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,3,
+		</font><font color="#00bb00">"table:"</font><font color=black>  ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>   ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"timeout:"</font><font color=black>,TE,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_tab_select_item ( in table, in test, in object )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_tab_select_item"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for tab_select_item() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function performs a tab_select_item() on a specified &lt;object&gt; using the"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  value from the data table."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  navigation (read-only, can be generated)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing logical name or the index (e.g. #1) of the tab to be"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  selected."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function reads the value from the data table and uses it as a parameter"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  to a native tab_select_item() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Not supported for type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  One could check whether a tab is selected. In practice however this is not"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  as much used and in FRM concept soon becomes irritating. For this reason"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  we have implemnted this function as type navigation which means that"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  checking is not supported (although we do have the code for it)."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Behaves the same as the SET-mode! "</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Supported although type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  We have found it practical to generate the tab name/index although we"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  ignore it in CHK mode."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,3,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"object:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_button_press ( in table, in test, in object )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_button_press"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for button_press() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  You may use the function in two ways. "</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  1.) If you specify the &lt;object&gt;, then the value from the data table is"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n      evaluated. If the value resambles to Yes, the &lt;object&gt; is &#92;&#34;pressed&#92;&#34;."</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  2.) If you do not provide the &lt;object&gt; parameter, then the value from the"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n      data table is used as the name of the object to be &#92;&#34;pressed&#92;&#34;."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The second alternative is an elegant way of pressing on OK, Cancel and"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  similar buttons."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  navigation (read-only)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing either Y/YES/ON (or german equivalent J/JA/ON) or"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  the logical name of the button to be pressed."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function reads the value from the data table and uses it as a parameter"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  to a native button_press() function according to aforementioned description."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Not supported for type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  There is nothing to be checked with button_press()."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Behaves the same as the SET-mode! "</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Not supported for type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Ignores the cell (i.e. skips the cell)."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,3,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"object:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_toolbar_button_press ( in table, in test, in object )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_toolbar_button_press"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for toolbar_button_press() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function performs a toolbar_button_press() on a specified &lt;object&gt;"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  using the value from the data table."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  navigation (read-only)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing either the logical name of the toolbar button or the"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  index (e.g. #1)."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function reads the value from the data table and uses it as a parameter"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  to a native toolbar_button_press() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Not supported for type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  There is nothing to be checked with toolbar_button_press()."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Behaves the same as the SET-mode! "</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Not supported for type: navigation!"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Ignores the cell (i.e. skips the cell)."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,3,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"object:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_button_set ( in table, in test, in object )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_button_set"</font><font color=black>;
+s2 =</font><font color="#00bb00">"A standard &#92;&#34;wrapper&#92;&#34; for button_set() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function performs a button_set() on a specified &lt;object&gt; using the"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  value from the data table. You can use it for both radio buttons and"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  check buttons. The supported states are ON and OFF. DIMMED is not supported."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  data-entry (read/write)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing either Y/YES/ON or N/NO/OFF (or German version J/JA/ON and"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  N/NEIN/OFF)."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function evaluates the value from the data table. If Yes, the &lt;object&gt;"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  is set to ON. Otherwise the &lt;object&gt; is set to OFF."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function evaluates the value from the data table. If Yes, the &lt;object&gt;"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  is expected to be in ON-state. Otherwise the &lt;object&gt; is expected to be in"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  OFF-state."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The evaluates the state of the &lt;object&gt;. If ON, then &#92;&#34;ON&#92;&#34; is generated."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  If OFF, then &#92;&#34;OFF&#92;&#34; is generted. If any other state is determined (e.g."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  DIMMED),then &#92;&#34;???&#92;&#34; is generated. Nonexisting objects are silently ignored."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,3,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"object:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_button_set_YesNo ( in table, in test, in yesObject, in noObject )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_button_set_YesNo"</font><font color=black>;
+s2 =</font><font color="#00bb00">"The convenience function for GUI constructs consisting of two radio buttons"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  where one stands for &#92;&#34;yes&#92;&#34; and the other one for &#92;&#34;no&#92;&#34;. A special-purpose"</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  &#92;&#34;wrapper&#92;&#34; for button_set() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  data-entry (read/write)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing either &#92;&#34;Yes&#92;&#34;/&#92;&#34;No&#92;&#34;, &#92;&#34;Y&#92;&#34;/&#92;&#34;N&#92;&#34; or the German equivalent"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  ( &#92;&#34;Ja&#92;&#34;/&#92;&#34;Nein&#92;&#34;, &#92;&#34;J&#92;&#34;/&#92;&#34;N&#92;&#34;)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function evaluates the value from the data table. In case of Yes,"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  the &lt;yesObject&gt; is set. Otherwise &lt;noObject&gt; is set."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function evaluates the value from the data table. In case of Yes,"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  the &lt;yesObject&gt; is expected to be set. Otherwise &lt;noObject&gt; is expected"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  to be set."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function first evaluates the &lt;yesObject&gt;. If set, then &#92;&#34;Y&#92;&#34; is generated."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Otherwise the &lt;noObject&gt; is evaluated. If set, then &#92;&#34;N&#92;&#34; is generated."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  If either none of objects exist or none of them is set, then no data is"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  generated."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,4,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"yesObject:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>,
+		</font><font color="#00bb00">"noObject:"</font><font color=black> ,PO,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_button_set_JaNein ( in table, in test, in jaObject, in neinObject )</font></i><font color=black>
+s1 =</font><font color="#00bb00">"FRM_button_set_JaNein"</font><font color=black>;
+s2 =</font><font color="#00bb00">"Sonderforn der FRM_button_set."</font><font color=black> 
+	&amp;</font><font color="#00bb00">"\n  Besonderheit: Mit eine Excel-Zelle werden zwei Checkboxen gesteuert."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  	Wenn Zelleninhalt = &#92;&#34;Ja&#92;&#34; dann Ja-Objekt aktivieren"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  	Wenn Zelleninhalt = &#92;&#34;Nein&#92;&#34; dann Nein-Objekt aktivieren"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  Es wird vorausgesetzt, daﬂ AUT richtig das andere Button jeweils"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  richtig ausschaltet."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,4,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"jaObject:"</font><font color=black>,PO,</font><font color="#00bb00">""</font><font color=black>,
+		</font><font color="#00bb00">"neinObject:"</font><font color=black> ,PO,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------------</font></i><font color=black>
+</font><font color="#ff0000"><i>#public function FRM_radio_button_set ( in table, in test, inout objArr[] )</font></i><font color=black>
+
+s1 =</font><font color="#00bb00">"FRM_radio_button_set"</font><font color=black>;
+s2 =</font><font color="#00bb00">"The convenience function for GUI constructs consisting of a group of related"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  radio buttons. A special-purpose &#92;&#34;wrapper&#92;&#34; for button_set() function."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function accepts a vector (one-dimensional array) containing names of"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  the radio buttons (GUI map) indexed by some keyword. The keywords are used"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  in data tables to identify particular button and can differ from the"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  actual object name."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  In this way one can address multiple radio buttons (one at a time) with"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  one data cell."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nFRM-GUI-TYPE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  data-entry (read/write)"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nTEST DATA FORMAT :"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  String containing the keyword which identifies the particular radio button."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nSET-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function reads the keyword from the data table. It then tries to set the"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  button indexed by the particular keyword."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nCHK-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function reads the keyword from the data table. It then checks whether"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  the button indexed by the particular keyword is set."</font><font color=black>
+	&amp;</font><font color="#00bb00">"\nGEN-MODE:"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  The function scans the &lt;objArr&gt; in a random sequence and checks if the"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  particular object (radio button) is set. If yes, then the corresponding"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  keyword is generated as test data. Object that do not exist are silently"</font><font color=black>
+	&amp;</font><font color="#00bb00">"\n  ignored."</font><font color=black>;
+
+rc = generator_add_function(s1,s2,3,
+		</font><font color="#00bb00">"table:"</font><font color=black> ,TE,</font><font color="#00bb00">"table"</font><font color=black>,
+		</font><font color="#00bb00">"test:"</font><font color=black>  ,TE,</font><font color="#00bb00">"test"</font><font color=black>,
+		</font><font color="#00bb00">"objArr[]:"</font><font color=black> ,TE,</font><font color="#00bb00">""</font><font color=black>);
+rc = generator_add_function_to_category(C1,s1);
+
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TEST:	EMOS_FRM_GUI_funcs</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</pre></body></html>

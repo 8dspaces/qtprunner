@@ -1,0 +1,173 @@
+################################################################################
+# TSL-LIBRARY:	EMOS_STD_win_lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.1.1.1 $
+# $Author: drajovic $
+# $Date: 2004/03/24 20:14:04 $
+# $Archive: /MERCURY/Projects/EMOS_GPL/STD/emos_std_win_lib/script $
+# $NoKeywords: $
+################################################################################
+
+#**#
+#*	This library contains alternative implementations for standard functions
+#*	that operate on windows (win_x() functions).
+#*	Another sort of functions in this library are functions that implement some
+#*	additional functionality that would probably fit into Mercury's logic
+#*	for win_x() functions.
+#*/
+
+#**
+#*	This function invokes win_activate() before calling set_window(). It also
+#*	takes care of the timeout (which does not normally work with win_activate()).
+#*	If for some reason standard set_window() does not work, try this function
+#*	before trying something else.
+#* @param win (in)	window name
+#* @param time (in)	(optional) timeout
+#* @return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+public function EMOS_set_window( in win1, in time1 )
+{
+	static rc, t000;
+
+	if (win_exists(win1) != E_OK)
+	{
+#		window existiert noch nicht
+
+		if (time1 * 1 == 0)	rc = set_window(win1);
+		else				rc = set_window(win1,time1);
+		
+		if (rc == E_OK) 	rc = win_activate(win1);
+	}
+	else
+	{
+#		window existiert schon
+
+		if (time1 * 1 == 0)
+		{
+			rc = win_activate(win1);
+			if (rc == E_OK) rc = set_window(win1);
+		}
+		else
+		{
+			set_timeout( time1 );
+			rc = win_activate(win1);
+			restore_timeout();
+			if (rc == E_OK) rc = set_window(win1,time1);
+		}
+	}
+	return(rc);
+}
+
+#**
+#*	Waits for window to close.
+#* @param win (in)	window name
+#* @param time (in)	(optional) timeout
+#* @return
+#*	E_OK:	success; window closed
+#*	!E_OK:	failure
+#*/
+
+public function EMOS_check_win_closed( in win, in timeout )
+{
+	auto rc, t, i;
+	t = timeout*1;
+	if ( t < 0 || t > 300 )
+		t = 5;  # default timeout = 5 seconds
+	rc = win_exists( win );
+	for( i = 0; i < t && rc == E_OK; i++ )
+	{
+		rc = win_exists( win );
+		wait(1);
+	}
+	switch ( rc )
+	{
+	case E_NOT_FOUND:
+	case E_NOT_DISPLAYED:
+		return E_OK;
+	case E_OK:
+		tl_step( win, rc, "Window not closed within " & t & " seconds" );
+		return E_EXIST;
+	default:
+		return rc;
+	}
+}
+
+#**
+#* Attempts to close all given windows. 
+#* @param wins (inout[])    array indexed from 0 upwards containg names of windows to close
+#* @return returns E_OK if none of the specified windows existed by the time this function exited
+#*      otherwise E_EXISTS is returned
+#*/
+
+public function EMOS_win_close_all( inout wins[] )
+{
+	auto count, i;
+	for ( i in wins ) count++;
+	# loop1: attempts to close all windows
+	for ( i=0; i<count; i++ )
+	{
+		if ( win_exists( wins[i] ) == E_OK )
+		{
+			if ( win_close( wins[i] ) == E_OK )
+			{
+				# sometimes win_close() does not work but still returns E_OK
+				if (  win_exists( wins[i] ) == E_OK )
+				{
+					if ( set_window( wins[i] ) == E_OK )
+					{
+						type ("<kAlt_L>-<kF4><kAlt_L>+");
+					}
+					if ( win_exists( wins[i] ) == E_OK )
+					{
+						continue;  # still exists, don't bother any more
+					}
+				}
+				i = -1;		# window closed, restart the loop
+				continue;
+			}
+		}
+	}
+	# loop2: checks that none of the windows is still open
+	for ( i=0; i<count; i++ )
+	{
+		if ( win_exists( wins[i] ) == E_OK )
+		{
+			return E_EXIST;
+		}
+	}
+	return E_OK;
+}
+
+###########################################################################
+# TSL-LIBRARY:	EMOS_STD_win_lib
+###########################################################################

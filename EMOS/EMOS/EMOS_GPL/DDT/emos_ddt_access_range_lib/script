@@ -1,0 +1,284 @@
+################################################################################
+# TSL-LIBRARY:	EMOS_DDT_ACCESS_Range_Lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.1.1.1 $
+# $Author: drajovic $
+# $Date: 2004/03/24 20:13:57 $
+# $Archive: /MERCURY/Projects/EMOS_GPL/DDT/emos_ddt_access_range_lib/script $
+# $NoKeywords: $
+################################################################################
+
+#**# 
+#*	This library defines an "iterator" (as much as one can emulate a real 
+#*	iterator in a language such as TSL) for data tables (ddt-interface).
+#*	The main benefits of this iterator are:
+#*	   1.) you can loop through any table in an uniform way,
+#*	   2.) you can choose one of four algorithms to iterate through the range:
+#*	         * sequntial (forward)
+#*	         * sequential (reverse)
+#*	         * random (values may get repeated)
+#*	         * random (values will not be repeated)
+#*	   3.) you can simultaneously have iterators for multiple data tables
+#*	       (ane at a time per table!)
+#*	   4.) you can use it to iterate any range of numbers (unrelated to data 
+#*	       tables).
+#* <p>NOTE!
+#* <ul>
+#* <li> For more detailed instruction see comments for DDT_ACCESS_lib.</li>
+#* <li> This iterator does not (yet) support the syntax like DDT_ACCESS_lib.
+#*		You can only specify a range with <code>from</code> and <code>to</code> parameters. It would
+#*		be great if someone could find time to implement this.</li>
+#* </ul>
+#* PUBLIC CONSTANTS:
+#* <ul>
+#*	<li>DDT_ACCESS_SEQUENTIAL</li>
+#*	<li>DDT_ACCESS_REVERSE_ACCESS</li>
+#*	<li>DDT_ACCESS_RANDOM</li>
+#*	<li>DDT_ACCESS_RANDOM_NOREPEAT</li>
+#*	<li>DDT_ACCESS_INVALID_MODE</li>
+#*	<li>DDT_ACCESS_DEFAULT_MODE</li>
+#* </ul>
+#*/
+
+#====================================================
+# public variables
+#====================================================
+
+public const DDT_ACCESS_SEQUENTIAL = 1;
+public const DDT_ACCESS_REVERSE = 2;
+public const DDT_ACCESS_RANDOM = 3;
+public const DDT_ACCESS_RANDOM_NOREPEAT = 4;
+
+public const DDT_ACCESS_INVALID_MODE = -666;
+public const DDT_ACCESS_DEFAULT_MODE = DDT_ACCESS_SEQUENTIAL;
+
+#====================================================
+# private variables
+#====================================================
+
+static accessMode[];
+static minPos[], maxPos[], curPos[];
+static posUnused[];
+static indexArray[];
+
+#====================================================
+# public functions
+#====================================================
+
+#**
+#*	Initialises the range-access algorithm.
+#* @param table (in)	the name od the iterator (data table)
+#* @param from (in)	begining  of range
+#* @param to (in)		end of range
+#* @param mode (in)	one of four possible access modes
+#*				[default: DDT_ACCESS_SEQUENTIAL]
+#* @return
+#*	E_OK:	initialisation succeeded
+#*	!E_OK:	initialisation failed
+#*/
+
+public function DDT_ACCESS_init_range( in table, in from, in to, in mode )
+{
+	auto rc;
+
+	if ( from*1 <= 0 )
+		return E_ILLEGAL_PARAMETER;
+	if ( to*1 < from*1 )
+		return E_ILLEGAL_PARAMETER;
+
+	minPos[table] = from*1;
+	maxPos[table] = to*1;
+
+	init_index_array( table );
+
+	switch ( mode )
+	{
+		case DDT_ACCESS_SEQUENTIAL:
+			curPos[table] = minPos[table] - 1;
+			break;
+		case DDT_ACCESS_REVERSE:
+			curPos[table] = maxPos[table] + 1;
+			break;
+		case DDT_ACCESS_RANDOM:
+			curPos[table] = 0;
+			break;
+		case DDT_ACCESS_RANDOM_NOREPEAT:
+			curPos[table] = 0;
+			break;
+		default:
+			return  DDT_ACCESS_INVALID_MODE;
+	}
+	accessMode[table] = mode;
+
+	return E_OK;
+}
+
+#**
+#*	Removes range-access for given table and frees the internal buffers.
+#* @param table (in)	the name od the iterator (data table)
+#*/
+
+public function DDT_ACCESS_clean_range ( in table )
+{
+	delete_dimension( accessMode, table );
+	delete_dimension( minPos, table );
+	delete_dimension( maxPos, table );
+	delete_dimension( curPos, table );
+	delete_dimension( posUnused, table );
+	delete_dimension( indexArray, table );
+}
+
+#**
+#*	Indicates whether there subsequent call to 
+#*	DDT_get_next_in_range() is about to succeed.
+#* @param table (in)	the name od the iterator (data table)
+#* @return
+#*	TRUE:	there is still something left to be processed
+#*	FALSE:	all tests processed
+#*/
+
+public function DDT_ACCESS_has_more_in_range ( in table )
+{
+	switch ( accessMode[table] )
+	{
+		case DDT_ACCESS_SEQUENTIAL:
+		case DDT_ACCESS_REVERSE:
+		case DDT_ACCESS_RANDOM:
+		case DDT_ACCESS_RANDOM_NOREPEAT:
+			break;
+		default:
+			return  0;
+	}
+	return posUnused[table];
+}
+
+#**
+#*	Returns the index of the next test to be processed.
+#* @param table (in)	the name od the iterator (data table)
+#* @return
+#*	>0:	test number
+#*	<0:	error ocurred
+#*/
+
+public function DDT_ACCESS_get_next_in_range ( in table )
+{
+	switch ( accessMode[table] )
+	{
+		case DDT_ACCESS_SEQUENTIAL:
+			curPos[table]++;
+			break;
+		case DDT_ACCESS_REVERSE:
+			curPos[table]--;
+			break;
+		case DDT_ACCESS_RANDOM:
+			curPos[table] = get_random_pos( table );
+			break;
+		case DDT_ACCESS_RANDOM_NOREPEAT:
+			curPos[table] = get_norepeat_random_pos( table );
+			break;
+		default:
+			return  DDT_ACCESS_INVALID_MODE;
+	}
+	return set_pos_used( table, curPos[table] );
+}
+
+static function delete_index_array( in table )
+{
+	delete_dimension( indexArray, table );
+	delete minPos[table];
+	delete maxPos[table];
+	delete curPos[table];
+	delete posUnused[table];
+}
+
+static function init_index_array( in table )
+{
+	auto i;
+	delete_dimension( indexArray, table );
+	for ( i=minPos[table]; i <= maxPos[table]; i++ )
+		indexArray[table, i] = 0;
+	posUnused[table] = maxPos[table];
+}
+
+static function set_pos_used( in table, in pos )
+{
+	if ( indexArray[table, pos] == 0 )
+	{
+		indexArray[table, pos] = 1;
+		posUnused[table]--;
+	}
+	return pos;
+}
+
+static function get_random_pos( in table )
+{
+	return int( rand() * ( maxPos[table] - minPos[table] + 1) ) + minPos[table];
+}
+
+static function get_norepeat_random_pos( in table )
+{
+	auto x;
+	while (1)
+	{
+		x = get_random_pos( table );
+		if ( indexArray[table, x] == 0 )
+			break;
+	}
+	return set_pos_used( table, x );
+}
+
+#**
+#*	This function will delete a dimension from a multidimensional array.
+#*<p> WARNING!
+#*	It will delete ALL dimensions with the same name. For example
+#*   assume your three-dimensional array "arr" has the following content:
+#*<pre>		arr["x",1,"x"] = "x1x";
+#*		arr["x",1,"y"] = "x1y";
+#*		arr["y",1,"x"] = "y1x";
+#*		arr["y",1,"y"] = "y1Y";</pre>
+#*	then the following command
+#*<pre>		delete_dimension( arr, "x" );</pre>
+#*	will delete everything BUT
+#*<pre>		arr["y",1,"y"] = "y1Y";</pre>
+#* @param arr (inout)	array to be processed
+#* @param dim (in)	dimension(s) to be removed
+#*/
+
+static function delete_dimension( inout arr[], in dim )
+{
+	auto i;
+	for ( i in arr )
+		if ( match (i, dim) )
+			delete arr[i];
+}
+
+###########################################################################
+# TSL-LIBRARY:	EMOS_DDT_ACCESS_Range_Lib
+###########################################################################

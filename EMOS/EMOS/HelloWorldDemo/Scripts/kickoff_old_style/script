@@ -1,0 +1,56 @@
+################################################################################
+# TEST:	kickoff
+################################################################################
+# $Revision: 1.4 $
+# $Author: drajovic $
+# $Date: 2005/01/23 19:31:51 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/TPL/Scripts/kickoff_old_style/script,v $
+# $NoKeywords: $
+################################################################################
+
+#/***
+#* This is an example of a script that triggers the
+#* processing of a test suite table (hence "kickoff"). 
+#* <p><b>IMPORTANT!</b></p>
+#* By default this suite executes the table defined 
+#* in the script (you must read the code to find out 
+#* which one).
+#* Productive suites should be kept stable and under 
+#* version control (i.e. read-only). They should 
+#* define <b>the complete</b> set of tests for the 
+#* particular test purpose. 
+#* Ensuring that suite tables are kept up to date 
+#* will allow you to see what was intended with the 
+#* test suite at any point in time.
+#* <p>
+#* During the development of the test suite or in a 
+#* multi-user environment it is however often needed 
+#* to execute only  portions of the whole test suite. 
+#* One way to achieve this is by creating individual 
+#* suite table and play with it instead of constantly
+#* changing the production suite.
+#* <p>
+#* You can redirect this script to use your private 
+#* table by allocating the environment variable 
+#* <code>MY_SUITE</code> and assiging the appropriate
+#* value to it (the name of your suite table relative
+#* to the DATA_HOME directory, e.g. mysuite.xls). 
+#* You must remove the variable when you are ready to 
+#* execute the real suite. 
+#*/
+
+static tmpTable = getenv("MY_SUITE");
+static defTable = "suite1.xls"; 
+static suiteHdr = "run?,driver,table,testset,description";
+
+# the following line would ensure the old driver logic (default for backward compatibility)
+FRM_DRV_set_new_test_driver( FALSE );
+
+wrlog_init_file_interface( getvar("testname"), getenv("USERNAME"), "txt" );
+FRM_RES_init_test_statistics();
+
+call "DRV/emos_testsuite_driver" ( TEST_HOME, DATA_HOME, (tmpTable==""? defTable : tmpTable), FALSE, suiteHdr );
+
+FRM_RES_report_test_statistics();
+wrlog_terminate_file_interface();
+

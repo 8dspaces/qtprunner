@@ -1,0 +1,78 @@
+<!doctype html public "-//W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+<title>EMOS Framework SourceForge History</title>
+<meta name="author" content="Dean Rajovic">
+<meta name="keywords" content="EMOS Framework, WinRunner, functional testing">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+<a name="top"></a>
+<A href="http://sourceforge.net"> <IMG src="http://sourceforge.net/sflogo.php?group_id=107000&amp;type=5" width="210" height="62" border="0" alt="SourceForge.net Logo" /></A>
+<h1>EMOS Framework SourceForge History</h1>
+This document contains the (incomplete) list of changes that were made on EMOS Framework
+since it was published on SourceForge. For history on previous versions follow
+the link to <a href="history_old.html">"old history"</a>.
+<ul>
+<li><a href="#1.4.2">What's new in Release: 1.4.2</a></li>
+<li><a href="history_old.html">Old history before 1.4.2</a></li>
+</ul>
+<hr>
+<h3><a name="1.4.2"></a>What's new in Release: 1.4.2</h3>
+<a href="#top"><font size="-2">top</font></a>
+<ul>
+<li><b>Integration with TTracX logging tool</b></li>
+<p></p>
+As of version 1.4.2 EMOS Framework is ready for integration with TTracX logging tool.
+If everything works fine, then nobody should feel any change. In other words,
+users of WrLog should still be able to run WrLog without noticing anything. 
+The same should apply to users that use no logging :-( If this is not the case, 
+please let us know.
+<p></p>
+</ul>
+<ul>
+<li><b>EVAL instruction improved</b></li>
+<p></p>
+EVAL instruction used to parse the given string and execute each individual 
+command between semicolons individually. This was causing problems with embeded 
+semicolons. For example the following EVAL instruction would not work as expected:
+<pre>
+    EVAL~print("before;after")
+</pre>
+The new logic now executes the complete expression with a single <code>eval()</code>.
+For this reason you can run can run anything that <code>eval</code> can run, e.g.
+<pre>
+    EVAL~print("you can;");print(";do this now");print("\nbut be careful!")
+</pre>
+If you want EMOS Framework to evaluate the return code of the executed command,
+then you should assign the return code to public variable <code>__evalRC</code>
+which is already allocated by EMOS Framework. For example:
+<pre>
+    EVAL~__evalRC=some_function()
+</pre>
+If you don't do this, EMOS Framework has no idea whether you EVAL suceeded
+or not (and will allways mark it as "passed" in test results.
+<p></p>
+Affected files:
+<ul><li>emos_frm_stp_lib</li></ul>
+</ul>
+<ul>
+<li><b>New substitution keyword &lt;&amp;...&amp;&gt; added</b></li>
+<p></p>
+To substitute the output of an arbitrary <code>eval</code> statement into an
+Excel cell you can now use the &lt;&amp;...&amp;&gt; construction. For example
+if you embed the folowing instruction into an Excel cell EMOS Framework would 
+use current date/time (as returned by time_str())as test data:
+<pre>
+    &lt;&amp;time_str()&amp;&gt;
+</pre>
+Note that you should only use single commands which return some value because the
+underlying code that is invoked looks like this:
+<pre>
+    eval( "__evalRC = " & your_command & ";" );
+</pre>
+Affected files:
+<ul><li>emos_frm_lib</li></ul>
+</ul>
+<hr>
+</body>
+</html>

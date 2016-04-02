@@ -1,0 +1,1125 @@
+<HTML>
+ <HEAD>
+  <!-- $MVD$:app("RoboHELP HTML Edition by Blue Sky Software, portions by MicroVision Dev. Inc.","769") -->
+  <!-- $MVD$:template("","0","0") -->
+  <!-- $MVD$:fontset("Arial","Arial") -->
+  <!-- $MVD$:fontset("Comic Sans MS","Comic Sans MS") -->
+  <!-- $MVD$:fontset("Courier New","Courier New") -->
+  <TITLE>Basic Concepts</TITLE>
+  <META NAME="generator" CONTENT="RoboHELP by Blue Sky Software www.blue-sky.com HTML Edition">
+  <SCRIPT language="javascript">
+<!--
+if (navigator.appName=="Netscape")
+{   document.write("<LINK rel='StyleSheet' href='defa_ns.css'>");}
+else
+{   document.write("<LINK rel='StyleSheet' href='default.css'>");}
+//-->
+
+  </SCRIPT>
+  <SCRIPT language="JavaScript" src="bsscdht1.js">
+  </SCRIPT>
+  <SCRIPT language="JavaScript" src="bsscdht2.js">
+  </SCRIPT>
+  <SCRIPT language="JavaScript"><!-- 
+//////////BSSCDHTML Section Embedded Code//////////
+var s_strAgent = navigator.userAgent.toLowerCase();
+var s_nVer	   = parseInt(navigator.appVersion);
+
+var s_bIE  = (s_strAgent.indexOf('msie') != -1);
+var s_bNS  = (s_strAgent.indexOf('mozilla') != -1) && ((s_strAgent.indexOf('spoofer') == -1) && (s_strAgent.indexOf('compatible') == -1));
+var s_bOpera	= (s_strAgent.indexOf('opera') != -1);
+
+var s_bIE3Before = ((s_bIE) && (s_nVer <= 2));
+var s_bNS3Before = ((s_bNS) && (s_nVer <= 3));
+
+var s_bNS2		= ((s_bNS) && (s_nVer <= 2));
+var s_bNS3		= ((s_bNS) && (s_nVer == 3));
+var s_bIE300301	= ((s_bIE) && (s_nVer == 2) && ((s_strAgent.indexOf("3.00") != -1)||(s_strAgent.indexOf("3.0a") != -1)||(s_strAgent.indexOf("3.0b")!=-1)||(s_strAgent.indexOf("3.01")!=-1)));
+var s_bIE302	= ((s_bIE) && (s_nVer == 2) && (s_strAgent.indexOf("3.02") != -1));
+
+
+function HasExtJs()
+{
+	if (s_bIE3Before) { return false;}
+	if (s_bNS3Before) {	return false;}
+	if (typeof (_BSSCOnLoad) == "undefined"){ return false; }
+	return true;
+}
+
+function BSSCOnLoad()
+{
+	if (HasExtJs()) { _BSSCOnLoad(); }
+}
+
+function BSSCOnUnload()
+{
+	if (HasExtJs()) { _BSSCOnUnload(); }
+}
+
+function BSSCOnClick()
+{
+	if (HasExtJs()) { _BSSCOnClick(); }
+}
+
+function WritePopupMenuLayer()
+{
+	if (HasExtJs()) {_WritePopupMenuLayer();}
+}
+
+function BSSCCreatePopupDiv()
+{
+	if (HasExtJs()) {_BSSCCreatePopupDiv();	}
+}
+
+function BSSCPopup(strURL)
+{
+	if (HasExtJs())	{ 
+		_BSSCPopup(strURL);
+	}else{
+		//Create a temporary window first to ensure the real popup comes up on top
+		var wndTemp = null;
+		if (!s_bNS3) {
+			wndTemp = window.open("", "temp", "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=yes,height=3,width=4");
+		}
+		// Create the real popup window
+		var wndPopup = window.open(strURL, "PopupWindow", "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=yes,height=300,width=400");
+		// Close the temporary
+		if (!s_bNS3) {
+			wndTemp.close();
+		} else {
+			wndPopup.focus();
+		}
+	}
+}
+
+
+function PopupMenu_Invoke()
+{
+	if (HasExtJs()) {
+		return _PopupMenu_Invoke(PopupMenu_Invoke.arguments);
+	}
+	if (s_bNS3Before || s_bIE3Before )	{
+		var argLen 	= PopupMenu_Invoke.arguments.length;
+		if (argLen < 5) {
+			window.document.location.href = PopupMenu_Invoke.arguments[3];
+			return false;
+		}
+		var nHeight = argLen * 15;
+		var nWidth = 400;
+		var strParam = "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=auto";
+		strParam += ",height=" + nHeight + ",width=200,resizable";
+		
+		//Create a temporary window first to ensure the real popup comes up on top
+		var wndTemp = null;
+		if (!s_bNS3) {
+			wndTemp = window.open("", "temp", "titlebar=no,toolbar=no,status=no,location=no,menubar=no,resizable=yes,scrollbars=yes,height=3,width=4");
+		}
+
+		var wndPopupLinks = window.open("", "popuplinks", strParam);
+		wndPopupLinks.document.open("text/html");
+		wndPopupLinks.document.write("<html><head>");
+		if (s_bNS2 || s_bOpera) {
+			wndPopupLinks.document.write("<base href=\"" + location +"\">");
+		} else {
+			//YJ: IE301,302 and NS3.x works fine
+			wndPopupLinks.document.write("<");
+			wndPopupLinks.document.write("script>");
+			wndPopupLinks.document.write("function gotoUrl(aUrl) {opener.window.location=aUrl; close();}");
+			wndPopupLinks.document.write("<");
+			wndPopupLinks.document.write("/script>");
+		}
+		wndPopupLinks.document.write("</head><body onBlur=\'self.focus();\'>");
+		var strParaLine = "";
+		for (var i = 0; i < (argLen - 2) / 2; i++) {
+			strParaLine = "";
+			if (s_bNS2 || s_bOpera){
+				strParaLine += "<a href=\"";
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 3];
+				strParaLine += "\">"
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 2];
+				strParaLine += "</a>";
+			} else {
+				strParaLine += "<a href=\"javascript:";
+				strParaLine += "gotoUrl(\'";
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 3];
+				strParaLine += "\');\"";
+				if (PopupMenu_Invoke.arguments[1] != '') {
+					strParaLine += " TARGET='" + PopupMenu_Invoke.arguments[1] + "'";
+				}
+				strParaLine += ">";
+				strParaLine += PopupMenu_Invoke.arguments[2 * i + 2];
+				strParaLine += "</a>";
+			}
+			strParaLine += "<br>";
+			wndPopupLinks.document.write(strParaLine);
+		}
+		wndPopupLinks.document.write("</body></html>");
+		wndPopupLinks.document.close();
+
+		// Close the temporary
+		if (!s_bNS3) {
+			wndTemp.close();
+		}else {
+			wndPopupLinks.focus();
+		}
+
+		return true;
+	}
+	return false;
+}
+  
+
+ 
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) >= 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+ 
+//-->
+  </SCRIPT></HEAD>
+  <BODY ONLOAD="BSSCOnLoad();" ONCLICK="BSSCOnClick();">
+  
+  <div id='NavBar' STYLE='position:relative;' align='right'><nobr><font size=1>
+   <script language="javascript"><!--
+ var bHomePage=false; if(document.all){if ((top)&&(top.frames)&&(top.frames.length<=1)) bHomePage=true;} if(document.layers){if((parent)&&(parent.top.frames)&&(parent.top.frames.length<=1)) bHomePage=true;}
+if (bHomePage){document.write("<a href='index.htm'><img src='bsscnav1.gif' width=53 height=18 border=no></a>");}
+//-->
+   </script><img src='bsscnav7.gif' width=22 height=18 border=no><img src='bsscnav8.gif' width=22 height=18 border=no><a href='javascript:document.ehelpform.submit()'><img src='bsscnav6.gif' width=37 height=18 border=no></a></font>&nbsp;&nbsp;&nbsp;</nobr>
+  </div>
+<P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <H1>
+   Basic Concepts</H1>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <P>
+   Let us start with a somewhat heretical hypothesis:</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <FONT FACE="Comic Sans MS">In order to start with test automation one 
+   does not need to know much of the test cases that are to be 
+   automated. As long as one knows what part of application's user 
+   interface is going to be excercised one can start automating right away.</FONT></P>
+  <P>
+   This is &quot;heretic&quot; because most people would comment it 
+   with: &quot;How can you automate something, when you don't even know 
+   how would you perform it manually?&quot;. Well, we <SPAN STYLE="font-style : italic;"><I>do
+    </I></SPAN><SPAN STYLE="font-style : normal;">know</SPAN> how it will be 
+   done manually! We don't know the exact flow of the test, that's 
+   right. But we do know that one is going to use the application's GUI 
+   to perform it. If there is an edit field on the way, we know it will 
+   either be <SPAN STYLE="font-style : normal;font-weight : normal;text-decoration :underline;"><U>entered</U></SPAN>,
+    <SPAN STYLE="font-weight : normal;text-decoration :underline;"><U>checked</U></SPAN> 
+   or <SPAN STYLE="font-weight : normal;text-decoration :underline;"><U>ignored</U></SPAN>.
+    Regardless of the test to be performed. If the test is concerned 
+   with application's <SPAN STYLE="font-style : italic;"><I>functionality</I></SPAN> 
+   (our focus), this is all one will ever do with this field.</P>
+  <P>
+   We can go on with this and ask what about list boxes, drop-down 
+   lists, combo-boxes, push buttons, check buttons, radio buttons, 
+   static text, tree views, tables, etc. It is all the same. We have not 
+   measured it statistically so we won't use any numbers to claim what 
+   everybody knows: most of the application out there use only a few 
+   basic UI object types in order to express even the most complex 
+   concepts that &quot;hide&quot; behind the surface. If your 
+   application is one of them, our approach can be very interesting.</P>
+  <P>
+   So, when we write our test script we write <SPAN STYLE="text-decoration :underline;"><U>one</U></SPAN> 
+   line of code for a particular GUI object, say, edit field. This line 
+   &quot;knows&quot; how to enter the text into the field, how to 
+   compare it's content against some expected text and it knows how to 
+   ignore the field (do nothing with it). This is typically <SPAN STYLE="text-decoration :underline;"><U>the
+    only</U></SPAN><SPAN STYLE="text-decoration : none;"> place</SPAN> in 
+   the whole test suite where we deal with this particular GUI object. 
+   It does not matter whether you have 1 or 1735 test cases that affect 
+   this field - it will be <SPAN STYLE="text-decoration :underline;"><U>this</U></SPAN> 
+   line of code that did it. This line does not know what to enter or 
+   check and it does not know in what context or for what purpose it is 
+   doing it. It simply does it. The &quot;what&quot; and &quot;for what 
+   purpose&quot; comes from a different place - not from the code.</P>
+  <P>
+   Then we write another line for the check button next to our edit box. 
+   And another for the next check box. And another... We group these 
+   &quot;lines&quot; into blocks according to some functionallity 
+   criteria. The lines that &quot;belong to each other&quot; form a 
+   block. For example <SPAN STYLE="font-style : italic;"><I>first name</I></SPAN>,
+    <SPAN STYLE="font-style : italic;"><I>last name</I></SPAN>, <SPAN STYLE="font-style : italic;"><I>street</I></SPAN>,
+    <SPAN STYLE="font-style : italic;"><I>zip</I></SPAN>, <SPAN STYLE="font-style : italic;"><I>town</I></SPAN>,
+    <SPAN STYLE="font-style : italic;"><I>country</I></SPAN> would form an <SPAN STYLE="font-style : italic;"><I>Address</I></SPAN> block.</P>
+  <P>
+   We often enter navigation elements into our &quot;blocks&quot; such 
+   as picking from the menu bar or pop-up menus, keyboard strokes, 
+   double-clicks, clicks on push buttons, etc. This makes things more 
+   complicated but at the same time flexible so one can combine those 
+   &quot;blocks&quot; as needed.</P>
+  <P>
+   EMOS FRM makes a clear distinction between what &quot;lands&quot; in 
+   the test scripts and what doesn't. So our primary classification is:</P>
+  <UL>
+   <LI CLASS="mvd-P">
+   <P>
+    test data<BR>
+    <LI CLASS="mvd-P"><P>test scripts</P>
+   </UL>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <H2>
+   <A NAME="test_data"></A>Test Data</H2>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <P>
+   The focal point of EMOS FRM approach is the separation of test data 
+   from the scripts. We include almost everything in the test data 
+   (navigation + data + a few other bits). The test scripts serve mostly 
+   just as a technical implementation of what has been defined as test 
+   data. The scripts are so to say &quot;slaves&quot; of the test data. <SPAN STYLE="font-style : italic;"><I>What</I></SPAN> 
+   and <SPAN STYLE="font-style : italic;"><I>how</I></SPAN> is something being 
+   tested comes from the test data, not from the logic of some script. 
+   This is what makes EMOS FRM different from most of other test 
+   automation approaches.</P>
+  <P>
+   We store test data in the so called <SPAN STYLE="font-style : italic;font-weight : bold;text-decoration : none;"><I><B>data
+    tables</B></I></SPAN>. Data tables are Excel spreadsheets. They are 
+   formatted in a special way so that we can &quot;marry&quot; two 
+   rather opposite objectives. First, the format must be suitable for <SPAN STYLE="font-style : italic;"><I>automatic
+    processing</I></SPAN>. On the other hand, the data must be structured in 
+   such a way so that test scripts know how to efficiently access it. 
+   Second objective states that the data must be suitable for <SPAN STYLE="font-style : italic;"><I>manual
+    processing</I></SPAN> because it is created and maintained by humans.</P>
+  <P>
+   Due to the complexity of the test data and the relatively limited 
+   possibilities for its representation (table-like format) it is not an 
+   easy task to meet these objectives. Here an example...</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/Test_Table.jpg" WIDTH="584" HEIGHT="740" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 2: Data Table Example</H5>
+  <P>
+   First thing to notice is that test cases spread across columns. There 
+   are many reasons why we have chosen this representation. The 
+   strongest one is that we want to be able to handle very complex test 
+   cases, i.e. applications. It is not unusual to have hundreds of lines 
+   in one test case (meaning that hundreds of GUI objects need to be 
+   accessed with a single test case).</P>
+  <H3>
+   Column Names-Row</H3>
+  <P>
+   In our example we see test cases 1, 2 and 3 in columns F to H. 
+   Obviously, the first line is reserved for <SPAN STYLE="font-style : italic;font-weight : bold;"><I><B>test
+    names</B></I></SPAN>, and for names of other columns such as IDX and Name. 
+   The EMOS FRM provides a programmatic interface which is capable of 
+   accessing each column by its name (the same principle as the 
+   DDT-interface from WinRunner).</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/row_1.jpg" WIDTH="562" HEIGHT="16" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 3: Column Names</H5>
+  <H3>
+   Row Names</H3>
+  <P>
+   Columns <SPAN STYLE="font-style : italic;font-weight : bold;"><I><B>IDX</B></I></SPAN> 
+   and <SPAN STYLE="font-style : italic;font-weight : bold;"><I><B>Name</B></I></SPAN> 
+   are reserved names - EMOS FRM expects to find these names in each 
+   table otherwise the table cannot be opened. These two columns go 
+   &quot;hand in hand&quot; and have the purpose to identify rows by 
+   some mnemonic name. Usually, we do not want to access each row 
+   directly (remember you may have hundreds of lines in one test table). 
+   In order to identify the rows which need a direct access we place an 
+   &quot;x&quot; in the column IDX next to the row name.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/col_idx+name.jpg" WIDTH="173" HEIGHT="587" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 4: Columns IDX + Name</H5>
+  <P>
+   In other words the important rows start with an &quot;x&quot;. In our 
+   example these are the <SPAN STYLE="font-style : italic;"><I>Kommentar</I></SPAN>,
+    <SPAN STYLE="font-style : italic;"><I>Testvorgang</I></SPAN>, <SPAN STYLE="font-style : italic;"><I>drv\se</I></SPAN>,
+    <SPAN STYLE="font-style : italic;"><I>Prolog</I></SPAN>, <SPAN STYLE="font-style : italic;"><I>Login</I></SPAN>,
+    <SPAN STYLE="font-style : italic;"><I>Navigation</I></SPAN>, <SPAN STYLE="font-style : italic;"><I>Akkreditiv</I></SPAN> 
+   and <SPAN STYLE="font-style : italic;"><I>Aktion</I></SPAN>.</P>
+  <H3>
+   Comment-Row</H3>
+  <P>
+   The row labeled <SPAN STYLE="font-style : italic;"><I>Kommentar</I></SPAN> 
+   is reserved for the short description of each test case. In our case 
+   we have written a note that test case 1 contains valid data that 
+   should raise no error (the correct interpretation requires some 
+   knowledge of the application an the purpose of the particular data 
+   table). The test 2 is marked as the one where some sort of documents 
+   are missing, the third test is missing an amount and so on.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/row_kommentar.jpg" WIDTH="628" HEIGHT="38" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 5: Comments</H5>
+  <P>
+   The importance of this data is that the content of the particular 
+   cell is written in the test report. It helps us identify the purpose 
+   (objective) of the particular test case as we analyze the results.</P>
+  <P>
+   Although this row is not mandatory - the EMOS FRM concept can live 
+   without it - our strong advice is to use this mechanism as much as 
+   possible for all your testing. It facilitates immensely the results 
+   analysis. To indicate its importance we place this row usually as the 
+   first one - after the Testname - in the data table (technically, it 
+   can appear anywhere within the data table).</P>
+  <H3>
+   Test Sequence-Row</H3>
+  <P>
+   The so called <SPAN STYLE="font-style : italic;"><I>Test Sequence</I></SPAN>-Row
+    is beside the Column Name-Row the most important row in the data 
+   table. This row is mandatory. EMOS FRM needs it to determine what 
+   steps are to be executed and in what order shall they be executed. We 
+   have labeled this row in German, &quot;Testvorgang&quot;, as 
+   everything else in our example. You can name it any way you like as 
+   long as you provide the equivalent parameters in the corresponding 
+   test scripts.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/row_testvorgang.jpg" WIDTH="627" HEIGHT="116" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 6: Test Sequence</H5>
+  <P>
+   EMOS FRM analyses the corresponding test sequence cell for each test 
+   case (e.g. F3 for test case 1, G3 for test 2, etc.) and calls the 
+   individual steps in the defined order. For example the test 1 
+   executes steps <SPAN STYLE="font-style : italic;"><I>Prolog</I></SPAN>, <SPAN STYLE="font-style : italic;"><I>Login</I></SPAN>,
+    <SPAN STYLE="font-style : italic;"><I>Navigation</I></SPAN>, <SPAN STYLE="font-style : italic;"><I>Akkreditiv</I></SPAN>,
+    <SPAN STYLE="font-style : italic;"><I>LNK:drv\se</I></SPAN> and <SPAN STYLE="font-style : italic;"><I>Aktion</I></SPAN>.
+    The individual <SPAN STYLE="font-style : italic;"><I>steps</I></SPAN> 
+   within a sequence are separated with newline-characters (Alt-Return 
+   in Excel). We use the term &quot;steps&quot; here to indicate the 
+   elements of a sequence.</P>
+  <P>
+   Effectively, these steps &quot;point to&quot; the so called <SPAN STYLE="font-style : italic;font-weight : bold;"><I><B>test
+    blocks</B></I></SPAN> - the central concept of EMOS FRM which will be 
+   explained in detail later in this text.</P>
+  <H3>
+   Other Columns</H3>
+  <P>
+   As for the other columns (i.e. other then IDX and Name), they are 
+   reserved for test cases or for comments. Our example shows the column 
+   E as a comment-column. You can often see such columns in our test 
+   tables. We use them to visually separate columns - they bare no other 
+   information - they just improve legibility of the test data. In this 
+   case we separate the columns <SPAN STYLE="font-style : italic;"><I>IDX</I></SPAN> 
+   and <SPAN STYLE="font-style : italic;"><I>Name</I></SPAN> from the test 
+   cases 1, 2 and 3.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/test_columns.jpg" WIDTH="319" HEIGHT="581" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 7: Other columns</H5>
+  <P>
+   So far we were discussing concepts which are concerned with the <SPAN STYLE="font-style : italic;"><I>technical</I></SPAN> 
+   aspects of our EMOS FRM. With the exception of <SPAN STYLE="font-style : italic;"><I>Test
+    Sequence</I></SPAN> we won't spend much time discussing them again. They 
+   just make other things possible.</P>
+  <P>
+   The &quot;real thing&quot; are the higher, logical concepts such us:</P>
+  <UL>
+   <LI CLASS="mvd-P">
+   <P>
+    test primitives<BR>
+    <LI CLASS="mvd-P"><P>test blocks<BR>
+    <LI CLASS="mvd-P"><P>test cases<BR>
+    <LI CLASS="mvd-P"><P>test sets<BR>
+    <LI CLASS="mvd-P"><P>test suites</P>
+   </UL>
+  <P>
+   They build upon each other. Therefore let's start with the simplest 
+   one - test primitive.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <H3>
+   <A NAME="test_primitive"></A>Test Primitive</H3>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <P>
+   A test primitive is the basic element for building test blocks.</P>
+  <P>
+   Normally, a test primitive <SPAN STYLE="text-decoration :underline;"><U>corresponds
+    to a single </U></SPAN><SPAN STYLE="font-style : italic;font-weight : bold;text-decoration :underline;"><U><I><B>physical</B></I></U></SPAN><SPAN STYLE="text-decoration :underline;"><U> 
+   GUI object</U></SPAN>. A phisical primitive defines a family of 
+   operations on a particular GUI object type. For example operations on 
+   an edit field are &quot;read the value&quot;, &quot;set the 
+   value&quot; and &quot;check the value&quot;. Operations on a static 
+   text (non-editable text field) are &quot;read&quot; and 
+   &quot;check&quot;. Operation on a menu entry is &quot;select&quot;, 
+   and so on.</P>
+  <P>
+   A test primitive can also be more <SPAN STYLE="font-style : italic;font-weight : bold;"><I><B>abstract</B></I></SPAN>.
+    In this case it can represent <SPAN STYLE="text-decoration :underline;"><U>anything</U></SPAN> 
+   - it is <SPAN STYLE="text-decoration : none;">just a piece of 
+   information passed to the test script to</SPAN> be interpreted in 
+   whatever way the script prefers.</P>
+  <P>
+   In both cases, physical or abstract, the test primitive is a piece of 
+   information in a data table which is &quot;passed down&quot; to the 
+   test script.</P>
+  <P>
+   <TABLE WIDTH="100%" CELLPADDING="2" CELLSPACING="1" BORDER="1">
+    <TR>
+     <TD WIDTH="91%" VALIGN="TOP" Align="CENTER">
+      <P STYLE="text-align : center;">
+       <SPAN STYLE="font-weight : normal;">A test primitive is always 
+       represented with </SPAN><SPAN STYLE="font-weight : normal;text-decoration : none;">a
+        </SPAN><SPAN STYLE="font-weight : bold;text-decoration :underline;"><U><B>single
+        line</B></U></SPAN><SPAN STYLE="font-weight : normal;"> in a test table.</SPAN><BR>
+       For the particular test case (i.e. column) a test primitive is the 
+       content of a <SPAN STYLE="font-weight : bold;text-decoration :underline;"><U><B>single
+        cell</B></U></SPAN>.</TD>
+    </TR>
+   </TABLE></P>
+  <P>
+   The following example shows three physical primitives on lines 11, 12 
+   and 14. They all correspond to some GUI objects. In our case edit 
+   fields <SPAN STYLE="font-style : italic;"><I>Benutzername</I></SPAN>, <SPAN STYLE="font-style : italic;"><I>Passwort</I></SPAN> 
+   and <SPAN STYLE="font-style : italic;"><I>Suchbegriff</I></SPAN>.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/TestPrimitive.jpg" WIDTH="491" HEIGHT="274" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 8: Test primitive</H5>
+  <P STYLE="text-align : left;" Align="LEFT">
+   An example of an abstract primitive can be found on line 9. <SPAN STYLE="font-style : italic;"><I>BaseState</I></SPAN> 
+   does not correspond to any GUI object. It is a piece of information, &quot;<SPAN STYLE="font-style : normal;">FreeSurfer</SPAN>&quot;
+    or &quot;AutoLogin&quot; that, in this case, indicate what algorithm 
+   is going to be used to initialise the test.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Later on in the text we will talk a lot about the code that 
+   &quot;implements&quot; both physical and abstract primitives.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <H3>
+   <A NAME="test_block"></A>Test Block</H3>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <P>
+   A test block is the central concept of EMOS FRM. It is the basic 
+   element for building the test cases - the test LEGO.</P>
+  <P>
+   Test block consists of zero or more test primitives. The primitives 
+   that build up the block are usually related to each other in some 
+   way. For example the following figure shows three test blocks: <SPAN STYLE="font-style : italic;"><I>Prolog</I></SPAN>,
+    <SPAN STYLE="font-style : italic;"><I>Login</I></SPAN> and (a bit of) <SPAN STYLE="font-style : italic;"><I>Navigation</I></SPAN>.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/TestBlock.jpg" WIDTH="489" HEIGHT="275" VSPACE="0" HSPACE="0" ALT="TestBlock" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 9: Test block</H5>
+  <H4>
+   Abstract Block</H4>
+  <P>
+   <SPAN STYLE="font-style : italic;"><I>Prolog</I></SPAN> is an <SPAN STYLE="font-style : italic;font-weight : bold;"><I><B>abstract</B></I></SPAN> 
+   block. It does not correspond to any <SPAN STYLE="font-style : italic;"><I>visible</I></SPAN> 
+   part of the application.</P>
+  <P>
+   Prolog performs some initialization for the test cases that use this 
+   block. For example test case 1 (column F) and 2 (column G) both call 
+   Prolog as a first test step (we will explain row 3 later). Prolog 
+   initializes the test case in that it drives the application to a 
+   particular state. The rest of the test can then start from a known 
+   (assumed) state.</P>
+  <P>
+   Indeed there is more to be said about Prolog. We have chosen this 
+   name to give it the feeling of an <SPAN STYLE="font-style : italic;"><I>idiom</I></SPAN><SPAN STYLE="font-style : normal;"> 
+   - we use it over and over again</SPAN>. We always try to design test 
+   cases to start with some sort of &quot;prologue&quot;. This block is 
+   typically a complex function (or a chain of functions) that 
+   &quot;knows&quot; how to start the application, how to drive it down 
+   gracefully or how to kill it if the application's state could not be 
+   determined. The robustness of the whole test suite greatly depends on 
+   the robustness of this one test block.</P>
+  <P>
+   In our example all that the &quot;prologue&quot; needs to know is 
+   whether to start the application in &quot;FreeSurfer&quot; or 
+   &quot;AutoLogin&quot; mode. The first one means &quot;no login&quot;. 
+   The other one means &quot;log in with the name of the computer and 
+   some predefined password&quot;. We feed the function with the desired 
+   information by the mean of an abstract test primitive <SPAN STYLE="font-style : italic;"><I>BaseState</I></SPAN>.</P>
+  <H4>
+   Physical Block</H4>
+  <P>
+   <SPAN STYLE="font-style : italic;"><I>Login</I></SPAN>, on the other hand, 
+   is a <SPAN STYLE="font-style : italic;font-weight : bold;"><I><B>physical</B></I></SPAN> 
+   block. It corresponds to the Login-part of following GUI excerpt:</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/login.jpg" WIDTH="205" HEIGHT="150" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 10: AUT Snapshot: Login</H5>
+  <P>
+   Primitive &quot;Benutzername&quot; corresponds to edit box 
+   Benutzername. In this test case the script would enter 
+   &quot;dean&quot; as the user name. Primitive &quot;Passwort&quot; 
+   follows the same analogy.</P>
+  <P>
+   A test block is indicated by an &quot;x&quot; in column 
+   &quot;IDX&quot; (column A) and, by convention, by a different 
+   (yellow) background to increase the visibility.</P>
+  <P>
+   A test block can be executed in three modes:</P>
+  <UL>
+   <LI CLASS="mvd-P">
+   <P>
+    SET mode<BR>
+    <LI CLASS="mvd-P"><P>CHK mode<BR>
+    <LI CLASS="mvd-P"><P>GEN mode</P>
+   </UL>
+  <H4 STYLE="text-align : left;" Align="LEFT">
+   SET Mode</H4>
+  <P STYLE="text-align : left;" Align="LEFT">
+   For example if you specified the block <SPAN STYLE="font-style : italic;"><I>Login</I></SPAN> 
+   in test <SPAN STYLE="font-style : italic;"><I>1</I></SPAN> as</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/block_def_mode.jpg" WIDTH="412" HEIGHT="209" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 11: SET mode (default)</H5>
+  <P STYLE="text-align : left;" Align="LEFT">
+   it is the same as if you said</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/block_set_mode.jpg" WIDTH="414" HEIGHT="207" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 12: SET mode</H5>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Wit the SET mode you instruct EMOS FRM to <SPAN STYLE="font-style : italic;text-decoration :underline;"><U><I>enter</I></U></SPAN> 
+   the data. In this case the physical primitives <SPAN STYLE="font-style : italic;"><I>Benutzername</I></SPAN> 
+   and <SPAN STYLE="font-style : italic;"><I>Passwort</I></SPAN> would enter 
+   values &quot;dean&quot; and &quot;pwd&quot; respectively (i.e. 
+   edit_set). In case of a list box the SET mode would select an item. 
+   In case of a radio button the given state would be set and so on.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   The SET mode is normally the most often used mode. For this reason 
+   the default mode (when left empty) is the SET mode.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   It is very important to note that if a primitive is left blank (e.g. <SPAN STYLE="font-style : italic;"><I>Suchbegriff</I></SPAN> 
+   in block <SPAN STYLE="font-style : italic;"><I>Navigation</I></SPAN>), EMOS 
+   FRM ignores this field. It does not enter anything. It does not even 
+   check the field exists. It simply ignores it. As if the primitive 
+   would not have existed. In case that empty string needs to be entered 
+   (i.e. to clear the existing value) one must use the keywords <SPAN STYLE="font-weight : normal;"><FONT FACE="Courier New">&quot;</FONT></SPAN><FONT FACE="Courier New"><SPAN STYLE="font-weight : normal;">&lt;&lt;clear&gt;&gt;</SPAN></FONT><SPAN STYLE="font-weight : normal;"><FONT FACE="Courier New">&quot;</FONT> 
+   or <FONT FACE="Courier New">&quot;&lt;&lt;leer&gt;&gt;&quot;</FONT></SPAN><SPAN STYLE="font-style : normal;font-weight : normal;"> 
+   (e.g. see line 26 in Figure 2 above).</SPAN></P>
+  <H4 STYLE="text-align : left;" Align="LEFT">
+   CHK Mode</H4>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Instead of entering data one can use a test block to <SPAN STYLE="font-style : italic;text-decoration :underline;"><U><I>check</I></U></SPAN> 
+   the data. To do this one needs to set the CHK mode:</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/block_chk_mode.jpg" WIDTH="412" HEIGHT="207" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 13: CHK mode</H5>
+  <P STYLE="text-align : left;" Align="LEFT">
+   In this case the test would check that fields <SPAN STYLE="font-style : italic;"><I>Benutzername</I></SPAN> 
+   and <SPAN STYLE="font-style : italic;"><I>Passwort</I></SPAN> contain 
+   &quot;dean&quot; and &quot;pwd&quot; respectively.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Analog to SET mode if a primitive is left blank, nothing is checked. 
+   If you need to check for the empty fields, use <SPAN STYLE="font-weight : normal;"><FONT FACE="Courier New">&quot;</FONT></SPAN><FONT FACE="Courier New"><SPAN STYLE="font-weight : normal;">&lt;&lt;clear&gt;&gt;</SPAN></FONT><SPAN STYLE="font-weight : normal;"><FONT FACE="Courier New">&quot;</FONT> 
+   or <FONT FACE="Courier New">&quot;&lt;&lt;leer&gt;&gt;&quot;</FONT> instead.</SPAN></P>
+  <H4 STYLE="text-align : left;" Align="LEFT">
+   <SPAN STYLE="font-weight : bold;"><B>GEN Mode</B></SPAN></H4>
+  <P STYLE="text-align : left;" Align="LEFT">
+   <SPAN STYLE="font-weight : normal;">GEN stands for 
+   &quot;generate&quot; mode. Imagine you specified the following</SPAN></P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <SPAN STYLE="font-weight : normal;"><IMG SRC="Images/dbbd/block_gen_mode.jpg" WIDTH="413" HEIGHT="206" VSPACE="0" HSPACE="0" BORDER="0"></SPAN></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 14: GEN mode</H5>
+  <P STYLE="text-align : left;" Align="LEFT">
+   <SPAN STYLE="font-weight : normal;">EMOS FRM would in this case 
+   update the test block with the content it &quot;finds&quot; on the 
+   AUT at the moment of execution of the particular block. In other 
+   words, if application displayed a Benutzername <FONT FACE="Courier New">&quot;aaa&quot;</FONT> 
+   and Passwort <FONT FACE="Courier New">&quot;***&quot;</FONT>, these 
+   values would replace the existing <FONT FACE="Courier New">&quot;dean&quot;</FONT> 
+   and <FONT FACE="Courier New">&quot;pwd&quot;</FONT>.</SPAN></P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   <SPAN STYLE="font-weight : normal;">Imagine you have dozens or 
+   hundreds of GUI objects in your AUT. GEN mode is a great way to 
+   generate your test cases. The process is simple: you run your 
+   application manually, as you reach certain points you stop and set 
+   the GEN mode for the corresponding block, you run that block to 
+   &quot;photograph&quot; the application and continue with the manual test.</SPAN></P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   <HR WIDTH="100%" SIZE="2" Align="LEFT">
+   </P>
+  <H3 STYLE="text-align : left;" Align="LEFT">
+   <A NAME="test_case"></A>Test Case</H3>
+  <P STYLE="text-align : left;" Align="LEFT">
+   <HR WIDTH="100%" SIZE="2" Align="LEFT">
+   </P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   The sequence of test blocks builds up a <SPAN STYLE="font-style : normal;font-weight : normal;">test
+    case</SPAN>.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   A typical &quot;black box&quot; test case is usually defined as 
+   planned execution of selected logical paths with the aim of 
+   demonstrating the expected behaviour. The execution flow of such test 
+   cases is a sequence of actions enriched with occasional checking 
+   (verification) along the way.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   A test case in EMOS FRM is normally represented with one or more <SPAN STYLE="font-style : italic;"><I>columns</I></SPAN> 
+   in the data table. Each test case consists of at least the following 
+   three mandatory parts:</P>
+  <UL>
+   <LI CLASS="mvd-P">
+   <P STYLE="text-align : left;" Align="LEFT">
+    test name,<BR>
+    <LI CLASS="mvd-P"><P STYLE="text-align : left;" Align="LEFT">test sequence,<BR>
+    <LI CLASS="mvd-P"><P STYLE="text-align : left;" Align="LEFT">test block(s).</P>
+   </UL>
+  <H4 STYLE="text-align : left;" Align="LEFT">
+   Test Name</H4>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Each test must be identified with the uniqe name (within the scope of 
+   a particular data table). The names of all test cases in a particular 
+   data table are defined in the <SPAN STYLE="font-style : italic;text-decoration :underline;"><U><I>first</I></U></SPAN><SPAN STYLE="font-style : italic;"><I> row</I></SPAN> 
+   of the data table.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Theoretically, the test name can be almost anything (anything a 
+   ddt_val() can return). There are no syntax constrains for the test 
+   names. However, we tend to use numerical names for the test cases 
+   (e.g. 1,2,3,...,n) or we combine short alphabetic names with the 
+   sequence number (e.g. len1,...,lenn). We strongly recommend this 
+   practice because it repeatedly showed to be the most practical for 
+   the real-life usage. If you want to describe your test cases (you 
+   should feel the need for something like this!), do not use the test 
+   name for it. Simply allocate the number. There are plenty of other 
+   places that you could (should!) use for such purposes.</P>
+  <H4 STYLE="text-align : left;" Align="LEFT">
+   Test Sequence</H4>
+  <P STYLE="text-align : left;" Align="LEFT">
+   The test sequence is defined in a particular row of a data table - 
+   the test sequence row (we have mentioned it earlier). This row is 
+   identified with the keyword (default: <SPAN STYLE="font-style : italic;font-weight : bold;"><I><B>Testvorgang</B></I></SPAN>,
+    but you can name it anything you want) and is placed as one of the 
+   first few rows in the data table (2nd or 3rd). Since test cases are 
+   defined in columns each column has its own sequence.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   The test sequence consists of entries separated by the newline 
+   character (in Excel use Alt-Return to enter the newline as part of 
+   the cell data). There are syntax rules for test sequence entries:</P><DIV><PRE
+     STYLE="text-align : left;">    [key:]test_block_name</PRE></DIV><P STYLE="text-align : left;" Align="LEFT">
+   An entry that consists only of the mandatory <SPAN STYLE="font-style : italic;"><I>test_block_name</I></SPAN> 
+   specifies this particular block to be executed.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   A test_block_name can be prefixed with an optional <SPAN STYLE="font-style : italic;"><I>key</I></SPAN> 
+   which must be separated with the column (:) from the block name. The 
+   key specifies the type of action that is to be parformed on the 
+   particular test block. Here follows the complete list of keys 
+   currently implemented:</P><DIV><PRE
+     STYLE="text-align : left;">    <SPAN
+     STYLE="font-weight : bold;"><B>SET</B></SPAN>:block_name</PRE></DIV><DIV><PRE
+     STYLE="text-align : left;">    <SPAN
+     STYLE="font-weight : bold;"><B>CHK</B></SPAN>:block_name</PRE></DIV><DIV><PRE
+     STYLE="text-align : left;">    <SPAN
+     STYLE="font-weight : bold;"><B>GEN</B></SPAN>:block_name</PRE></DIV><P STYLE="text-align : left;" Align="LEFT">
+   The above examples specify the block_name to be executed in SET, CHK 
+   or GEN mode respectively.</P><DIV><PRE
+     STYLE="text-align : left;">    <SPAN
+     STYLE="font-weight : bold;"><B>LNK</B></SPAN>:block_name</PRE></DIV><DIV><PRE
+     STYLE="text-align : left;">    <SPAN
+     STYLE="font-weight : bold;"><B>LNA</B></SPAN>:block_name</PRE></DIV><P STYLE="text-align : left;" Align="LEFT">
+   The above examples specify the so-called &quot;<SPAN STYLE="font-style : italic;"><I>link</I></SPAN>&quot;
+    operation. The link is the way of expressing that another column 
+   (i.e. test case) is going to be executed (possibly located in a 
+   different data table and/or using another test driver). The 
+   difference between LNK and LNA is that EMOS FRM only loads the 
+   particular column if LNK is used, whereas LNA specifies the whole 
+   table (i.e. all not-yet-loaded columns) to be loaded before executing 
+   the particular column. There are subtle reasons why you would want to 
+   load all columns at once. Recall that we often say that test cases 
+   are <SPAN STYLE="text-decoration :underline;"><U>usually</U></SPAN> defined 
+   in columns. In cases when they are not in columns you would need the 
+   LNA. We do not plan to describe these &quot;special cases&quot; in 
+   this text.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   The name of the test block and it's structure is in case of LNK/LNA 
+   somewhat unusual. The block_name specifies the name of the test 
+   driver (WR test script) that is called to execute the column. You can 
+   specify the path (e.g. c:/wr/scripts/drv/xxx) or just the name of the 
+   test (e.g. xxx) if the searchpath within WinRunner is correctly set.</P><CENTER><PRE
+     STYLE="text-align : center;"><IMG SRC="Images/dbbd/test_lnk.jpg" WIDTH="411" HEIGHT="233" VSPACE="0" HSPACE="0" BORDER="0"></PRE></CENTER><H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 15: LNK/LNA</H5>
+  <P STYLE="text-align : left;" Align="LEFT">
+   In the example shown in the Figure 15 we see one LNK-block occupying 
+   the lines 4 to 7. Note the name of the block (B4:<FONT FACE="Courier New">drv\se</FONT>),
+    the indcator of end of the block (B7:<FONT FACE="Courier New">&lt;&lt;END&gt;&gt;</FONT>),
+    the &quot;call&quot; of the block (F3,G3:<FONT FACE="Courier New">LNK:drv\se</FONT>)
+    and the usage of the block in test cases 1 and 2 (F6,G6: <FONT FACE="Courier New">1</FONT>).
+    An LNK block specifies normally three pieces of information:</P>
+  <UL>
+   <LI CLASS="mvd-P">
+   <P STYLE="text-align : left;" Align="LEFT">
+    the script (driver) to be used (B4)<BR>
+    <LI CLASS="mvd-P"><P STYLE="text-align : left;" Align="LEFT">the table(s) to be used (B5,B6)<BR>
+    <LI CLASS="mvd-P"><P STYLE="text-align : left;" Align="LEFT">the test cases to be executed (F6,G6)</P>
+   </UL>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Note that if you do not define the test case (such as in cells F5,G5) 
+   the test script is not called.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   You can however use LNK to call practiaclly any TSL script you want, 
+   it does not have to be the so called &quot;FRM driver&quot; script. 
+   The only limitation is that you can pass up to two parameters to your 
+   script. If your script requires less than two parameters (an FRM 
+   driver always requires two parameters), then you need some 
+   &quot;keywords&quot; to specify what parameters are not needed. We 
+   use <FONT FACE="Courier New">&lt;dummy&gt;</FONT> to indicate the 
+   missing parameter. The following example shows how to call a test 
+   script &quot;scriptx&quot; with no parameters:</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/test_lnk2.jpg" WIDTH="308" HEIGHT="111" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 16: LNK with no parameters</H5><DIV><PRE
+     STYLE="text-align : left;">   <SPAN
+     STYLE="font-weight : bold;"><B>EXE</B></SPAN>:block_name</PRE></DIV><P STYLE="text-align : left;" Align="LEFT">
+   EXE specifies that the block to be called contains WinRunner commands 
+   and is going to be <SPAN STYLE="font-style : italic;"><I>executed</I></SPAN>.
+    Indeed, behind EXE there is a sequence of &quot;eval&quot; 
+   statements that (try to) execute everything you specified within the 
+   particular column of the specified test block.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   There are very good reasons why such &quot;ugly&quot; coding might be 
+   necessary or even wanted. First of all, reacall that with EMOS FRM 
+   your test logic is in data tables not in test scripts. Imagine your 
+   test is supposed to perform some mouse dragging on a CAD application 
+   as part of some test sequence. The way to perform mouse movements of 
+   the from-a-to-b sort in WinRunner is by win_mouse_drag() commands. 
+   Where would you like to store such movements: together with the test 
+   case that really needs it or somewhere in some test sripts just 
+   because &quot;the test code belongs to the test scripts not to the 
+   test data&quot;? Think of it.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Analog to LNK/LNA blocks the EXE block also has some syntax constrains.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <FONT COLOR="RED"><IMG SRC="Images/dbbd/test_exe.jpg" WIDTH="657" HEIGHT="311" VSPACE="0" HSPACE="0" BORDER="0"></FONT></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 17: EXE</H5><DIV><PRE
+     STYLE="text-align : left;">    <SPAN
+     STYLE="font-weight : bold;"><B>###</B></SPAN>:block_name</PRE></DIV><P STYLE="text-align : left;" Align="LEFT">
+   The above example shows the comment. Use three hashes (###) to 
+   prevent the block from being executed without phisically deleting it 
+   from the sequence.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Finally, the only exception to the syntax specified above is the keyword</P><DIV><PRE
+     STYLE="text-align : left;">    <SPAN
+     STYLE="font-weight : bold;"><B>&lt;&lt;PAUSE&gt;&gt;</B></SPAN></PRE></DIV><P STYLE="text-align : left;" Align="LEFT">
+   which can appear <SPAN STYLE="text-decoration :underline;"><U>between</U></SPAN> 
+   any other sequence entries. In interactive mode this keyword causes 
+   the test execution to be paused at some point. This is particularly 
+   useful if you want to &quot;throw an eye&quot; at the application at 
+   some particular point(s) during the execution of your tests. The 
+   following example shows block <SPAN STYLE="font-style : italic;"><I>Prolog</I></SPAN> 
+   as commented out and a pause between blocks <SPAN STYLE="font-style : italic;"><I>Login</I></SPAN> 
+   and <SPAN STYLE="font-style : italic;"><I>Navigation</I></SPAN>.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/test_comment.jpg" WIDTH="373" HEIGHT="243" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 18: Comment / Pause</H5>
+  <P STYLE="text-align : left;" Align="LEFT">
+   <HR WIDTH="100%" SIZE="2" Align="LEFT">
+   </P>
+  <H2>
+   <A NAME="test_groups"></A>Test Groups</H2>
+  <P STYLE="text-align : left;" Align="LEFT">
+   <HR WIDTH="100%" SIZE="2" Align="LEFT">
+   </P>
+  <P>
+   We have seen so far that test cases are stored in data tables - a 
+   specially formatted Excel tables. We have also seen that these test 
+   cases are capable of &quot;calling&quot; each other in terms of links 
+   LNK/LNA. However, linking the tests together is not the mean for 
+   grouping tests into &quot;bigger&quot; units. Links group more 
+   columns into a single test case. What we need is a way to specify <SPAN STYLE="text-decoration :underline;"><U>which
+    test cases</U></SPAN> in <SPAN STYLE="text-decoration :underline;"><U>what order</U></SPAN> 
+   and for <SPAN STYLE="text-decoration :underline;"><U>what purpose</U></SPAN> 
+   are to be executed.</P>
+  <P>
+   We use the term &quot;grouping&quot; (still looking for a better 
+   term) for this purpose. EMOS_FRM has one concept for grouping test 
+   cases into execution groups - a <SPAN STYLE="font-style : italic;font-weight : bold;"><I><B>test
+    suite</B></I></SPAN>. The test suite itself uses <SPAN STYLE="font-style : italic;font-weight : bold;"><I><B>test
+    set</B></I></SPAN>s as a way for defining subgroups.</P>
+  <P>
+   As with the test cases EMOS_FRM uses Excel tables to define the test suites.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   <HR WIDTH="100%" SIZE="2" Align="LEFT">
+   </P>
+  <H3>
+   <A NAME="test_suite"></A>Test Suite</H3>
+  <P STYLE="text-align : left;" Align="LEFT">
+   <HR WIDTH="100%" SIZE="2" Align="LEFT">
+   </P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Test suite defines the scope (what test cases) and the order (what 
+   sequence) in which the test cases are to be executed. Test suite is 
+   physically an Excel table that specifies three important pieces of information:</P>
+  <UL>
+   <LI CLASS="mvd-P">
+   <P STYLE="text-align : left;" Align="LEFT">
+    <SPAN STYLE="font-weight : bold;"><B>flag</B></SPAN> wheter to perform the 
+    following specification or not,<BR>
+    <LI CLASS="mvd-P"><P STYLE="text-align : left;" Align="LEFT"><SPAN STYLE="font-weight : bold;"><B>test script</B></SPAN> 
+    (driver) to be executed,<BR>
+    <LI CLASS="mvd-P"><P STYLE="text-align : left;" Align="LEFT"><SPAN STYLE="font-weight : bold;"><B>data table</B></SPAN> 
+    to be used,<BR>
+    <LI CLASS="mvd-P"><P STYLE="text-align : left;" Align="LEFT"><SPAN STYLE="font-weight : bold;"><B>test set</B></SPAN> 
+    (test cases) to be &quot;picked&quot; from the data table.</P>
+   </UL>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Any sort of other information could also be specified in the table. 
+   This information will be ingored by the FRM but it might be of high 
+   importance for the people that maintain these tables.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   The following figure shows the excerpt from the <SPAN STYLE="font-style : italic;"><I>SE_full_test.xls</I></SPAN> 
+   - a test suite that executes the complete test for the so-called 
+   structured emails.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   <IMG SRC="Images/dbbd/SE_full_test.jpg" WIDTH="760" HEIGHT="568" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 19: SE_full_test</H5>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Note that the table is the &quot;standard&quot; FRM table - the first 
+   row is used for the column names. Also note that the excerpt starts 
+   with column &quot;C&quot;. We usually hide columns A and B because 
+   they carry no information other than the column names. Columns A and 
+   B <SPAN STYLE="text-decoration :underline;"><U>must</U></SPAN> however be 
+   present and <SPAN STYLE="text-decoration :underline;"><U>must</U></SPAN> be 
+   titled &quot;IDX&quot; and &quot;Name&quot; so that EMOS_FRM can 
+   recognize the table as one of it's own.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Further notice the lines that contain complete information 
+   (3,4,5,etc.). Notice that we can have mutliple lines specifiying the 
+   same data table. For exmple line 3 specifies test cases 1 to 12 for 
+   Zahlungsverkehr whereas line 4 specifes test cases nav1 to nav9 for 
+   the same data table.</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   One can define many test suites, all picking from the same pool of 
+   test cases, but all with a different purpose. For example, imagine 
+   you need a</P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   <HR WIDTH="100%" SIZE="2" Align="LEFT">
+   </P>
+  <H3 STYLE="text-align : left;" Align="LEFT">
+   <A NAME="test_set"></A>Test Set</H3>
+  <P STYLE="text-align : left;" Align="LEFT">
+   Test set is a mean of groupping test cases that reside in a single 
+   data table into a sequence that is to be executed</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <H2>
+   <A NAME="test_scripts"></A>Test Scripts</H2>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <P>
+   The concepts related to test data and the data itself have to be 
+   processed in some way. We write test scripts. WinRunner test scripts.</P>
+  <P>
+   With EMOS FRM most of the code that needs to be executed has already 
+   been written for you and is part of the EMOS_GPL library set. The 
+   code that cannot be written in advance - the code that implements 
+   your test blocks - has to be written from scratch. Indeed, this is 
+   just about the only code that has to be written at all. Actually, if 
+   the block only contains physical primitives, it does not even have to 
+   be written - it can be generated. This is a long story...</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <H3>
+   <A NAME="block_function"></A>Block Function (FRM-Libraries)</H3>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <P>
+   We mentioned that the central concept of the EMOS FRM is a <SPAN STYLE="font-style : italic;text-decoration : none;"><I>test
+    block</I></SPAN>. The counterpart of the test block on a scripting side 
+   is a <SPAN STYLE="font-style : italic;font-weight : bold;"><I><B>block function</B></I></SPAN>.
+    In other words - you implement a test block by writing a block function.</P>
+  <P>
+   Recall the test block <SPAN STYLE="font-style : italic;"><I>&quot;Login&quot;</I></SPAN> 
+   from Figure 9.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/TestBlock.jpg" WIDTH="489" HEIGHT="275" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   It refers to the following part of the application:</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/login.jpg" WIDTH="205" HEIGHT="150" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <P STYLE="text-align : left;" Align="LEFT">
+   The block is implemented with the following function:</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <IMG SRC="Images/dbbd/Login_Script.jpg" WIDTH="577" HEIGHT="373" VSPACE="0" HSPACE="0" BORDER="0"></P>
+  <H5 STYLE="text-align : center;" Align="CENTER">
+   Figure 11: Block function</H5>
+  <P STYLE="text-align : left;" Align="LEFT">
+   This is a stereotype block function. You can find dozens of such 
+   functions (mostly longer) whenewer EMOS FRM is being used. Let us 
+   analyse the details.</P>
+  <H4>
+   Block Function Name</H4>
+  <P>
+   The first thing to note is that each block has a block function that 
+   belongs to it. Our block <SPAN STYLE="font-style : italic;"><I>Login</I></SPAN> 
+   has a function <SPAN STYLE="font-style : italic;"><I>FRM_Login(...)</I></SPAN> 
+   associated with it. It is not required but we recomend to use the 
+   same or similar names. We usually prefix the function name with 
+   &quot;FRM_&quot;. This reduces the possibilities for name collisions 
+   (all function in WinRunner use the same name space!) with other, 
+   unrelated functions.</P>
+  <H4>
+   Block Initialisation</H4>
+  <P>
+   The code on line 18 is used to initialize the block function. We use 
+   the function <SPAN STYLE="font-style : italic;"><I>FRM_init_block(...)</I></SPAN> 
+   to do this. In fact all block functions do this.</P>
+  <P>
+   The initialization does two things:</P>
+  <OL>
+   <LI CLASS="mvd-P">
+   <P>
+    positions the data focus to the beginning of the test block<BR>
+    <LI CLASS="mvd-P"><P>initialises the block mode</P>
+   </OL>
+  <P>
+   Imagine we execute the test 1 (column F). The focus for reading data 
+   from the data table would be placed to cell F10. The block would be 
+   initialised to SET (due to the empty cell F10).</P>
+  <P>
+   There is no point executing the function if the initialisation fails.</P>
+  <H4>
+   Implementing test primitives</H4>
+  <P>
+   After a successful initialization we are ready to &quot;do the 
+   job&quot;. In our case we must implement the test primitives (and 
+   eventually any other related task).</P>
+  <P>
+   We did not talk much about the GUI maps so far. We do now. Remember 
+   that our blocks (at least the physical ones) refer to the GUI objects 
+   that are closely related to eachother. Within WinRunner these objects 
+   are typically grouped inside one window. The first thing our block 
+   functions do is to set the scope to a particular window.</P>
+  <P>
+   Test primitives <SPAN STYLE="font-style : italic;"><I>Benutzername</I></SPAN> 
+   and <SPAN STYLE="font-style : italic;"><I>Passwort</I></SPAN> (rows 11 and 
+   12) are implemented with lines 22 and 23. Note the 1:1 relationship - 
+   one row in the data table, one line in the block function. This is 
+   very important and it usually holds for all physical primitives. The 
+   FRM-functions were carefuly designed to support this 
+   &quot;optical&quot; relationship.</P>
+  <P>
+   One does not have to write block functions this way. However, it is 
+   usually a sign of a trouble if you see a lot of logic (if-statements, 
+   loops, etc.) within a block function. The person probably did not 
+   understand the main message of EMOS FRM - a test case does not come 
+   from a test script, it comes from a test data. If you are only 
+   looking into the test data, then any &quot;if&quot; in a block 
+   function increases the separation between the code and the data. 
+   Remember, we <SPAN STYLE="text-decoration :underline;"><U>don't</U></SPAN> 
+   want to look into the code. We want to know what is going on only by 
+   looking into the test data. The code is there only to support the 
+   data. That's the main difference beween EMOS FRM and other approaches.</P>
+  <P>
+   Another interesting part is the fact that this block implicitly 
+   clicks on <SPAN STYLE="font-style : italic;"><I>Anmelden</I></SPAN> image. 
+   This makes sense in this case because this is normally what is wanted 
+   when someone logs in. However, if there were some other possibilities 
+   (such as &quot;Cancel&quot; or &quot;Help&quot;), then we probably 
+   would not model it this was. Instead we would create another 
+   primitive, say &quot;Action&quot;, and let people choose what image 
+   to press.</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <H3>
+   <A NAME="function_library"></A>Function Library</H3>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <H3>
+   <A NAME="test_driver"></A>Test Driver</H3>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <P>
+   With creation of your block functions, most of your script creation 
+   is done. But a little work is left to do. You need a piece of code 
+   that provides the link between a block in your excel sheets and the 
+   corresponding block functions. This is the main task of a Test 
+   Driver. The Test Driver is a winrunner test script containing a 
+   switch statement of the following structure:</P>
+  <P>
+   switch( vorgang )<BR>
+   {<BR>
+   &nbsp; case &quot;Login&quot;:<BR>
+   &nbsp; rc = FRM_Login( table, test, vorgang, mode );break;<BR>
+   &nbsp; ......<BR>
+   &nbsp; default:<BR>
+   &nbsp; tl_step( vorgang, 1, &quot;Unbekannter Testvorgang 
+   [&quot;&amp;vorgang&amp;&quot;]&quot; );<BR>
+   &nbsp; frm_rc++;<BR>
+   &nbsp; continue;<BR>
+   &nbsp;}</P>
+  <P>
+   Let's have a look at these lines of code. Every time the Framework 
+   executes a test that needs to execute the Test Block 
+   &quot;Login&quot;, it enters the Test Driver that correspond to that 
+   test (defined in the Test Suite Table) and steps through the 
+   switch-statement. In our example it switches to the Block function 
+   &quot;FRM-Login&quot;. Every time you implement a new block function, 
+   add a corresponding &quot;case&quot;-statement to the driver.</P>
+  <P>
+   If you store your Block Functions in libraries and/or use separate 
+   GUI-Files for each block (which both are good practices), you have to 
+   load them before use. Also some kind of reporting to the test results 
+   may be useful at this point.</P>
+  <P>
+   A template of a Test Driver is provided in &lt;EMOS_HOME&gt;/xxx. 
+   Here you can see how things should be implemented.</P>
+  <P>
+   &nbsp;</P>
+  <P>
+   &nbsp;</P>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <H3>
+   <A NAME="kickoff"></A>Test Suite Trigger (kick-off)</H3>
+  <P STYLE="text-align : center;" Align="CENTER">
+   <HR WIDTH="100%" SIZE="2" Align="CENTER">
+   </P>
+  <P>
+   After creating Block functions, Test Drivers, Test Suite- and 
+   Test-Excelsheets, you need some kind of entry point for execution of 
+   your Suite. This entry point is provided as a very simple winrunner 
+   testscript. It looks like the following:</P>
+  <P>
+   &nbsp; static const TEST_PATH = TEST_HOME;<BR>
+   &nbsp; static const DATA_PATH = DATA_HOME;<BR>
+   &nbsp; static const SUITE = &quot;TestSuite.xls&quot;;</P>
+  <P>
+   &nbsp; static table = SUITE;</P>
+  <P>
+   &nbsp; call &quot;FRM/emos_frm_driver&quot; ( TEST_PATH, DATA_PATH, 
+   table, FALSE );</P>
+  <P>
+   This testscript is provided as a template in &lt;EMOS_HOME&gt;/xxx. 
+   Copy the template file to your &lt;TEST_HOME&gt; directory and assign 
+   the constant SUITE the name of your Testsuite-Excel-Sheet. Normally, 
+   this is the only modification you have to do.</P>
+  <P>
+   <!-- $MVD$:spaceretainer() -->&nbsp;
+ <form method="POST" action="http://www.eHelp.com/ehelpapi.asp?cmd=WebSave" name="ehelpform" target="_top">
+
+  <input type="hidden" name="data" value="2A0D020000000011020E000000426173696320436F6E636570747312020C000000496E74726F64756374696F6E130208000000454D4F532046524D150209000000696E6465782E68746D17030000000018010400000002000000702A">
+ </form></BODY>
+</HTML>

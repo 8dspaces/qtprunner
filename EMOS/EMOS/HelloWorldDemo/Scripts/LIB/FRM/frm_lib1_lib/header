@@ -1,0 +1,21 @@
+#! asci,100,100,Test Header,Mon Jan 22 19:29:40 2001
+
+[General]
+TDDB_ID=0
+NAME=D:\wr\ProjectX\Scripts\LIB\FRM\frm_lib1_lib
+TYPE=CM
+AUTHOR=Adrian
+DATE=980188121
+FUNCTION=
+SPEC=
+FSEARCH=
+TSEARCH=
+SUM_DESCRIPTION=
+DESCRIPTION=
+COMMENTS=
+ADDONS=
+DATA_TBL=default.xls
+VERSION=6.02
+
+[Params]
+PARAM_CNT=0

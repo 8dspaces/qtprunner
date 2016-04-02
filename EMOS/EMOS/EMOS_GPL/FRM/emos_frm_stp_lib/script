@@ -1,0 +1,802 @@
+################################################################################
+# TSL-LIBRARY:	EMOS_FRM_stp_lib
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.6 $
+# $Author: drajovic $
+# $Date: 2005/01/27 08:53:54 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/emos_frm_stp_lib/script,v $
+# $NoKeywords: $
+################################################################################
+
+#/***
+#* Defines an interface for efficient creation of test cases unsing the FRM
+#* data tables.<p>
+#* A typical FRM test case defines its test data across columns. This is the 
+#* plain oposite of the approach taken by Mercury and many other testers. The
+#* benefit of defining test data column-wise is the ability to define many,
+#* very many (up to 64k) test entries which makes very complex tests possible
+#* (accross rows the limit is 256) which are comparatively easy to maintain
+#* (no ugly right-left scrolling, you can see much more test data at once).
+#* Additionally, you can (hypothetically) "pack" up to 254 of such complex tests
+#* in a single Excel-file wich can greatly reduce the mess on your hard drive.<p>
+#* A single test case contains three important parts:
+#* <ul>
+#* <li><code>name</code> content of the cell in the first row</li>
+#* <li><code>sequence</code> a single cell containing the list of test steps
+#* which are to be executed in a sequence</li>
+#* <li><code>step(s)</code> an indexed block of rows containing test data</li>
+#* </ul>
+#* To keep things simple imagine a part of some application with two windows.
+#* First window contains the list of user names and three buttons: New, Edit, Delete.
+#* Imagine a table "User1.xls" with the following content:
+#* <table border>
+#*  <tr> <th>IDX</th> <th>Name</th><th>1</th><th>2</th><th>3</th>  </tr>
+#*  <tr> <td>x</td> <th>Testsequence</th> <td><pre>select_user
+#*user_data</pre></td> <td><pre>select_user
+#*user_data</pre></td> <td>select_user</td> </tr>
+#*  <tr> <td>x</td> <th>select_user</th> <th>&#160;</th> <th>&#160;</th> <th>&#160;</th>  </tr>
+#*  <tr> <td>&#160;</td> <td>user list</td> <td></td> <td>dean</td> <td>dean</td> </tr>
+#*  <tr> <td>&#160;</td> <td>New/Edit/Delete</td> <td>New</td> <td>Edit</td> <td>Delete</td> </tr>
+#*  <tr> <td>&#160;</td> <td>delete? (OK/Cancel)</td> <td>&#160;</td> <td>&#160;</td> <td>OK</td> </tr>
+#*  <tr> <td>x</td> <th>user_data</th> <th>&#160;</th> <th>CHK</th> <th>&#160;</th> </tr>
+#*  <tr> <td>&#160;</td> <td>first name</td> <td>dean</td> <td>dean</td> <td>&#160;</td> </tr>
+#*  <tr> <td>&#160;</td> <td>last name</td> <td>rajovic</td> <td>rajovic</td> <td>&#160;</td> </tr>
+#*  <tr> <td>&#160;</td> <td>OK/Cancel</td> <td>OK</td> <td>Cancel</td> <td>&#160;</td> </tr>
+#* </table>
+#* This table contains three independent test cases named 1, 2 and 3.
+#* Test 1 creates a new user....
+#*/
+
+static const COUNT = 0;
+static const NEXT = 1;
+static const IDX = 2;
+
+static const DEFAULT_IDX_NAME = "Testvorgang";
+
+# Dreidimensional: steps[ table, test, vorgang ]
+static steps[];
+
+#Dreidimensional: info[ table, test, info_type ]
+static info[];           
+
+public __evalRC;        # public variable used to communicate returne code for eval statements
+
+#/**
+#* Initialises the step iterator.
+#* @param tid (in)	table ID
+#* @param test (in)	column name
+#* @param idx (in)	(optional) index (i.e. table row) containing test steps [default: "Testvorgang"]
+#* @return
+#*	E_OK:	success
+#*	E_NOT_FOUND:	no steps found (idx missing)
+#*	else:	other error
+#*/
+
+public function FRM_STP_init_steps ( in tid, in test, in idx )
+{
+	auto rc, val, count, arr[], i, msg;
+	
+	if ( idx == "" )
+		idx = DEFAULT_IDX_NAME;
+	
+	rc = FRM_get_cell( tid, test, idx, val );
+	if ( rc != E_OK )
+	{
+		msg = sprintf( "Teststeps cannot be determined; idx=[%s] rc=[%s]", idx, rc );
+		tl_step( "FRM_STP_init_steps", rc, msg );
+		return rc;
+	}
+	FRM_STP_clear_steps ( tid, test );
+
+	info[ tid, test, IDX ] = idx;
+	info[ tid, test, COUNT ] = 0;
+	info[ tid, test, NEXT ] = 1;
+
+	FRM_STP_load_steps( tid,test, idx, val );
+
+	# since 04/2001: load up to 99 additional test step cells
+	for( i=1; i<100; i++ )
+	{
+		if ( FRM_get_cell( tid, test, idx&i, val ) != E_OK )
+			break;
+		FRM_STP_load_steps( tid, test, idx&i, val );
+	}
+	return (info[ tid, test, COUNT ]==0) ? E_NOT_FOUND : E_OK;
+}
+
+#/**
+#* Loads the content of a single table cell (steps separated by newline char)
+#* into the internal step table.
+#*/
+
+static function FRM_STP_load_steps ( in tid, in test, in idx, in val )
+{
+	auto arr[], count, i;
+	auto count2 =info[ tid, test, COUNT ];
+	
+	count = split( val, arr, "\n" );
+	for( i=1; i<=count; i++ )
+	{
+		steps[ tid, test, count2+i ] = arr[i];		
+		info[ tid, test, COUNT ] = count2+i;
+	}
+}
+	
+#/**
+#* Frees all references to the specified test.
+#* @param tid (in)	table ID
+#* @param test (in)	column name
+#*/
+
+public function FRM_STP_clear_steps ( in tid, in test )
+{
+	auto i, idx = tid & ARRSEP & test;
+	for ( i in steps )
+		if ( match (i, idx) == 1 )
+			delete steps[i];
+	for ( i in info )
+		if ( match (i, idx) == 1 )
+			delete info[i];
+}
+
+#/**
+#* Indicates whether there are steps to execute.
+#* @param tid (in)	table ID
+#* @param test (in)	column name
+#* @return
+#*	TRUE:	there are more steps; use FRM_STP_get_next_step() to get the next one
+#*	FALSE:	all steps have been retrieved
+#*/
+
+public function FRM_STP_has_more_steps ( in tid, in test )
+{
+	if ( ((tid, test, COUNT) in info) && ((tid, test, NEXT) in info) )
+		return ( info[tid, test, NEXT] <= info[tid, test, COUNT] );
+	return FALSE;
+}
+		
+#/**
+#* Returns the next step. Note that the <b>implicit steps</b> are never returned
+#* with this command. They are simply executed by this function. The implicit
+#* steps are:
+#* <ul>
+#* <li><code>LINK</code> executes a test in this or some other data table, 
+#* the test is atomatically loaded if necessary</li>
+#* <li><code>LINA</code> same as LINK while loading ALL tests from the specified
+#* table (sometimes impoves the overal performance)</li>
+#* <li><code>LINX</code> executes a specified test from an inverted data table
+#* (table in which tests are organised/indexed horizontally)</li>
+#* <li><code>CALL</code> invokes an arbitrary WinRunner main test</li>
+#* <li><code>EVAL</code> invokes an arbitrary WinRunner function</li>
+#* <li><code>EXEC</code> evaluates a block of WinRunner functions</li>
+#* <li><code>#</code> any step starting with # is treated as a comment</li>
+#* <li>obsolete syntax is still valid</li>
+#* <li><code><b>LNK:</b>script_name</code> links this test with another one 
+#* (loading only the specified tests)</li>
+#* <li><code><b>LNA:</b>script_name</code> links this test with another one 
+#* (loading all tests in the referenced table)</li>
+#* <li><code><b>EXE:</b>test step</code> exectutes all rows in the specified test block</li>
+#* <li><code><b>###:</b>test step</code> comments out the given test step</li>
+#* <li><code>&lt;&lt;PAUSE&gt;&gt;</code> pauses the test execution in interactive mode</li>
+#* </ul>
+#* @param tid (in)	table ID
+#* @param test (in)	column name
+#* @param step (out)	name (idx) of the test step
+#* @param mode (out)	mode to be applied ( FRM_SET_MODE/FRM_CHK_MODE/FRM_GEN_MODE )
+#* @return
+#*	E_OK:	success; test step defined
+#*	E_FILE_EOF:	no steps to be retreived
+#*	else:	failure
+#*/
+
+public function FRM_STP_get_next_step ( in tid, in test, out step, out mode )
+{
+	auto val, stp, nxt, hdr;
+	auto formatted, sep, arr[], count, i;
+	auto cmd, drv, tbl, tst;
+
+	auto rc = E_OK;
+	
+	while ( 1 )
+	{
+		if ( !FRM_STP_has_more_steps ( tid, test ) )
+			return E_FILE_EOF;
+		nxt = info[ tid, test, NEXT ];
+		stp = strip_both( steps[tid, test, nxt ] );
+
+		# empty step or comment
+		if ( stp == "" || substr( stp,1,1  ) == "#" )
+		{
+			info[ tid, test, NEXT ] = nxt+1;
+			continue;
+		}
+		
+		hdr = toupper( substr( stp,1,4 ) );
+
+		# look for keywords
+		switch ( hdr )
+		{
+		# shortcuts for SET/CHK/ATR/GEN modes
+		case "SET:":
+		case "CHK:":
+		case "ATR:":
+		case "GEN:":
+		# call to another FRM test
+		case "LINK":
+		case "LINA":
+		case "LINX":
+		# call to an arbitrary test script
+		case "CALL":
+		# executes an arbtrary WinRunner command
+		case "EVAL":
+		# executes a block of WinRunner commands
+		case "EXEC":
+		# old-fashined links (still supported)
+		case "LNK:":
+		case "LNA:":
+		# old-fashioned EXEC
+		case "EXE:":
+			formatted = (length(stp) > 4 ? TRUE : FALSE);
+			break;
+		default:
+			formatted = FALSE;
+			break;
+		}
+
+		info[ tid, test, NEXT ] = nxt+1;
+
+		if ( !formatted )
+		{
+			step = stp;
+			if ( FRM_STP_is_internal_step( step, tid ) )
+				continue;
+			wrlog_block_start ( stp );
+			if ( FRM_STP_is_dummy_step_mode() )
+			{
+				wrlog_block_stop ( stp, 0 );
+				continue;
+			}
+			break;
+		}
+
+		switch ( hdr )
+		{
+		case "SET:":
+			mode = FRM_SET_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( step );
+			if ( FRM_STP_is_dummy_step_mode() )
+			{
+				wrlog_block_stop ( step, 0 );
+				continue;
+			}
+			break;
+		case "CHK:":
+			mode = FRM_CHK_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( step );
+			if ( FRM_STP_is_dummy_step_mode() )
+			{
+				wrlog_block_stop ( step, 0 );
+				continue;
+			}
+			break;
+		case "ATR:":
+			mode = FRM_ATR_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( step );
+			if ( FRM_STP_is_dummy_step_mode() )
+			{
+				wrlog_block_stop ( step, 0 );
+				continue;
+			}
+			break;
+		case "GEN:":
+			mode = FRM_GEN_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( step );
+			if ( FRM_STP_is_dummy_step_mode() )
+			{
+				wrlog_block_stop ( step, 0 );
+				continue;
+			}
+			break;
+		case "LINK":
+		case "LINA":
+		case "LINX":
+			wrlog_block_start ( stp );
+			rc = FRM_STP_parse_link( stp, tid, drv, tbl, tst );
+			wrlog_block_stop ( stp, rc );
+			if ( rc != E_OK ) break;
+			wrlog_test_start ( tst, tbl, drv );
+			rc = FRM_STP_eval_link( hdr, tid, drv, tbl, tst );
+			wrlog_test_stop ( stp, rc );
+			if ( rc != E_OK ) break;
+			continue;
+		case "CALL":
+			wrlog_block_start ( stp );
+			if ( !FRM_STP_is_dummy_step_mode() )
+				rc = FRM_STP_eval_call( stp );
+			wrlog_block_stop ( stp, rc );
+			if ( rc != E_OK ) break;
+			continue;
+		case "EVAL":
+			wrlog_block_start ( stp );
+			if ( !FRM_STP_is_dummy_step_mode() )
+			rc = FRM_STP_eval( substr( stp, 6 ) );
+			wrlog_block_stop ( stp, rc );
+			continue;
+		case "EXEC":
+			mode = FRM_SET_MODE;
+			step = substr( stp, 6 );
+			wrlog_block_start ( stp );
+			if ( !FRM_STP_is_dummy_step_mode() )
+				rc = FRM_STP_exec( tid, test, step, mode );
+			wrlog_block_stop ( stp, rc );
+			if ( rc != E_OK ) break;
+			continue;
+		# KEPT ONLY FOR THE SAKE OF COMPATIBILITY WITH THE OLD DATA TABLES
+		# use LINK and/or LINA instead!
+		case "LNK:":
+		case "LNA:":
+			mode = FRM_SET_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( stp );
+			wrlog_block_stop ( stp, 0 );
+			if ( hdr == "LNK:" )
+				rc = FRM_STP_link( tid, test, step, mode, FALSE );
+			else
+				rc = FRM_STP_link( tid, test, step, mode, TRUE );
+			# propagate errors up the call chain
+			if ( rc != E_OK ) break;
+			continue;
+		case "EXE:":
+			mode = FRM_SET_MODE;
+			step = substr( stp, 5 );
+			wrlog_block_start ( stp );
+			if ( !FRM_STP_is_dummy_step_mode() )
+				rc = FRM_STP_exec( tid, test, step, mode );
+			wrlog_block_stop ( stp, rc );
+			if ( rc != E_OK ) break;
+			continue;
+		default:
+			# internal error if you land here
+			rc = E_GENERAL_ERROR;
+			break;
+		}
+		tl_step( "STEP", rc, sprintf( "[%s] failed returning [rc=%s]", stp, rc ) );
+		return rc;
+	}
+}
+
+#/**
+#* Parses the call to another FRM test, i.e. call driver( table, test ).
+#* SYNTAX:
+#*	<code>LINK&lt;SEP&gt;[driver]&lt;SEP&gt;[table]&lt;SEP&gt;test</code>
+#* or
+#*	<code>LINA&lt;SEP&gt;[driver]&lt;SEP&gt;[table]&lt;SEP&gt;test</code>
+#*/
+
+static function FRM_STP_parse_link ( in line, in curr_tid, out drv, out tbl, out tst )
+{
+	auto sep, arr[], count, i;
+	auto dir, file;
+
+	sep = substr( line, 5, 1 );
+	count = split( line, arr, sep );
+	if ( count != 4 )
+		return E_ILLEGAL_PARAMETER;
+
+	# driver is optional if new driver logic is used
+	drv = strip_both( arr[2] );
+	if ( drv == "" && !FRM_DRV_is_new_test_driver() )
+		return E_ILLEGAL_PARAMETER;
+
+	# test name must be specified
+	tst = strip_both( arr[4] );
+	if ( tst == "" )
+		return E_ILLEGAL_PARAMETER;
+
+	tbl = strip_both( arr[3] );
+
+	# table name is optional (default: current table)
+	# if we don't return tbl, then curr_tid should be used by the caller
+	if ( tbl == "" )
+		return E_OK;
+	
+	# if table only contains the sheet name (i.e. starts with name sep), 
+	# then substitute the full path of the current table
+	if ( substr(tbl, 1, 1) == ddt_get_name_sep() )
+	{
+		split_path( FRM_get_filename(curr_tid), dir, file, "\\" );
+		tbl = join_path( dir, file, "\\" ) & tbl;
+		return E_OK;
+	}
+	# otherwise if table name supplied (eventually with sheet name),
+	# then table name MUST be absolute and backslash-separated
+	tbl = replace(tbl, "/", "\\");
+	if ( match( tbl, " *[A-Za-z]:" ) != 1 && substr( tbl, 1, 1 ) != "\\" )
+	{
+		split_path( FRM_get_name(curr_tid), dir, file, "\\" );
+		tbl = join_path( dir, tbl, "\\" );
+	}
+	return E_OK;
+}
+
+#/**
+#* Executes the link call.
+#* SYNTAX:
+#*	<code>LINK&lt;SEP&gt;[driver]&lt;SEP&gt;[table]&lt;SEP&gt;test</code>
+#* or
+#*	<code>LINA&lt;SEP&gt;[driver]&lt;SEP&gt;[table]&lt;SEP&gt;test</code>
+#*/
+
+static function FRM_STP_eval_link( in typ, in curr_tid, in drv, in tbl, in tst )
+{
+	auto rc, tid, cmd;
+
+	rc = E_OK;
+	
+	switch ( typ )
+	{
+	# loads only the required column (if not loaded yet)
+	# and executes the test with that column
+	case "LINK":
+		if ( tbl == "" )
+		{
+			tid = curr_tid;
+			rc = FRM_load_test( tid, tst );
+			break;
+		}
+		if ( FRM_is_table_open( tbl, tid ) )
+		{
+			rc = FRM_load_test( tid, tst );
+			break;
+		}
+		rc = FRM_open( tbl, tst, tid );
+		break;
+	# loads all columns if required column not loaded yet
+	# and executes the test with specified column
+	case "LINA":
+		if ( tbl == "" )
+		{
+			tid = curr_tid;
+			rc = FRM_is_parameter( tid, tst );
+			if ( rc != E_OK )
+			{
+				rc = FRM_close( tid );
+				rc = FRM_open( tbl, "<<ALL>>", tid );
+			}
+			break;
+		}
+		if ( FRM_is_table_open( tbl, tid ) )
+		{
+			rc = FRM_is_parameter( tid, tst );
+			if ( rc != E_OK )
+			{
+				rc = FRM_close( tid );
+				rc = FRM_open( tbl, "<<ALL>>", tid );
+			}
+			break;
+		}
+		rc = FRM_open( tbl, "<<ALL>>", tid );
+		break;
+	# loads all columns if table not loaded yet
+	# and executes the test assuming the tests are spread across rows
+	case "LINX":
+		if ( tbl == "" )
+		{
+			tid = curr_tid;
+			break;
+		}
+		if ( FRM_is_table_open( tbl, tid ) )
+		{
+			break;
+		}
+		rc = FRM_open( tbl, "<<ALL>>", tid );
+		break;
+	default:
+		# should never happen
+		rc = E_GENERAL_ERROR;
+	}
+	if ( rc != E_OK )
+		return rc;
+
+	if ( FRM_DRV_is_new_test_driver() )
+	{
+		return FRM_DRV_test_driver( drv, tid, tst );
+	}
+	else
+	{
+		cmd = sprintf( "treturn call_close \"%s\" ( \"%s\", \"%s\" );", drv, tid, tst ); 
+		debug_msg( sprintf( "%s: %s ...", typ, cmd ) ); 
+		rc = eval( cmd );
+		cmd = sprintf( "treturn call_close \"%s\" ( \"%s\", \"%s\" );", drv, tid, tst ); 
+		debug_msg( sprintf( "%s: %s [rc=%s]", typ, cmd, rc ) ); 
+	    # we always return E_OK because test driver that was called
+	    # sould have handled the error anyway, if we had returned the rc,
+	    # we would cause all other recursive calls of (i.e. links to) the 
+	    # same test diver to fail even if they run fine
+		return  E_OK;
+	}
+}
+#/**
+#* Parses the call to an arbitrary test, i.e. call test ( [param]* )
+#* SYNTAX:
+#*	<code>CALL&lt;SEP&gt;test[&lt;SEP&gt;arg]*</code>
+#*/
+
+static function FRM_STP_eval_call ( in line )
+{
+	auto rc, sep, cmd;
+	auto arr[], count, i;
+	
+	sep = substr( line, 5, 1 );
+	count = split( line, arr, sep );
+	if ( count < 2 )
+		return E_ILLEGAL_PARAMETER;
+
+	cmd = sprintf( "treturn call_close \"%s\" (", arr[2] );
+	for ( i=3; i<=count; i++ )
+	{
+		cmd = sprintf( "%s%s \"%s\"", cmd, (i>3 ? "," : ""), arr[i] );
+	}
+	cmd = cmd & " );";
+	debug_msg( sprintf( "CALL: %s; ...", cmd ) ); 
+	rc = eval( cmd );
+	debug_msg( sprintf( "CALL: %s; [rc=%s]", cmd, rc ) ); 
+	return rc;
+}
+
+#/**
+#* Executes a block of TSL-statements defined in the given block.
+#*/
+
+static function FRM_STP_exec ( in tid, in test, in idx, in mode )
+{
+	auto rc, obj, val, row;
+
+	rc = FRM_init_block( tid, test, idx, mode );
+	if ( rc != E_OK ) 
+		return rc;
+
+	rc = FRM_get_current_row( tid, row );
+
+	while ( rc == E_OK || rc == E_FRM_SKIP )
+	{
+		row++;
+		rc = FRM_get( tid, FRM_COL_NAME, obj, row );
+		if ( rc != E_OK && rc != E_FRM_SKIP ) break;
+		if ( match( obj, "<<[eE][nN][dD][eE]*>>" ) ) break;
+		rc = FRM_get( tid, test, val, row );
+#		if ( rc == E_FRM_SKIP ) continue;
+		if ( rc != E_OK ) break;
+		FRM_STP_eval( val );
+	}
+	return (rc==E_FRM_SKIP)? E_OK : rc;
+}
+
+#/**
+#* Evaluates an arbitrary command. You can specify multiple commands by separating them
+#* with semicolins. The outcome of the eval statement is expected to be passed by the
+#* global variable __evalRC (the assignment has to be done by the evalueated code.
+#* For example use code like this "__evalRc = some_function();" in order to let
+#* framework evaluate your return code. If you don't assign any value to __evalRC,
+#* then eval will erturn E_OK.
+#* @param cmd (in) command(s) to be executed (it is not necessary to place the
+#* semicolon at the end of the last command but you must separate multiple
+#* commands with the semicolon, though).
+#*/
+
+static function FRM_STP_eval ( in cmd )
+{
+	extern __evalRC;
+
+	debug_msg( sprintf( "EVAL: %s; ...", cmd ) ); 
+	__evalRC = E_OK;
+	eval( cmd & ";" );
+	debug_msg( sprintf( "EVAL: %s; [done]", cmd ) ); 
+	return FRM_rc2( __evalRC, cmd );
+}
+
+static function FRM_STP_eval_old ( in cmd )
+{
+	auto count, arr[], i;
+	count = split( cmd, arr, ";" );
+	for( i=1; i<=count; i++ )
+	{
+		debug_msg( sprintf( "EVAL: %s; ...", arr[i] ) ); 
+		eval( arr[i] & ";" );
+		debug_msg( sprintf( "EVAL: %s; [done]", arr[i] ) ); 
+	}
+}
+
+#/**
+#* OBSOLETE: KEPT ONLY FOR THE SAKE OF COMPATIBILITY WITH THE OLD DATA TABLES.
+#* Indicates an internal step (step containg special command).
+#* @param step (in)	the step to be evaluated
+#* @param tid (in)	id of the active test table
+#* @return
+#*	TRUE:	internal
+#*	FALSE:	"ordinary" step
+#* @deprecated
+#*/
+
+static function FRM_STP_is_internal_step( in step, in tid )
+{
+	switch ( toupper( step ) )
+	{
+	case "<<PAUSE>>":
+		wrlog_block_start ( step );
+		if ( !FRM_STP_is_dummy_step_mode() )
+			pause( "Test interrupted due to <<PAUSE>>" );
+		wrlog_block_stop ( step, 0 );
+		break;
+	default:
+		return FALSE;
+	}
+	return TRUE;
+}
+
+#/**
+#* OBSOLETE: KEPT ONLY FOR THE SAKE OF COMPATIBILITY WITH THE OLD DATA TABLES.
+#* Executes another test(s) in the same or some other table(s) running the same
+#* or some other tsl script.
+#*@deprecated
+#*/
+
+static function FRM_STP_link ( in tid, in test, in idx, in mode, in load_all )
+{
+	auto rc, row, nam, val, obj, table2, tid2, dir, file, cmd;
+	auto no_table, no_test;
+	auto p1, p2;
+	
+	if ( load_all == "" )
+		load_all = FALSE;
+
+	rc = FRM_init_block( tid, test, idx, mode );
+	if ( rc != E_OK )
+		return rc;
+		
+	rc = FRM_get_current_row( tid, row );
+
+	while ( rc == E_OK || rc == E_FRM_SKIP )
+	{
+		row++;
+		rc = FRM_get( tid, FRM_COL_NAME, obj, row );
+		if ( rc != E_OK ) break;
+		if ( match( obj, "<<[eE][nN][dD][eE]*>>" ) ) break;
+		rc = FRM_get( tid, test, val, row );
+		if ( rc == E_FRM_SKIP ) continue;
+		if ( rc != E_OK ) break;
+
+		no_table = ( match( obj, "<.*>" ) )? TRUE : FALSE;
+		no_test = ( match( val, "<.*>" ) )? TRUE : FALSE;
+		if ( no_table || no_test )
+		{
+			p1 = substr( obj, 2, length(obj)-2 );
+			p2 = substr( val, 2, length(val)-2 );
+			if ( p1 == "" && p2 == "" )
+				cmd = "treturn call_close \"" & idx & "\" ();";
+			if ( p1 == "" && p2 != "" )
+				cmd = "treturn call_close \"" & idx & "\" (\"\",\"" & p2 & "\");";
+			if ( p1 != "" && p2 == "" )
+				cmd = "treturn call_close \"" & idx & "\" (\"" & p1 & "\");";
+			if ( p1 != "" && p2 != "" )
+				cmd = "treturn call_close \"" & idx & "\" (\"" & p1 & "\",\"" & p2 & "\");";
+			wrlog_block_start ( cmd );
+			rc = eval( cmd );
+			wrlog_block_stop ( cmd, rc );
+			continue;
+		}
+		#relative Pfade werden absolut
+		if ( !match( obj, "[A-Za-z]:" ) && substr( obj, 1, 1 ) != "\\" )
+		{
+			split_path( replace(FRM_get_name(tid), "/", "\\"), dir, file, "\\" );
+			table2 = join_path( dir, obj, "\\" );
+		}
+		else
+		{
+			table2 = obj;
+		}
+		if ( load_all )
+		{
+			if ( FRM_is_open( table2 ) )
+			{
+				tid2 = FRM_get_tid( table2 );
+				rc = FRM_is_parameter( tid2, val );
+				if (  rc != E_OK )
+				{
+					rc = FRM_close( tid2 );
+					rc = FRM_open( table2, "<<ALL>>", tid2 );
+				}
+			}
+			else
+			{
+				rc = FRM_open( table2, "<<ALL>>", tid2 );
+			}
+		}
+		else
+		{
+			if ( FRM_is_open( table2 ) )
+				rc = FRM_load_test( FRM_get_tid(table2), val );
+			else
+				rc = FRM_open( table2, val, tid2 );
+		}
+		if ( rc != E_OK )
+		{
+			tl_step( "FRM_STP_link", rc, "table=["&table2&"], RC=["&rc&"]" );
+			break;
+		}
+		if ( FRM_DRV_is_new_test_driver() )
+		{
+			return FRM_DRV_test_driver( idx, tid2, val );
+		}
+		else
+		{
+			cmd = "treturn call_close \"" & idx & "\" ( \""&tid2&"\", \""&val&"\" );";
+			wrlog_test_start ( val, table2, idx );
+			rc = eval( cmd );
+			wrlog_test_stop ( val, rc );
+		}
+	}
+	return rc;
+}
+
+#/**
+#* Flag for dummy step mode. This mode can be used for the purpose of documenting
+#* the test suite. With this mode EMOS Framework only pretends to execute the test
+#* suite. It navigates through all test cases all the way to the individual
+#* test block but it does not execute them.
+#*/
+
+static emos_dummy_step_mode = FALSE;
+
+#/**
+#* Turns dummy test mode on/off.
+#* @param mode (in)	true/false
+#* @return the sam as the input parameter mode
+#*/
+
+public function FRM_STP_set_dummy_step_mode( in mode )
+{
+	return emos_dummy_step_mode = mode;
+}
+
+#/**
+#* Indicates the dummy test mode.
+#* @return TRUE: dummy mode on, FALSE: dummy mode off
+#*/
+
+public function FRM_STP_is_dummy_step_mode( )
+{
+	return emos_dummy_step_mode;
+}
+

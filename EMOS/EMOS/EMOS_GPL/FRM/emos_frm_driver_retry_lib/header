@@ -1,0 +1,21 @@
+#! asci,100,100,Test Header,Thu Apr 26 20:42:26 2001
+
+[General]
+TDDB_ID=0
+NAME=D:\Projekte\EMOS\EMOS_FRM\WR\FRM\emos_frm_driver_retry_lib
+TYPE=CM
+AUTHOR=drajovic
+DATE=986793033
+FUNCTION=
+SPEC=
+FSEARCH=
+TSEARCH=
+SUM_DESCRIPTION=
+DESCRIPTION=
+COMMENTS=
+ADDONS=StringRay,EMOS Framework
+DATA_TBL=default.xls
+VERSION=6.02
+
+[Params]
+PARAM_CNT=0

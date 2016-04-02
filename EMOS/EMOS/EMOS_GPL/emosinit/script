@@ -1,0 +1,135 @@
+################################################################################
+# TEST:	emosinit
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.8 $
+# $Author: drajovic $
+# $Date: 2005/01/23 20:57:00 $
+# $Source: C:/Archive/FRAMEWORK/EMOS_GPL/emosinit/script,v $
+# $NoKeywords: $
+################################################################################
+
+#/*** 
+#*	Loads/unloads all EMOS libraries. 
+#*/
+
+static const LIBS[] = { 
+	 "EMOS_GPL/STD/EMOS_STD_misc_lib"
+	,"EMOS_GPL/STD/EMOS_STD_attr_lib"
+	,"EMOS_GPL/STD/EMOS_STD_list_lib"
+	,"EMOS_GPL/STD/EMOS_STD_menue_lib"
+	,"EMOS_GPL/STD/EMOS_STD_string_lib"
+	,"EMOS_GPL/STD/EMOS_STD_win_lib"
+	,"EMOS_GPL/STD/EMOS_STD_registry_lib"
+	,"EMOS_GPL/STD/EMOS_STD_wrlog_lib"
+	,"EMOS_GPL/STD/MISHA_STD_re_func_lib"
+	,"EMOS_GPL/STD/EMOS_STD_err_lib"
+	,"EMOS_GPL/DDT/EMOS_DDT_lib"
+	,"EMOS_GPL/DDT/EMOS_DDT_ACCESS_lib"
+	#,"DDT/EMOS_DDT_ACCESS_Range_lib"
+	,"EMOS_GPL/FRM/EMOS_FRM_lib"
+	,"EMOS_GPL/FRM/EMOS_FRM_driver_lib"
+	,"EMOS_GPL/FRM/EMOS_FRM_driver_retry_lib"
+	,"EMOS_GPL/FRM/EMOS_FRM_stp_lib"
+	,"EMOS_GPL/FRM/EMOS_FRM_gui_lib"
+	,"EMOS_GPL/FRM/EMOS_FRM_tbl_lib"
+	,"EMOS_GPL/FRM/EMOS_FRM_web_lib"
+	,"EMOS_GPL/FRM/EMOS_FRM_result_lib"
+};
+
+#/**
+#* Reloads all EMOS libraries.
+#*@param p1 (in)	1 = load all as system modules
+#*			0 = load all as user modules [default = 0]
+#*@param p2 (in)	1 = close after load, do not animate
+#*			0 = leave open after load, animate [default = 0]
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+public function reload_all_emos_libs( in p1, in p2 )
+{
+	auto i, count = 0, rc = 0;
+	for ( i in LIBS )
+		count++;
+	# we do this to ensure the load sequence
+	for ( i=0; i<count; i++ )
+	{
+		#printf( "loading %s", LIBS[i] );
+		rc+=reload( LIBS[i], p1, p2 );
+	}
+	return rc;
+}
+
+#/**
+#*	Unloads all EMOS libraries.
+#*@return
+#*	E_OK:	success
+#*	!E_OK:	failure
+#*/
+
+public function unload_all_emos_libs()
+{
+	auto i, rc = 0;
+	for ( i in LIBS )
+	{
+		rc+=unload( LIBS[i] );
+	}
+	return rc;
+}
+
+#===============================================================================
+# function prototypes
+#===============================================================================
+
+static const FUNCS[] = { 
+#	 "FRM/EMOS_FRM_funcs"
+	 "EMOS_GPL/FRM/EMOS_FRM_GUI_funcs"
+#	,"FRM/EMOS_FRM_UTIL_funcs"
+};
+
+#/**
+#*	Generates function prototypes for selected EMOS_GPL functions.
+#*/
+
+public function generate_emos_function_prototypes( )
+{
+	auto i;
+	for ( i in FUNCS )
+	{
+		eval( "call_close \"" & FUNCS[i] & "\"();" );
+	}
+}
+
+#public const MROOT = getenv ("M_ROOT");
+
+#reload (MROOT & "\\lib\\EMOS_GPL\\emos_libs", 0, 1 );
+reload_all_emos_libs( 0, 1 );
+generate_emos_function_prototypes();

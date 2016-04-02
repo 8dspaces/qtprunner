@@ -1,0 +1,585 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_menue_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straße 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.1.1.1 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2004/03/24 20:14:03 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/STD/emos_std_menue_lib/script $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#**#</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This library contains alternative implementations for standard functions</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	that operate on menues (menu_x() functions).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Another sort of functions in this library are functions that implement some</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	additional functionality that would probably fit into Mercury's logic</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	for menu_x() functions.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>const</b> COMPLETE_PATH = 1;
+<b>static</b> <b>const</b> LAST_ENTRY = 2;
+
+<b>static</b> menu_selection_mode = LAST_ENTRY;
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Call this function to cause menu_select_item to select the complete menu path.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;p&gt;Note:&lt;br&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  Behaves the same as WinRunner, the only problem is that it does not always work.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_menu_set_complete_path_selection()
+{
+    menu_selection_mode = COMPLETE_PATH;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Call this function to cause menu_select_item to select only the last item</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  instead of the complete menu path.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;p&gt;Example:&lt;br&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*     instead of calling menu_select_item( "aaa;bbb;ccc" )&lt;br&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*     this mode causes menu_select_item( "ccc" ) to be called</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  &lt;p&gt;Note:&lt;br&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  This is the default mode.&lt;br&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  It uses an undocumented feature of WR that appears to work more often than</font></i><font color=black>
+</font><font color="#ff0000"><i>#*  the documented one.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_menu_set_last_entry_selection()
+{
+    menu_selection_mode = LAST_ENTRY;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Returns TRUE if COMPLETE_PATH selection is activated.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return TRUE if COMPLETE_PATH selection FALSE otherwise</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_menu_is_complete_path_selection()
+{
+    <b>return</b> (menu_selection_mode == COMPLETE_PATH) ? TRUE : FALSE;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Returns TRUE if LAST_ENTRY selection is activated.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return TRUE if LAST_ENTRY selection FALSE otherwise</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_menu_is_last_entry_selection()
+{
+    <b>return</b> (menu_selection_mode == LAST_ENTRY) ? TRUE : FALSE;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This function is specially designed for a particular DOS application. This</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	application has its own representation of a menu bar. WinRunner is capable</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	of recognising text within the menu bar.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This function clicks on a particular string (item) within the menu bar.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;p&gt; NOTE!</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Please note that position and size of the menu bar is hard-coded.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param win (in)	name of the window that contains the menu bar</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param item (in)	the string to be selected</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	Success</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	Error</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> DOS_menu_select_item( <b>in</b> win, <b>in</b> item )
+{
+	<b>auto</b> rc, arr[], i;
+	rc=win_find_text( win, item, arr, 5, 23, 1024, 45, TRUE );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	<b>return</b> win_mouse_click( win, arr[1], arr[2]-23 );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This function clicks on a menu item without requiring items to be learned.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param item the item to be selected</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param win [optional] window where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK: cuccess</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK: failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> EMOS_menu_select_item1 ( <b>in</b> item, <b>in</b> win )
+{
+	<b>auto</b> dummy;
+	<b>return</b> EMOS_menu_item ( </font><font color="#00bb00">"sel"</font><font color=black>, item, dummy, dummy, dummy, dummy, win );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This function returns the info of a menu item without requiring items to be learned.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param item the item to be selected</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param attr attribute to be examined</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param info (out) info retrieved</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param win [optional] window where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK: cuccess</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK: failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> EMOS_menu_get_info1 ( <b>in</b> item, <b>in</b> attr, <b>out</b> info, <b>in</b> win )
+{
+	<b>auto</b> dummy;
+	<b>return</b> EMOS_menu_item ( </font><font color="#00bb00">"get"</font><font color=black>, item, attr, dummy, info, dummy, win );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This function waits for the info of a menu item without requiring items to be learned.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param item the item to be selected</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param attr attribute to be examined</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param info info to be waited for</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param time [optional] time to be waited for</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param win [optional] window where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK: cuccess</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK: failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> EMOS_menu_wait_info1 ( <b>in</b> item, <b>in</b> attr, <b>in</b> info, <b>in</b> time, <b>in</b> win )
+{
+	<b>auto</b> dummy;
+	<b>return</b> EMOS_menu_item ( </font><font color="#00bb00">"wait"</font><font color=black>, item, attr, info, dummy, time, win );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This function compares the expected with the actual info of a menu item without requiring items to be learned.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param item the item to be selected</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param attr attribute to be examined</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param info info to be checked</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param win [optional] window where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK: cuccess</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK: failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+<b>public</b> <b>function</b> EMOS_menu_check_info1 ( <b>in</b> item, <b>in</b> attr, <b>in</b> info, <b>in</b> win )
+{
+	<b>auto</b> dummy;
+	<b>return</b> EMOS_menu_item ( </font><font color="#00bb00">"chk"</font><font color=black>, item, attr, info, dummy, dummy, win );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This function implements the actual logic for processing menu items that are not in the GUI-map.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param action action to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param item the item to be selected</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param attr [optional] attribute to be examined</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param inInfo [optional] info to be used</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param outInfo (out) [optional] info to be returned</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param time [optional] time to be waited for</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param win [optional] window where actions are to be performed</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK: cuccess</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK: failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> EMOS_menu_item ( <b>in</b> action, <b>in</b> item, <b>in</b> attr, <b>in</b> inInfo, <b>out</b> outInfo, <b>in</b> time, <b>in</b> window )
+{
+	<b>static</b> <b>const</b> SEP = </font><font color="#00bb00">";"</font><font color=black>;
+	<b>static</b> <b>const</b> MENWIN = </font><font color="#00bb00">"EMOS_menu_win"</font><font color=black>;
+	<b>static</b> <b>const</b> MENFILE = getenv( </font><font color="#00bb00">"TMP"</font><font color=black> ) &amp; </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> &amp; </font><font color="#00bb00">"EMOSmenu"</font><font color=black>;
+	<b>auto</b> win = (window == </font><font color="#00bb00">""</font><font color=black>) ? GUI_get_window() : window;
+
+	<b>auto</b> arr[], count, i;
+	<b>auto</b> descr, desc, info;
+	<b>auto</b> item_i, item_n;
+	<b>auto</b> rc;
+	
+	count = split( item, arr, SEP );
+	<b>if</b> ( count &lt; 1 )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+
+	</font><font color="#ff0000"><i># create &amp; load a temporary GUI-file</font></i><font color=black>
+	rc =GUI_close( MENFILE );
+	rc+=GUI_buf_new( MENFILE );
+	rc+=GUI_load( MENFILE );
+	rc+=GUI_map_get_desc ( win, </font><font color="#00bb00">""</font><font color=black>, descr, info );
+	rc+=GUI_add( MENFILE, MENWIN, </font><font color="#00bb00">""</font><font color=black>, descr );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+
+	</font><font color="#ff0000"><i># create the temporary item(s) using names 1;2;...</font></i><font color=black>
+	<b>for</b> ( i=1; i&lt;count+1; i++ )
+	{
+		item_i = ( i == 1  ? i : item_i &amp; SEP &amp; i );
+		item_n = ( i == 1 ? arr[i] : item_n &amp; SEP &amp; arr[i] );
+		<b>if</b> ( match( arr[i], </font><font color="#00bb00">"#[0-9][0-9]*"</font><font color=black> ) == 1 )
+		{
+			desc = sprintf( </font><font color="#00bb00">"{ class: menu_item, parent: %s, position: %d }"</font><font color=black>
+						, (i==1 ? </font><font color="#00bb00">"none"</font><font color=black> : i-1)
+						, substr(arr[i], 2)-1 ); </font><font color="#ff0000"><i># position has offset 0</font></i><font color=black>
+		}
+		<b>else</b>
+		{
+			desc = sprintf( </font><font color="#00bb00">"{ class: menu_item, parent: %s, label: &#92;&#34;%s&#92;&#34; }"</font><font color=black>
+						, (i==1 ? </font><font color="#00bb00">"none"</font><font color=black> : i-1)
+						, arr[i] );
+		}
+		rc+=GUI_add( MENFILE, MENWIN, i, desc );
+	}
+	<b>if</b> ( rc != E_OK )
+	{
+		GUI_close( MENFILE );
+		<b>return</b> rc;
+	}
+	</font><font color="#ff0000"><i># perform the selection</font></i><font color=black>
+	rc+=set_window( MENWIN );
+
+    </font><font color="#ff0000"><i># watch this trick</font></i><font color=black>
+    </font><font color="#ff0000"><i># menu_select_item() is unreliable in its documented form which says</font></i><font color=black>
+    </font><font color="#ff0000"><i># that subitems must be comma-separated (e.g. menu_select_item( "File;New..." );</font></i><font color=black>
+    </font><font color="#ff0000"><i># It appears that menu_select_item( "New..." ) not only works but it is also more reliable.</font></i><font color=black>
+    </font><font color="#ff0000"><i># Here we decide what entry is going to be used</font></i><font color=black>
+
+    <b>if</b> ( EMOS_menu_is_last_entry_selection() )
+        item_i = i-1;
+
+	FRM_log_obj_info( item_i );
+    
+	<b>switch</b> ( action )
+	{
+		<b>case</b> </font><font color="#00bb00">"sel"</font><font color=black>:
+            rc+=menu_select_item( item_i );
+			<b>break</b>;
+		<b>case</b> </font><font color="#00bb00">"get"</font><font color=black>:
+			rc+=menu_get_info( item_i, attr, outInfo );
+			<b>break</b>;
+		<b>case</b> </font><font color="#00bb00">"wait"</font><font color=black>:
+			rc+=menu_wait_info( item_i, attr, inInfo, time );
+			<b>break</b>;
+		<b>case</b> </font><font color="#00bb00">"chk"</font><font color=black>:
+			rc+=menu_get_info( item_i, attr, info );
+			<b>if</b> ( info == inInfo )
+			{
+				<b>tl_step</b>( </font><font color="#00bb00">"EMOS_menu_check_info"</font><font color=black>, PASS, sprintf(</font><font color="#00bb00">"attr:%s, info:%s"</font><font color=black>, attr, inInfo) );
+			}
+			<b>else</b>
+			{
+				<b>tl_step</b>( </font><font color="#00bb00">"EMOS_menu_check_info"</font><font color=black>, FAIL, sprintf(</font><font color="#00bb00">"attr:%s, exp:%s, act:%s"</font><font color=black>, attr, inInfo, info) );
+				rc+=E_MISMATCH;
+			}
+			<b>break</b>;
+		<b>default</b>:
+			rc+=E_ILLEGAL_PARAMETER;
+			<b>break</b>;
+	}
+
+	</font><font color="#ff0000"><i># remove the temporary GUI-file</font></i><font color=black>
+	rc+=GUI_close( MENFILE );
+	</font><font color="#ff0000"><i>#switch back to the original window (if possble)</font></i><font color=black>
+	<b>if</b> ( win_exists( win ) == E_OK )
+		rc+=set_window( win );
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This function clicks on a menu item without requiring items to be learned by</font></i><font color=black>
+</font><font color="#ff0000"><i>#* untilysing the WinRunner's text recognition  cpabilities.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* &lt;p&gt;NOTE&lt;p&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This is an alternative to EMOS_menu_item() when this one does not seem to be</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	stable enough (e.g. position of menu entries changes too often).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This worked in very well for some applications that we were punished to test.</font></i><font color=black>
+</font><font color="#ff0000"><i>#*</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param item the item to be selected</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param arg_win_desc (in) (optional) physical menu window description [default: { class: object, MSW_id: 0, location: %d }]</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK: cuccess</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK: failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+
+<b>public</b> <b>function</b> EMOS_menu_item_via_text ( <b>in</b> item, <b>in</b> arg_win_desc )
+{
+	<b>static</b> <b>const</b> SEP = </font><font color="#00bb00">";"</font><font color=black>;
+	<b>static</b> <b>const</b> DEF_WIN_DESC = </font><font color="#00bb00">"{ class: object, MSW_id: 0, location: %d }"</font><font color=black>; 
+
+    <b>auto</b> win_desc;
+	<b>auto</b> arr[], count, i;
+	<b>auto</b> rc;
+	
+	<b>if</b> ( arg_win_desc == </font><font color="#00bb00">""</font><font color=black> )
+	    win_desc = DEF_WIN_DESC;
+	<b>else</b>
+	    win_desc = arg_win_desc;
+	    
+	count = split( item, arr, SEP );
+	<b>if</b> ( count &lt; 1 )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+
+	<b>for</b> ( i=1; i&lt;count+1; i++ )
+	{
+		rc+=win_exists( sprintf( win_desc, i-1 ) );
+</font><font color="#ff0000"><i>#printf( "win=%s, exists=%s", sprintf( win_desc, i-1 ), rc );</font></i><font color=black>
+		<b>if</b> ( index( arr[i], </font><font color="#00bb00">" "</font><font color=black> ) )
+			rc+=win_move_locator_text ( sprintf( win_desc, i-1 ), arr[i], TRUE );
+		<b>else</b>
+			rc+=win_move_locator_text ( sprintf( win_desc, i-1 ), arr[i] );
+</font><font color="#ff0000"><i>#printf( "%d: item=%s rc=%s", i, arr[i], rc );</font></i><font color=black>
+		<b>if</b> ( rc == E_OK )
+			click(</font><font color="#00bb00">"Left"</font><font color=black>, 2);
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#* This function clicks on a menu item without requiring items to be learned.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* NOTE: It was a nice try that at some point in time worked or at least seemed to.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param item the item to be selected</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK: cuccess</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK: failure</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_menu_select_item2 ( <b>in</b> item )
+{
+	<b>auto</b> rc, descr;
+	rc = menu_get_desc( item, </font><font color="#00bb00">"class label parent"</font><font color=black>, </font><font color="#00bb00">"class_index"</font><font color=black>, </font><font color="#00bb00">"index"</font><font color=black>, descr );
+	<b>if</b> ( rc != E_OK ) <b>return</b> rc;
+	<b>return</b> menu_select_item( descr );
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	This function implements an alternative for native menu_select_item().</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	Try using it if the native function does not seem to work. For some</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	mysterious reason tis function indeed manages to select more items than the</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	native one. Note the different interface (parameter list).</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	If you need more info, I must disapoint you. You must either dig into the </font></i><font color=black>
+</font><font color="#ff0000"><i>#*	code yourself or try to get in touch with the author. I gave up.</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param gui1 (in)	gui-File	</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param win1 (in)	window</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param men1 (in)	menu_item		</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param win2 (inout)	window:	</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;pre&gt;		win2 = "" , dann nur Path von menu_item gibt zurück.		</font></i><font color=black>
+</font><font color="#ff0000"><i>#*		win2 = "*", dann sucht Name von Window in alle GUI-Filen</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	 			(wenn Sie wissen nicht, welche Window taucht auf).		</font></i><font color=black>
+</font><font color="#ff0000"><i>#*		win2 # "*",dann sucht nicht (wenn Sie wissen, welche Window taucht auf).		</font></i><font color=black>
+</font><font color="#ff0000"><i>#*&lt;/pre&gt;</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @return</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	E_OK:	Erfolg</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	!E_OK:	 1	-	Object != menu-item or menu="sys_" or "parent"="none"</font></i><font color=black>
+</font><font color="#ff0000"><i>#*			 3  -	menu-item existiert nicht aufm Bildschirm</font></i><font color=black>
+</font><font color="#ff0000"><i>#*			 4	-	keine Beschreibung von aufgerufenem Fenster in GUI-Map 		</font></i><font color=black>
+</font><font color="#ff0000"><i>#*			 5	-	Menu is disabled 		</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> EMOS_menu_select_item(<b>in</b> gui1, <b>in</b> win1, <b>in</b> men1, <b>inout</b> win2 )
+{
+	<b>auto</b> rc,gui2,men2;
+	
+	rc = menu_select_item1(gui1, win1, men1, 3, gui2, win2, men2);
+
+	<b>return</b> (rc);
+}
+
+</font><font color="#ff0000"><i>#**</font></i><font color=black>
+</font><font color="#ff0000"><i>#*	The empty (does nothing) exception handler needed for menu_select_item1().</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param rc (in)</font></i><font color=black>
+</font><font color="#ff0000"><i>#* @param func (in)</font></i><font color=black>
+</font><font color="#ff0000"><i>#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> excep1(<b>in</b> rc, <b>in</b> func)
+{
+</font><font color="#ff0000"><i>#		pause("Exception: rc=" &amp; rc &amp; ",   func=&lt;&#92;&#34;" &amp; func &amp; "&#92;&#34;&gt;");</font></i><font color=black>
+}
+
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># FUNCTION: menu_select_item1</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i># AUTHOR: Slavine</font></i><font color=black>
+</font><font color="#ff0000"><i># DESCRIPTION/PURPOSE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	ruft auf belibiege menu_item</font></i><font color=black>
+</font><font color="#ff0000"><i># PARAMETERS:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in  gui1 	- gui-File,		</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in  win1 	- window,	</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in  men1 	- menu_item,		</font></i><font color=black>
+</font><font color="#ff0000"><i>#	in  ttt1	- warten (sec) auf neue window für menu_item(default 3 sec)  </font></i><font color=black>
+</font><font color="#ff0000"><i>#	out gui2	- returns name von aufgerufener GUI-File für menu_item</font></i><font color=black>
+</font><font color="#ff0000"><i>#	inout win2:	- window:	</font></i><font color=black>
+</font><font color="#ff0000"><i>#		win2 = "" , dann nur Path von menu_item gibt zurück.		</font></i><font color=black>
+</font><font color="#ff0000"><i>#		win2 = "*", dann sucht Name von Window in alle GUI-Filen</font></i><font color=black>
+</font><font color="#ff0000"><i>#	 			wenn Sie wissen nicht, welche Window taucht auf.		</font></i><font color=black>
+</font><font color="#ff0000"><i>#		win2 # "*",dann sucht nicht (wenn Sie wissen, welche Window taucht auf).		</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	out str_menu - returns string von menu_item (z.B. "File;Open...")	</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># RETURN VALUE:</font></i><font color=black>
+</font><font color="#ff0000"><i>#	E_OK:	Erfolg</font></i><font color=black>
+</font><font color="#ff0000"><i>#	!E_OK:	 1	-	Object != menu-item or menu="sys_" or "parent"="none"</font></i><font color=black>
+</font><font color="#ff0000"><i>#			 3  -	menu-item existiert nicht aufm Bildschirm</font></i><font color=black>
+</font><font color="#ff0000"><i>#			 4	-	keine Beschreibung von aufgerufenem Fenster in GUI-Map 		</font></i><font color=black>
+</font><font color="#ff0000"><i>#			 5	-	Menu is disabled 		</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+</font><font color="#ff0000"><i>#	z.B:</font></i><font color=black>
+</font><font color="#ff0000"><i>#		win2 = "*";</font></i><font color=black>
+</font><font color="#ff0000"><i>#		gui1 = GUI_HOME &amp; "&#92;&#92;Schuecal2000.gui";</font></i><font color=black>
+</font><font color="#ff0000"><i>#	 </font></i><font color=black>
+</font><font color="#ff0000"><i>#	rc = open_menu(gui1,"Schuecal2000","Glaspreise",1,gui2, win2 ,str_menu);</font></i><font color=black>
+</font><font color="#ff0000"><i>#	set_window(win2);</font></i><font color=black>
+</font><font color="#ff0000"><i>#===============================================================================</font></i><font color=black>
+
+<b>public</b> <b>function</b> menu_select_item1( <b>in</b> gui, <b>in</b> win1, <b>in</b> men1, <b>in</b> ttt1, <b>out</b> gui2,
+													 <b>inout</b> win2, <b>out</b> menu_str)
+{
+		<b>auto</b> rc,rc1,desc1,t000,num_win,num_gui;
+		<b>auto</b> hWnd,hWnd1,hWnd2;
+		<b>auto</b> i,i0,i1,i2,i3,i4,i5,i6,i7,i8;
+		<b>auto</b> k0,k1,k2,k3,k4,k5,k6,k7,k8;
+		<b>auto</b> arr1[],windows[],gui1[];
+		<b>auto</b> rc11,rc12;
+
+</font><font color="#ff0000"><i>#==== warten auf neue Window oder info ==========</font></i><font color=black>
+			<b>if</b> (ttt1 == 0) ttt1 = 3;
+</font><font color="#ff0000"><i>#================================================</font></i><font color=black>
+
+		rc = GUI_buf_get_desc(gui,win1,men1,desc1);
+
+		<b>if</b> (    index(desc1,</font><font color="#00bb00">"menu_item"</font><font color=black>)  ==  0 
+			 || substr(men1,1,4)  ==  </font><font color="#00bb00">"sys_"</font><font color=black>
+			 || substr(desc1,index(desc1,</font><font color="#00bb00">"parent:"</font><font color=black>) + 8,6) == </font><font color="#00bb00">"&#92;&#34;none&#92;&#34;"</font><font color=black>)
+			 <b>return</b>(1);
+		<b>else</b>
+		{
+			rc = GUI_list_buffers(gui1, num_gui);
+
+			i2 = 1;   i3 = 0;
+
+			<b>while</b> ( i2 &lt;= <b>length</b>(desc1))
+			{
+				k0 = substr(desc1,i2);
+				i6 = index(k0,</font><font color="#00bb00">"label:"</font><font color=black>);
+
+				<b>if</b> (i6 == 0)   <b>break</b>;
+				<b>else</b>
+				{ 
+					k1 = substr(k0,i6);
+					i4 = index(k1,</font><font color="#00bb00">"&#92;&#34;"</font><font color=black>) + 1;
+					k2 = substr(k1, i4);
+
+					i5 = (index(k2,</font><font color="#00bb00">"&#92;&#34;"</font><font color=black>)  &lt;  index(k2,</font><font color="#00bb00">"&#92;&#92;"</font><font color=black>) ) ? index(k2,</font><font color="#00bb00">"&#92;&#34;"</font><font color=black>) - 1 : index(k2,</font><font color="#00bb00">"&#92;&#92;"</font><font color=black>)  - 1;
+
+					arr1[++i3] = substr(k2,1,i5);
+						
+					i2 = i2 + i6 + i4 + i5 + 1;	
+				}
+			}
+
+			menu_str =  arr1[i3];
+			<b>for</b>( i7 = i3-1; i7 &gt;=1; i7--)
+				menu_str = menu_str  &amp;  </font><font color="#00bb00">";"</font><font color=black>  &amp;  arr1[i7];
+
+			EMOS_set_window(win1,10);
+				
+			load(</font><font color="#00bb00">"win32api"</font><font color=black>,1,1);
+			hWnd = GetForegroundWindow();
+
+			define_tsl_exception (</font><font color="#00bb00">"menu_get"</font><font color=black>,</font><font color="#00bb00">"excep1"</font><font color=black>, E_ANY_ERROR,</font><font color="#00bb00">"menu_get_info"</font><font color=black>);
+
+			t000 = getvar(</font><font color="#00bb00">"timeout"</font><font color=black>);	setvar(</font><font color="#00bb00">"timeout"</font><font color=black>,ttt1);
+
+</font><font color="#ff0000"><i>#------------------------------------------------------</font></i><font color=black>
+			exception_on (</font><font color="#00bb00">"menu_get"</font><font color=black>);
+				rc = menu_get_info(men1,</font><font color="#00bb00">"enabled"</font><font color=black>,rc1);
+			exception_off (</font><font color="#00bb00">"menu_get"</font><font color=black>);
+</font><font color="#ff0000"><i>#------------------------------------------------------</font></i><font color=black>
+
+			setvar(</font><font color="#00bb00">"timeout"</font><font color=black>,t000);
+
+			<b>if</b> (rc   != 0)  <b>return</b>(3);
+			<b>if</b> (rc1  == 0)  <b>return</b>(5);
+			<b>if</b> (win2 == </font><font color="#00bb00">""</font><font color=black>) <b>return</b>(0);
+			
+			
+			define_tsl_exception (</font><font color="#00bb00">"set_win"</font><font color=black>, </font><font color="#00bb00">"excep1"</font><font color=black>, E_ANY_ERROR,</font><font color="#00bb00">"set_window"</font><font color=black>);
+			define_tsl_exception (</font><font color="#00bb00">"menu_sel"</font><font color=black>,</font><font color="#00bb00">"excep1"</font><font color=black>, E_ANY_ERROR,</font><font color="#00bb00">"menu_select_item"</font><font color=black>);
+
+</font><font color="#ff0000"><i>#------------------------------------------------------</font></i><font color=black>
+			exception_on (</font><font color="#00bb00">"menu_sel"</font><font color=black>);
+				rc = menu_select_item (men1);
+			exception_off(</font><font color="#00bb00">"menu_sel"</font><font color=black>);
+</font><font color="#ff0000"><i>#------------------------------------------------------</font></i><font color=black>
+
+			<b>if</b> (rc != 0)  <b>return</b>(3);
+
+			<b>if</b> (win2 != </font><font color="#00bb00">"*"</font><font color=black>)
+			{
+				rc = EMOS_set_window(win2,ttt1);
+				<b>return</b>(0);
+			}
+
+			<b>for</b>( i7 = 1; i7 &lt;= ttt1; i7++)
+			{
+				wait(1);
+				<b>if</b> (hWnd != GetForegroundWindow())	<b>break</b>;
+			}
+			<b>if</b> (i7 &gt; ttt1)	<b>return</b>(0);	  </font><font color="#ff0000"><i># kein aufgerufene Fenster or selbst sich</font></i><font color=black>
+				
+			hWnd1 = GetForegroundWindow();
+
+
+			t000 = getvar(</font><font color="#00bb00">"timeout"</font><font color=black>);	setvar(</font><font color="#00bb00">"timeout"</font><font color=black>,0);
+
+			rc  = exception_on (</font><font color="#00bb00">"set_win"</font><font color=black>);
+
+			<b>for</b>( i = 1; i &lt;= num_gui; i++ )
+			{
+				rc = GUI_list_buf_windows(gui1[i],windows,num_win);
+	
+				<b>for</b>( i7 = 1; i7 &lt;= num_win; i7++)
+				{
+					</font><font color="#ff0000"><i>#-------------------------------</font></i><font color=black>
+					rc1 = set_window(windows[i7],0);
+					</font><font color="#ff0000"><i>#-------------------------------</font></i><font color=black>
+				
+					<b>if</b> (rc1 == 0)
+					{
+						rc = win_get_info(windows[i7],</font><font color="#00bb00">"handle"</font><font color=black>,hWnd2);
+
+						<b>if</b> (hWnd1 == hWnd2)
+						{
+							gui2 = gui1[i];
+							win2 = GUI_get_window();
+							<b>break</b>;
+						}
+					}
+				} 
+				<b>if</b> (hWnd1 == hWnd2) <b>break</b>;
+			} 
+			rc  = exception_off(</font><font color="#00bb00">"set_win"</font><font color=black>);
+			setvar(</font><font color="#00bb00">"timeout"</font><font color=black>,t000);
+
+			<b>if</b> (i7 &lt;= num_win) <b>return</b>(0);
+			<b>else</b>			   <b>return</b>(4);
+		}
+}
+
+</font><font color="#ff0000"><i>###########################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_menue_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>###########################################################################</font></i><font color=black>
+
+</pre></body></html>

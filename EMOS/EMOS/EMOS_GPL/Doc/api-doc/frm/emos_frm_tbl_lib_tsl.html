@@ -1,0 +1,1293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_FRM_TBL_Lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i># mailto:drajovic@gmx.de</font></i><font color=black>
+</font><font color="#ff0000"><i># http://sourceforge.net/projects/emos-framework</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.8 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2005/01/28 11:18:43 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/FRM/emos_frm_tbl_lib/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/***
+#* This libary provides a family of functions for support of table GUI objects.
+#* GUI objects in table format are known for being difficult to handle for 
+#* many reasons. First of all, although a single object a tables can
+#* potentialy carry huge amounts of data. Depending on the testing objectives
+#* we sometimes need to handle only a handfull of cells and in other cases big
+#* portions of it if not the whole table. Programatic interfaces to tables are
+#* usually handle individual table cells and the navigation through table. 
+#* More complicated actions on larger parts of table data are left to test 
+#* programmers to be designed from the basic table operations.&lt;br&gt;
+#* Secondly, tables are often very dynamic objects (i.e. their content and their
+#* strucure sometimes changes within a single test session). A robust test design 
+#* should provide for easy location of data (e.g. dynamcally determining the 
+#* appropriate row/column) which is not a trivial task.&lt;br&gt;
+#* Finally, individual table cells can in fact contain various sorts of other
+#* GUI objects such as edit fields, drop-down lists, combo boxes, radio buttons, 
+#* check buttons and other. Sometimes it seems as if vendors of GUI toolkits 
+#* simply had to invent something that would distinguish their tables from all
+#* the other ones. 
+#* &lt;p&gt;
+#* WinRunner's tbl interface does a fairly good job in making these various 
+#* tables appear similar. However, there are plenty of situations where this is
+#* not the case. Here only individual solutions can help. Our table interface
+#* builds upon the strengths of WinRunner tbl-interface and is therefore able to
+#* handle many different tables. Still, due to mentioned difficulties, the
+#* interface is limited in some aspects and will need to be tuned for certain 
+#* environments. Our code should work well with HTML tables and with tables
+#* with well-working tbl-interface (tbl_set_cell_data/tbl_get_cell_data).
+#* We hope also, that our code provides enough design ideas which will help you
+#* handle exotic cells such as edit fields, combo-boxes, etc.
+#* &lt;p&gt;
+#* Our table support has been specially designed for use in EMOS Framework tables.
+#* Pay special attention to functions FRM_TBL_set_data() and FRM_TBL_set_data_block().
+#* The former implements an interface for handing individual table cells.
+#* The later implements an interface for handing bigger portions of tables.
+#*
+#* @author drajovic
+#*/</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Performs operations on single table cells for the whole test block (i.e.
+#* loops through all cells of a particular test block until an empty cell
+#* or the last cell is reached.
+#*
+#* @param table (in) table index
+#* @param test (in) test name
+#* @param obj (in) logical name or phisical description of the table object
+#* @param desc (in) [optional] physical description of an edit object that is
+#*  located in the particular table cell (attempt only if such object really
+#*  appears in the cell; we had to fight one tweeked VB table once with this;
+#*  hopefulla you'll never need it; see FRM_TBL_cell_aktion() for more)
+#* @param list (in) [optional] physical description of a list object that is
+#*  located in the particular table cell (attempt only if such object really
+#*  appears in the cell, see code of FRM_TBL_cell_aktion function)
+#* @return E_OK if successful, else error
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_set_data ( <b>in</b> table, <b>in</b> test, <b>in</b> obj, <b>in</b> desc, <b>in</b> list )
+{
+	<b>auto</b> val, mode, rc;
+	<b>auto</b> rc2 = E_OK;
+	</font><font color="#ff0000"><i># loop through test block until an empty cell or last cell is reached</font></i><font color=black>
+	<b>while</b>( ( rc = FRM_get_next( table, test, val )) == E_OK )
+	{
+		wrlog_prim_start();
+		FRM_log_frm_info( table, test, val );
+		mode = FRM_get_mode( table );
+		<b>switch</b>( mode )
+		{
+		<b>case</b> FRM_SET_MODE:
+		<b>case</b> FRM_CHK_MODE:
+			rc2+=FRM_TBL_cell_action( obj, val, mode, desc, list );
+			<b>break</b>;
+		<b>case</b> FRM_ATR_MODE:
+		<b>case</b> FRM_GEN_MODE:
+			</font><font color="#ff0000"><i># to be implemented</font></i><font color=black>
+			<b>break</b>;
+		}
+		wrlog_prim_stop( rc2 );
+	}
+	<b>if</b> ( rc == E_FRM_SKIP || rc == E_OUT_OF_RANGE )  </font><font color="#ff0000"><i># empty or EOF</font></i><font color=black>
+		rc = E_OK;
+	</font><font color="#ff0000"><i># if one or the other rc variable &lt;&gt; 0, return error</font></i><font color=black>
+	<b>if</b> ( rc2 != E_OK )
+		<b>return</b> FRM_rc2( rc2, </font><font color="#00bb00">"FRM_TBL_cell_action"</font><font color=black> );
+	<b>return</b> FRM_rc2( rc, </font><font color="#00bb00">"FRM_TBL_set_data"</font><font color=black> );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Performs an action(s) on a block of table cells.
+#*
+#* @param tid1	(in)	id of the table where the instructins come from
+#* @param test	(in)	name of the test to run (as named in column "Name")
+#* @param obj	(in)	table object where actions are to be performed
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_set_data_block ( <b>in</b> tid1, <b>in</b> test, <b>in</b> obj )
+{
+	<b>auto</b> rc, row, name, val, table2, tid2, dir, file, mode;
+
+	rc+=FRM_get_current_row( tid1, row );
+	<b>while</b>( rc == E_OK || rc == E_FRM_SKIP )
+	{
+		row++;
+		rc = FRM_get( tid1, FRM_COL_NAME, name, row );
+		<b>if</b> ( rc == E_FRM_SKIP )
+		{
+			rc = E_OK;
+			<b>break</b>;
+		}
+		<b>if</b> ( rc != E_OK )
+		{
+			FRM_log_frm_info( tid1, test, obj );
+			<b>return</b> FRM_rc2( rc, </font><font color="#00bb00">"FRM_TBL_set_data_block-&gt; cannot retrieve cell: Name=["</font><font color=black>&amp;name&amp;</font><font color="#00bb00">"], row=["</font><font color=black>&amp;row&amp;</font><font color="#00bb00">"], rc=["</font><font color=black>&amp;rc&amp;</font><font color="#00bb00">"]"</font><font color=black> );
+		}
+		<b>if</b> ( match(name,</font><font color="#00bb00">"&lt;&lt;[Ee][Nn][Dd][Ee]*&gt;&gt;"</font><font color=black>) )
+			<b>break</b>;
+		rc = FRM_get( tid1, test, val, row );
+		<b>if</b> ( rc == E_FRM_SKIP ) <b>continue</b>;
+		<b>if</b> ( rc != E_OK ) <b>return</b> rc;
+		split_path( FRM_get_name( tid1 ), dir, file, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+		table2 = join_path( dir, name, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+		<b>if</b> ( !FRM_is_open( table2 ) )
+		{
+			</font><font color="#ff0000"><i># open table2 and load all columns</font></i><font color=black>
+			rc = FRM_open( table2, </font><font color="#00bb00">"&lt;&lt;ALL&gt;&gt;"</font><font color=black>, tid2 );
+			<b>if</b> ( rc != E_OK )
+			{
+				FRM_log_frm_info( table2, tid2, obj );
+				<b>return</b> FRM_rc2( rc, </font><font color="#00bb00">"FRM_TBL_set_data_block-&gt; cannot open FRM table: Table=["</font><font color=black>&amp;table2&amp;</font><font color="#00bb00">"], RC=["</font><font color=black>&amp;rc&amp;</font><font color="#00bb00">"]"</font><font color=black> );
+			}
+			</font><font color="#ff0000"><i># table2 inherits the mode from table1</font></i><font color=black>
+			rc = FRM_set_mode( tid2, FRM_get_mode( tid1 ) );
+		}
+		mode = FRM_get_mode( tid2 );
+		<b>switch</b>( mode )
+		{
+		<b>case</b> FRM_SET_MODE:
+		<b>case</b> FRM_CHK_MODE:
+			rc = FRM_TBL_process_data_block( tid2, val, obj );
+			<b>break</b>;
+		<b>case</b> FRM_ATR_MODE:
+		<b>case</b> FRM_GEN_MODE:
+			</font><font color="#ff0000"><i>#not implemented</font></i><font color=black>
+			<b>break</b>;
+		}	
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Process 2-dimensional table block
+#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> FRM_TBL_process_data_block ( <b>in</b> tid, <b>in</b> block, <b>in</b> obj )
+{
+	<b>auto</b> rc;
+	<b>auto</b> x, y, data[];
+	<b>auto</b> i, j;
+	<b>auto</b> mode, val;
+	<b>auto</b> sep, tmp[], cols[], count;
+	<b>auto</b> action;
+	<b>auto</b> msg;
+	
+	rc = FRM_get_block( tid, block, x, y, data );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+
+	mode = FRM_get_mode( tid );
+
+	</font><font color="#ff0000"><i># parse column headers (they define separator, action, column name and, optionally, object description)</font></i><font color=black>
+	<b>for</b>( i=1; i&lt;x; i++ )
+	{
+		sep = substr( data[0,i], 1, 1 );
+		count = split( data[0,i], tmp, sep );
+		<b>if</b> ( count &lt; 3 )
+		{
+			msg = sprintf( </font><font color="#00bb00">"%s: invalid format expected &lt;sep&gt;action&lt;sep&gt;column[&lt;sep&gt;object[&lt;sep&gt;exact]]"</font><font color=black>, data[0,i] );
+			FRM_log_frm_info( tid, block, msg );
+			FRM_log_obj_info( obj );
+			<b>return</b> E_ILLEGAL_PARAMETER;
+		}
+		cols[i,</font><font color="#00bb00">"sep"</font><font color=black>] = sep;
+		cols[i,</font><font color="#00bb00">"act"</font><font color=black>] = tmp[2];
+		cols[i,</font><font color="#00bb00">"col"</font><font color=black>] = tmp[3];
+		</font><font color="#ff0000"><i># 'obj' &amp; 'exact' are optional; will be set to "" automatically</font></i><font color=black>
+		cols[i,</font><font color="#00bb00">"obj"</font><font color=black>] = tmp[4];
+		cols[i,</font><font color="#00bb00">"exact"</font><font color=black>] = tmp[5];
+	}
+	</font><font color="#ff0000"><i># for all rows</font></i><font color=black>
+	<b>for</b>( i=1; i&lt;y; i++ )
+	{
+		</font><font color="#ff0000"><i># for all columns</font></i><font color=black>
+		<b>for</b>( j=1; j&lt;x; j++ )
+		{
+			val = data[i,j];
+			<b>if</b> ( FRM_parse_val( tid, val ) == E_FRM_SKIP )
+			{ 
+				<b>continue</b>;
+			}
+			sep = cols[j,</font><font color="#00bb00">"sep"</font><font color=black>];
+			action = sprintf( </font><font color="#00bb00">"%s%s%s%s%s%s%s%s%s%s%s%s"</font><font color=black>, 
+				sep, cols[j,</font><font color="#00bb00">"act"</font><font color=black>], 
+				sep, data[i,0], 
+				sep, cols[j,</font><font color="#00bb00">"col"</font><font color=black>], 
+				sep, val, 
+				sep, cols[j,</font><font color="#00bb00">"obj"</font><font color=black>], 
+				sep, cols[j,</font><font color="#00bb00">"exact"</font><font color=black>] );
+			rc+=FRM_TBL_cell_action( obj, action, mode );
+		}
+	}
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>######################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># low-level interface</font></i><font color=black>
+</font><font color="#ff0000"><i>######################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Holds the adjustment amount for the tbl_get_rows_count() function.
+#* @see FRM_TBL_set_rows_count_adjustment()
+#*/</font></i><font color=black>
+
+<b>static</b> aut_tbl_rows_count_adjustment = 0;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Function tbl_get_rows_count() sometimes returns count that is less than the
+#* physical number of rows. If present, the headings row is typically not counted.
+#* So the returned count is one less than the physical count. For our search
+#* functions (e.g. FRM_TBL_find_cell()) we need to access the headings row to 
+#* search them. Increase the count_adjustment if you notice that our functions
+#* do not seem to find the value in the last row.
+#* 
+#* @param amount	(in)	amount to adjust
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_set_rows_count_adjustment ( <b>in</b> amount )
+{
+	aut_tbl_rows_count_adjustment = amount;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Function tbl_get_rows_count() sometimes returns count that is less than the
+#* physical number of rows. If present, the headings row is typically not counted.
+#* So the returned count is one less than the physical count. For our search
+#* functions (e.g. FRM_TBL_find_cell()) we need to access the headings row to 
+#* search them. Increase the count_adjustment if you notice that our functions
+#* do not seem to find the value in the last row.
+#* 
+#* @return the row adjustment amount
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_get_rows_count_adjustment ( )
+{
+	<b>return</b> aut_tbl_rows_count_adjustment;
+}
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Holds the adjustment amount for the tbl_get_cols_count() function.
+#* @see FRM_TBL_set_cols_count_adjustment()
+#*/</font></i><font color=black>
+
+<b>static</b> aut_tbl_cols_count_adjustment = 0;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Function tbl_get_cols_count() sometimes returns count that is less than the
+#* physical number of columns. If present, the headings column is typically not 
+#* counted. So the returned count is one less than the physical count. For our 
+#* search functions (e.g. FRM_TBL_find_cell()) we need to access the headings 
+#* column to search for them. Increase the count_adjustment if you notice that 
+#* our functions do not seem to find the value in the last column.
+#* 
+#* @param amount	(in)	amount to adjust
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_set_cols_count_adjustment ( <b>in</b> amount )
+{
+	aut_tbl_cols_count_adjustment = amount;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Function tbl_get_cols_count() sometimes returns count that is less than the
+#* physical number of columns. If present, the headings column is typically not 
+#* counted. So the returned count is one less than the physical count. For our 
+#* search functions (e.g. FRM_TBL_find_cell()) we need to access the headings 
+#* column to search for them. Increase the count_adjustment if you notice that 
+#* our functions do not seem to find the value in the last column.
+#* 
+#* @return the row adjustment amount
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_get_cols_count_adjustment ( )
+{
+	<b>return</b> aut_tbl_cols_count_adjustment;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Performs the action on a table cell as specified by the command &lt;code&gt;cmd&lt;/code&gt;.
+#* There are four types of actions you can perform on a table cell:
+#* &lt;ul&gt;
+#*	&lt;li&gt;S = &lt;b&gt;s&lt;/b&gt;elect the cell (i.e. tbl_set_selected_cell/tbl_activate_cell)&lt;/li&gt;
+#*	&lt;li&gt;E = &lt;b&gt;e&lt;/b&gt;nter the value in a cell box of type edit (i.e. edit_set)&lt;/li&gt;
+#*	&lt;li&gt;P = &lt;b&gt;p&lt;/b&gt;ick the value from a list (i.e. list_select_item)&lt;/li&gt;
+#*	&lt;li&gt;T = &lt;b&gt;t&lt;/b&gt;ype into the cell (i.e. type)&lt;/li&gt;
+#*	&lt;li&gt;D = enter &lt;b&gt;d&lt;/b&gt;ata using tbl functions such as tbl_set_cell_data() or 
+#*		tbl_get_cell_data()&lt;/li&gt;
+#* &lt;/ul&gt;
+#*&lt;p&gt;
+#* All actions can be specified by a generic syntax:
+#* &lt;p&gt;
+#* &lt;pre&gt;~action~[row]~[col][~val[~obj[~exact]]]&lt;/pre&gt;
+#* &lt;p&gt;
+#* where&lt;br&gt;
+#* &lt;ul&gt;
+#* &lt;li&gt;~ = any character that occurs only at specified positions (separator)&lt;/li&gt;
+#* &lt;li&gt;action = one of the following: S|E|P|T|D, action can be prefixed with . or :
+#* (e.g. .S) where . means selection (tbl_set_selected_cell) and : means
+#* activation (tbl_activate_cell, i.e. double-click) [default: selection]&lt;/li&gt;
+#* &lt;li&gt;row = row specification either as 
+#*		&lt;ul&gt;
+#*		&lt;li&gt;index (e.g. &lt;code&gt;#1&lt;/code&gt;)&lt;/li&gt;
+#*		&lt;li&gt;search expression in form &lt;code&gt;col1=val1[;coln=valn]...&lt;/code&gt;
+#*			where col1 ist the name of the column containing val1, etc. the
+#*			separator ; (semicolon) is interpreted as logical AND&lt;/li&gt;
+#*		&lt;li&gt;&lt;code&gt;&amp;lt;LAST&amp;gt;&lt;/code&gt;  in which case the last valid row spec is
+#*			reused (no search is performed for preformance reasons)&lt;/li&gt;
+#*		&lt;li&gt;name (e.g. &lt;code&gt;Par1&lt;/code&gt;) it is assumed that col #0 contains row 
+#*			names [obsolete; replaced by &lt;code&gt;#0=val&lt;/code&gt;] &lt;/li&gt;
+#*		&lt;li&gt;in case of Selection row can be left empty (assuming col and val are 
+#*			filled in) where val is searched for in col #0 [obsolete, replaced
+#*			by construct &lt;code&gt;#0=val&lt;/code&gt;]&lt;/li&gt;
+#*		&lt;/ul&gt;
+#* &lt;li&gt;col = column specification either as
+#*		&lt;ul&gt;
+#*		&lt;li&gt;index (e.g. &lt;code&gt;#1&lt;/code&gt;)&lt;/li&gt;
+#*		&lt;li&gt;name (e.g. &lt;code&gt;Col1&lt;/code&gt;)&lt;/li&gt;
+#*		&lt;li&gt;search expression in form &lt;code&gt;row1=val1[;rown=valn]...&lt;/code&gt;
+#*			where row1 ist the name of the row containing val1, etc. the
+#*			separator ; (semicolon) is interpreted as logical AND&lt;/li&gt;
+#*		&lt;li&gt;&lt;code&gt;&amp;lt;LAST&amp;gt;&lt;/code&gt;  in which case the last valid column spec is
+#*			reused (no search is performed for preformance reasons)&lt;/li&gt;
+#*		&lt;li&gt;in case of Selection col can be left empty (assuming row and val are 
+#*			filled in) where val is searched for in row #0 [obsolete, replaced
+#*			by construct &lt;code&gt;#0=val&lt;/code&gt;]&lt;/li&gt;
+#*		&lt;/ul&gt;
+#* &lt;li&gt;val = value which can be interpreted two-fold&lt;br&gt;
+#*	in case of Selection val can specify the content of the cell which is to be selected&lt;br&gt;
+#*	in other cases val represents the value for the E|P|T|D operations&lt;/li&gt;
+#* &lt;li&gt;obj = a phisical description of the object to be actioned upon&lt;/li&gt;
+#* &lt;li&gt;exact = indicats whether exact or tollerant matching [default] is to be performed&lt;/li&gt;
+#* &lt;/ul&gt;
+#* &lt;p&gt;
+#* A few examples:
+#* &lt;ul&gt;
+#* &lt;li&gt;~S~#1~#2&lt;br&gt;
+#*	selects cell indexed by row=#1, col=#2&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+#* &lt;li&gt;~.S~AnzahlH~Wert&lt;br&gt;
+#*	selects cell in a row named "AnzahlH" and a column named "Wert"&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+#* &lt;li&gt;~:S~~Wert~xxx&lt;br&gt;
+#*	activates cell in a column "Wert" that contains "xxx"&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+#* &lt;li&gt;~S~#1~~xxx&lt;br&gt;
+#*	activates cell in a row #1 that contains "xxx"&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+#* &lt;li&gt;~E~#1~Wert~xxx&lt;br&gt;
+#*	sets (edit_set) cell in row #1 and column named "Wert" to "xxx"&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+#* &lt;li&gt;~E~#1~#2~xxx~{class:edit,index:12}&lt;br&gt;
+#*	sets (edit_set) object with the given description that appears in cell #1:#2 to "xxx"&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+#* &lt;li&gt;~S~aaa~bbb~~~1&lt;br&gt;
+#*	selects cell named exactly "aaa":"bbb"&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+#* &lt;li&gt;~.T~#1~#2~abc&lt;br&gt;
+#*	types "abc" in cell #1:#2 (after selecting a cell with a single click)&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+#* &lt;/ul&gt;
+#* @param tbl	(in)	table name
+#* @param cmd	(in)	command to be performed
+#* @param frm_mode (in)	[optional] FRM mode (FRM_SET_MODE|FRM_CHK_MODE|FRM_ATR_MODE|FRM_GEN_MODE)
+#* @param desc	(in) [optional] default physical description of the object to be acted upon
+#* 		this description is used unless overridden by the cmd,
+#*		if you don't provide this argument, "{class:edit}" will be used
+#* @param list	(in) [optional] a description or a logical name of the combo box
+#* 		containing the obj.
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_cell_action( <b>in</b> tbl, <b>in</b> cmd, <b>in</b> frm_mode, <b>in</b> desc, <b>in</b> list )
+{
+	<b>extern</b> RLENGTH;
+	
+	<b>auto</b> sep;	</font><font color="#ff0000"><i># separator</font></i><font color=black>
+	<b>auto</b> typ;	</font><font color="#ff0000"><i># query type S=selection, E=edit, P=pick; T=type</font></i><font color=black>
+	<b>auto</b> row;	</font><font color="#ff0000"><i># row# or row name</font></i><font color=black>
+	<b>auto</b> col;	</font><font color="#ff0000"><i># col# or column name</font></i><font color=black>
+	<b>auto</b> val;	</font><font color="#ff0000"><i># value to be set/selected</font></i><font color=black>
+	<b>auto</b> obj;	</font><font color="#ff0000"><i># object where action is to be performed</font></i><font color=black>
+	<b>auto</b> exact;	</font><font color="#ff0000"><i># indicator for exact or tollerant match [default: tollerant]</font></i><font color=black>
+
+	<b>auto</b> simple_select;	</font><font color="#ff0000"><i># cell selection mechanism [default: double-click]</font></i><font color=black>
+	
+	<b>auto</b> arr[], count, i;
+	<b>auto</b> r, c;
+	<b>auto</b> w, h;
+	<b>auto</b> msg, dummy, rc;
+
+	<b>if</b> ( frm_mode == </font><font color="#00bb00">""</font><font color=black> )
+		frm_mode = FRM_SET_MODE;
+			
+	sep = substr( cmd, 1, 1 );
+	count = split( cmd, arr, sep );
+	
+	<b>if</b> ( count &lt; 4 )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+
+	typ = toupper( arr[2] );
+	row = arr[3];
+	col = arr[4];
+	</font><font color="#ff0000"><i># don't worry for these three (they will be created if not specified)</font></i><font color=black>
+	val = arr[5];
+	obj = arr[6];
+	exact = arr[7];
+	
+	<b>switch</b> ( typ )
+	{
+	<b>case</b> </font><font color="#00bb00">"S"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"D"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"DCHK"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"E"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"B"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"BCHK"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"P"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"T"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".S"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".D"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".DCHK"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".E"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".B"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".BCHK"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".P"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".T"</font><font color=black>:
+		simple_select = TRUE;  </font><font color="#ff0000"><i># i.e. use tbl_set_selected_cell()</font></i><font color=black>
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">":S"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">":D"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">":DCHK"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">":E"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">":B"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">":BCHK"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">":P"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">":T"</font><font color=black>:
+		simple_select = FALSE;  </font><font color="#ff0000"><i># i.e. use tbl_activate_cell()</font></i><font color=black>
+		<b>break</b>;
+	<b>default</b>:
+		rc = E_ILLEGAL_PARAMETER;
+		msg = sprintf( </font><font color="#00bb00">"%s: invalid type, valid options=S|E|P|T|D"</font><font color=black>, typ );
+		<b>return</b> FRM_rc2( msg, rc );
+	}
+
+	rc = FRM_TBL_determine_row( tbl, row, col, val, r, exact );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> FRM_rc2( rc, sprintf( </font><font color="#00bb00">"%s: could not determine row index"</font><font color=black>, row ) );
+	rc = FRM_TBL_determine_col( tbl, row, col, val, c, exact );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> FRM_rc2( rc, sprintf( </font><font color="#00bb00">"%s: could not determine column index"</font><font color=black>, col ) );
+
+	</font><font color="#ff0000"><i># watch the trick !!! object is created dynamically!</font></i><font color=black>
+	</font><font color="#ff0000"><i># there are two ways to identify the object:</font></i><font color=black>
+	</font><font color="#ff0000"><i>#   1. pass the description via parameter </font></i><font color=black>
+	</font><font color="#ff0000"><i>#      (this way you define the default object)</font></i><font color=black>
+	</font><font color="#ff0000"><i>#   2. pass the desciption via command </font></i><font color=black>
+	</font><font color="#ff0000"><i>#      (i.e. overide the default by anything you want from a data table)</font></i><font color=black>
+	</font><font color="#ff0000"><i># if you don't specify anything, we'll try with an edit object</font></i><font color=black>
+
+	<b>if</b> ( arr[6] == </font><font color="#00bb00">""</font><font color=black> )
+		obj = desc;
+	<b>if</b> ( match( obj, </font><font color="#00bb00">" *web:"</font><font color=black> ) == 1 )
+		obj = FRM_TBL_web_get_child_item( tbl, r, c, obj );
+	<b>if</b> ( obj == </font><font color="#00bb00">""</font><font color=black> )
+		obj = </font><font color="#00bb00">"{class:edit}"</font><font color=black>;
+
+	<b>switch</b> ( typ )
+	{
+	<b>case</b> </font><font color="#00bb00">"S"</font><font color=black>:		</font><font color="#ff0000"><i># Selection</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">":S"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".S"</font><font color=black>:
+		<b>switch</b>( frm_mode ) 
+		{
+		<b>case</b> FRM_SET_MODE:
+		<b>case</b> FRM_CHK_MODE:
+		<b>case</b> FRM_ATR_MODE:
+		<b>case</b> FRM_GEN_MODE:
+			rc+=FRM_TBL_select( tbl, r, c, simple_select );
+			<b>break</b>;
+		}
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"D"</font><font color=black>:		</font><font color="#ff0000"><i># Data = tbl functions</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">":D"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".D"</font><font color=black>:
+		<b>switch</b>( frm_mode ) 
+		{
+		<b>case</b> FRM_SET_MODE:
+			rc+=FRM_TBL_SET_data( tbl, r, c, val, simple_select );
+			<b>break</b>;
+		<b>case</b> FRM_CHK_MODE:
+			rc+=FRM_TBL_CHK_data( tbl, r, c, val, simple_select, exact );
+			<b>break</b>;
+		<b>case</b> FRM_ATR_MODE:
+		<b>case</b> FRM_GEN_MODE:
+			<b>break</b>;
+		}
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"DCHK"</font><font color=black>:		</font><font color="#ff0000"><i># Data = tbl functions (force check)</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">":DCHK"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".DCHK"</font><font color=black>:
+		<b>switch</b>( frm_mode ) 
+		{
+		<b>case</b> FRM_SET_MODE:
+		<b>case</b> FRM_CHK_MODE:
+			rc+=FRM_TBL_CHK_data( tbl, r, c, val, simple_select, exact );
+			<b>break</b>;
+		<b>case</b> FRM_ATR_MODE:
+		<b>case</b> FRM_GEN_MODE:
+			<b>break</b>;
+		}
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"E"</font><font color=black>:		</font><font color="#ff0000"><i># Edit = edit field</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">":E"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".E"</font><font color=black>:
+		<b>switch</b>( frm_mode ) 
+		{
+		<b>case</b> FRM_SET_MODE:
+			rc+=FRM_TBL_SET_edit( tbl, r, c, obj, val, simple_select, exact );
+			<b>break</b>;
+		<b>case</b> FRM_CHK_MODE:
+			rc+=FRM_TBL_CHK_edit( tbl, r, c, obj, val, simple_select, exact );
+			<b>break</b>;
+		<b>case</b> FRM_ATR_MODE:
+		<b>case</b> FRM_GEN_MODE:
+			<b>break</b>;
+		}
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"B"</font><font color=black>:		</font><font color="#ff0000"><i># Button = radio button or check box</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">":B"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".B"</font><font color=black>:
+		<b>switch</b>( frm_mode ) 
+		{
+		<b>case</b> FRM_SET_MODE:
+			rc+=FRM_TBL_SET_button( tbl, r, c, obj, val, simple_select );
+			<b>break</b>;
+		<b>case</b> FRM_CHK_MODE:
+			rc+=FRM_TBL_CHK_button( tbl, r, c, obj, val, simple_select );
+			<b>break</b>;
+		<b>case</b> FRM_ATR_MODE:
+		<b>case</b> FRM_GEN_MODE:
+			<b>break</b>;
+		}
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"BCHK"</font><font color=black>:		</font><font color="#ff0000"><i># Button = radio button or check box (force check)</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">":BCHK"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".BCHK"</font><font color=black>:
+		<b>switch</b>( frm_mode ) 
+		{
+		<b>case</b> FRM_SET_MODE:
+		<b>case</b> FRM_CHK_MODE:
+			rc+=FRM_TBL_CHK_button( tbl, r, c, obj, val, simple_select );
+			<b>break</b>;
+		<b>case</b> FRM_ATR_MODE:
+		<b>case</b> FRM_GEN_MODE:
+			<b>break</b>;
+		}
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"P"</font><font color=black>:		</font><font color="#ff0000"><i># Pick = drop-down list</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">":P"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".P"</font><font color=black>:
+		<b>switch</b>( frm_mode ) 
+		{
+		<b>case</b> FRM_SET_MODE:
+			rc+=FRM_TBL_SET_pick( tbl, r, c, obj, list, val, simple_select );
+			<b>break</b>;
+		<b>case</b> FRM_CHK_MODE:
+			rc+=FRM_TBL_CHK_pick( tbl, r, c, obj, list, val, simple_select, exact );
+			<b>break</b>;
+		<b>case</b> FRM_ATR_MODE:
+		<b>case</b> FRM_GEN_MODE:
+			<b>break</b>;
+		}
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"T"</font><font color=black>:		</font><font color="#ff0000"><i># Type = anything</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">":T"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">".T"</font><font color=black>:
+		<b>switch</b>( frm_mode ) 
+		{
+		<b>case</b> FRM_SET_MODE:
+			rc+=FRM_TBL_type( tbl, r, c, val, simple_select );
+			<b>break</b>;
+		<b>case</b> FRM_CHK_MODE:
+		<b>case</b> FRM_ATR_MODE:
+		<b>case</b> FRM_GEN_MODE:
+			<b>break</b>;
+		}
+		<b>break</b>;
+	}
+	<b>return</b> rc;
+}
+
+<b>public</b> <b>function</b> FRM_TBL_CHK_cell_action( <b>in</b> tbl, <b>in</b> cmd, <b>in</b> desc, <b>in</b> list )
+{
+	<b>extern</b> RLENGTH;
+	
+	<b>auto</b> sep;	</font><font color="#ff0000"><i># separator</font></i><font color=black>
+	<b>auto</b> typ;	</font><font color="#ff0000"><i># query type S=selection, E=edit, P=pick; T=type</font></i><font color=black>
+	<b>auto</b> row;	</font><font color="#ff0000"><i># row# or row name</font></i><font color=black>
+	<b>auto</b> col;	</font><font color="#ff0000"><i># col# or column name</font></i><font color=black>
+	<b>auto</b> val;	</font><font color="#ff0000"><i># value to be set/selected</font></i><font color=black>
+	<b>auto</b> obj;	</font><font color="#ff0000"><i># object where action is to be performed</font></i><font color=black>
+	<b>auto</b> exact;	</font><font color="#ff0000"><i># indicator for exact or tollerant match [default: tollerant]</font></i><font color=black>
+
+	<b>auto</b> simple_select;	</font><font color="#ff0000"><i># cell selection mechanism [default: double-click]</font></i><font color=black>
+	
+	<b>auto</b> arr[], count, i;
+	<b>auto</b> r, c;
+	<b>auto</b> w, h;
+	<b>auto</b> msg, dummy, rc;
+	<b>auto</b> val2;
+
+	sep = substr( cmd, 1, 1 );
+	count = split( cmd, arr, sep );
+	
+	<b>if</b> ( count &lt; 4 )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+
+	typ = toupper( arr[2] );
+	row = arr[3];
+	col = arr[4];
+	</font><font color="#ff0000"><i># don't worry for these three (they will be created if not specified)</font></i><font color=black>
+	val = arr[5];
+	obj = arr[6];
+	exact = arr[7];
+	
+	rc = FRM_TBL_determine_row( tbl, row, col, val, r, exact );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	rc = FRM_TBL_determine_col( tbl, row, col, val, c, exact );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+
+	<b>if</b> ( arr[6] == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		obj = desc;
+	}
+	<b>if</b> ( obj == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		obj = </font><font color="#00bb00">"{class:edit}"</font><font color=black>;
+	}
+	rc+=tbl_set_selected_cell( tbl, r, c );
+	rc+=tbl_get_cell_data ( tbl, r, c, val2 );
+	val2=strip_both ( val2, </font><font color="#00bb00">" "</font><font color=black> );
+	<b>if</b> ( match( val2, val ) &amp;&amp; <b>length</b>(val2) == RLENGTH )
+	{
+		FRM_log_obj_info( obj );
+		<b>tl_step</b>( </font><font color="#00bb00">"FRM_TBL_CHK_cell_action"</font><font color=black>, E_OK, </font><font color="#00bb00">"expected: &#92;&#34;"</font><font color=black>&amp;val&amp;</font><font color="#00bb00">"&#92;&#34; actual: &#92;&#34;"</font><font color=black>&amp;val2&amp;</font><font color="#00bb00">"&#92;&#34;"</font><font color=black> );
+		rc = E_OK;
+	}
+	<b>else</b>
+	{
+		FRM_log_obj_info( obj );
+		rc = FRM_rc2( E_DIFF, </font><font color="#00bb00">"expected: &#92;&#34;"</font><font color=black>&amp;val&amp;</font><font color="#00bb00">"&#92;&#34; actual: &#92;&#34;"</font><font color=black>&amp;val2&amp;</font><font color="#00bb00">"&#92;&#34;"</font><font color=black> );
+	}
+	<b>return</b> rc;
+}
+
+<b>public</b> <b>function</b> FRM_TBL_select ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> simple_select )
+{
+	<b>auto</b> rc;
+	<b>if</b> ( simple_select )
+		rc+=tbl_set_selected_cell( tbl, </font><font color="#00bb00">"#"</font><font color=black>&amp;row, </font><font color="#00bb00">"#"</font><font color=black>&amp;col );
+		</font><font color="#ff0000"><i># if the above does not work, try this</font></i><font color=black>
+		</font><font color="#ff0000"><i>#rc = tbl_click_cell( tbl, row, col );</font></i><font color=black>
+	<b>else</b>
+		rc = tbl_activate_cell( tbl, row, col );
+	
+	</font><font color="#ff0000"><i># some apps resize the grid when a cell gets selected</font></i><font color=black>
+	</font><font color="#ff0000"><i># with this wait we hope to have stable grid before continuing	</font></i><font color=black>
+	</font><font color="#ff0000"><i>#wait( 0, 500 );</font></i><font color=black>
+	<b>return</b> FRM_rc2( rc, sprintf(</font><font color="#00bb00">"row=%s, col=%s"</font><font color=black>, row, col) );
+}
+
+<b>public</b> <b>function</b> FRM_TBL_GET_data ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>out</b> val, <b>in</b> simple_select )
+{
+	<b>auto</b> rc;
+</font><font color="#ff0000"><i>#	rc =FRM_TBL_select ( tbl, row, col, simple_select );</font></i><font color=black>
+	rc =tbl_get_cell_data( tbl, row, col, val);
+	<b>return</b> FRM_rc2( rc, sprintf(</font><font color="#00bb00">"row=%s, col=%s, val=%s"</font><font color=black>, row, col, val) );
+}
+
+<b>public</b> <b>function</b> FRM_TBL_SET_data ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> val, <b>in</b> simple_select )
+{
+	<b>auto</b> rc;
+</font><font color="#ff0000"><i>#	rc =FRM_TBL_select ( tbl, row, col, simple_select );</font></i><font color=black>
+	rc =FRM_rc2( tbl_set_cell_data( tbl, row, col, val), sprintf(</font><font color="#00bb00">"row=%s, col=%s, val=%s"</font><font color=black>, row, col, val) );
+	</font><font color="#ff0000"><i># try the following line if you need to provoke the focus lost event</font></i><font color=black>
+	</font><font color="#ff0000"><i>#type( "&lt;kReturn&gt;" );</font></i><font color=black>
+	<b>return</b> rc;
+}
+
+<b>public</b> <b>function</b> FRM_TBL_CHK_data ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> val, <b>in</b> simple_select, <b>in</b> operation )
+{
+	<b>extern</b> RLENGTH;
+	<b>auto</b> data;
+	<b>auto</b> rc;
+</font><font color="#ff0000"><i>#	rc =FRM_TBL_select ( tbl, row, col, simple_select );</font></i><font color=black>
+	rc+=FRM_rc2( tbl_get_cell_data( tbl, row, col, data), sprintf(</font><font color="#00bb00">"row=%s, col=%s, val=%s"</font><font color=black>, row, col, data) );
+	<b>if</b> ( rc == E_OK )
+	{
+		rc = FRM_TBL_generic_check( data, val, operation );
+ 	}
+	<b>return</b> rc;
+}
+
+<b>static</b> <b>function</b> FRM_TBL_generic_check ( <b>in</b> actual, <b>in</b> expected, <b>in</b> operation )
+{
+	<b>extern</b> RLENGTH;
+	<b>auto</b> msg, rc;
+	msg = sprintf( </font><font color="#00bb00">"expected=&#92;&#34;%s&#92;&#34;, actual=&#92;&#34;%s&#92;&#34;, operation=%s"</font><font color=black>, expected, actual, operation );
+	<b>switch</b> ( toupper(operation) ) 
+	{
+	<b>case</b> </font><font color="#00bb00">""</font><font color=black>:				</font><font color="#ff0000"><i># wenn nichts spezifiziert wird MATCH als default genommen</font></i><font color=black>
+	<b>case</b> </font><font color="#00bb00">"MATCH"</font><font color=black>:
+		rc = match( actual, expected );
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"EXACT"</font><font color=black>:
+		rc = match( actual, expected ) &amp;&amp; RLENGTH == <b>length</b>( actual );
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"=="</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"EQ"</font><font color=black>:
+		rc = ( expected == actual );
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"!="</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"NE"</font><font color=black>:
+		rc = ( expected != actual );
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"&lt;"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"LT"</font><font color=black>:
+		rc = ( expected &gt; actual );
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"&lt;="</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"LE"</font><font color=black>:
+		rc = ( expected &gt;= actual );
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"&gt;"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"GT"</font><font color=black>:
+		rc = ( expected &lt; actual );
+		<b>break</b>;
+	<b>case</b> </font><font color="#00bb00">"&gt;="</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"GE"</font><font color=black>:
+		rc = ( expected &lt;= actual );
+		<b>break</b>;
+	<b>default</b>:
+		<b>return</b> FRM_rc2( E_ILLEGAL_PARAMETER, operation &amp; </font><font color="#00bb00">": illegal operation"</font><font color=black> );
+	}
+	<b>return</b> FRM_rc2( (rc ? E_OK : E_MISMATCH), msg );
+}
+
+</font><font color="#ff0000"><i># edit</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_SET_edit ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> obj, <b>in</b> val, <b>in</b> simple_select )
+{
+	<b>auto</b> rc;
+	FRM_log_obj_info( obj );
+	rc =FRM_TBL_select ( tbl, row, col, simple_select );
+	rc+=edit_set( obj, val );
+	</font><font color="#ff0000"><i>#type( "&lt;kReturn&gt;" );</font></i><font color=black>
+	<b>return</b> FRM_rc2( rc, val );
+}
+
+<b>public</b> <b>function</b> FRM_TBL_CHK_edit ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> obj, <b>in</b> val, <b>in</b> simple_select, <b>in</b> exact )
+{
+	<b>auto</b> rc;
+	FRM_log_obj_info( obj );
+	rc =FRM_TBL_select ( tbl, row, col, simple_select );
+	rc+=edit_check_text( obj, val, exact );
+	<b>return</b> FRM_rc2( rc, val );
+}
+
+</font><font color="#ff0000"><i># button (radio button or check box)</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_SET_button ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> obj, <b>in</b> val, <b>in</b> simple_select )
+{
+	<b>auto</b> rc;
+	FRM_log_obj_info( obj );
+	</font><font color="#ff0000"><i>#rc =FRM_TBL_select ( tbl, row, col, simple_select );</font></i><font color=black>
+	rc = button_set( obj, val );
+	<b>return</b> FRM_rc2( rc, val );
+}
+
+<b>public</b> <b>function</b> FRM_TBL_CHK_button ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> obj, <b>in</b> val, <b>in</b> simple_select, <b>in</b> exact )
+{
+	<b>auto</b> rc;
+	FRM_log_obj_info( obj );
+	</font><font color="#ff0000"><i>#rc =FRM_TBL_select ( tbl, row, col, simple_select );</font></i><font color=black>
+	rc= button_check_state( obj, val );
+	<b>return</b> FRM_rc2( rc, val );
+}
+
+</font><font color="#ff0000"><i># pick</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_SET_pick ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> obj, <b>in</b> list, <b>in</b> val, <b>in</b> simple_select )
+{
+	<b>auto</b> rc;
+	FRM_log_obj_info( list );
+	rc =FRM_TBL_select ( tbl, row, col, simple_select );
+	rc+=FRM_TBL_list_select_item( obj, list, val );
+	<b>return</b> FRM_rc2( rc, val );
+}
+
+<b>public</b> <b>function</b> FRM_TBL_CHK_pick ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> obj, <b>in</b> list, <b>in</b> val, <b>in</b> simple_select, <b>in</b> exact )
+{
+	<b>auto</b> rc;
+	FRM_log_obj_info( list );
+	rc = FRM_TBL_select ( tbl, row, col, simple_select );
+	</font><font color="#ff0000"><i># to be implemented</font></i><font color=black>
+	<b>return</b> FRM_rc2( rc, val );
+}
+
+</font><font color="#ff0000"><i># type</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_type ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> val, <b>in</b> simple_select )
+{
+	<b>auto</b> rc;
+	rc = FRM_TBL_select ( tbl, row, col, simple_select );
+	type( val );
+	<b>return</b> FRM_rc2( rc, val );
+}
+
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Conains the value of the last selected  row 
+#* (set/reset by the function FRM_TBL_determine_row())
+#*/</font></i><font color=black>
+<b>static</b> LAST_ROW;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns the name/index of the row depending on the specified row/col.
+#* If &amp;lt;row&amp;gt; is given (i.e. != ""), the unchanged value is returned.
+#* If &amp;lt;row&amp;gt; is not given (i.e. == ""), the row containing the given
+#* &amp;lt;val&amp;gt; is searched for in the column specified by &amp;lt;col&amp;gt;.
+#* If both &amp;lt;row&amp;gt; and &amp;lt;col&amp;gt; are not given, an error is returned.
+#* @param tbl (in) table object
+#* @param row (in) row to select (if row does not equal "", no search is
+#*	performed; if row equals "&lt;LAST&gt;", last valid row determined by this function
+#*	is returned (no search performed))
+#* @param col (in) column where &amp;lt;val&amp;gt; is searched for
+#* @param val (in) value to search for in the given column
+#* @param out_row (out) the name of the determined row
+#* @param exact (in) [optinal] true indicates that an exact match is to be performed
+#* @return
+#*	E_OK: value was found (i.e. out_row contains the name of the row)
+#*	else: error
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_determine_row ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> val, <b>out</b> out_row, <b>in</b> exact )
+{
+	<b>auto</b> c, dummy, rc;
+	<b>extern</b> RLENGTH;
+
+	</font><font color="#ff0000"><i># ... by searching for the &lt;val&gt; in &lt;col&gt;</font></i><font color=black>
+	<b>if</b> ( row == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		<b>if</b> ( col == </font><font color="#00bb00">""</font><font color=black> )
+		{
+			<b>return</b> E_ILLEGAL_PARAMETER;  </font><font color="#ff0000"><i># at least one dimension must be specified</font></i><font color=black>
+		}
+</font><font color="#ff0000"><i>#		rc = FRM_TBL_find_cell( tbl, val, out_row, dummy, "", col, exact );</font></i><font color=black>
+		rc = FRM_TBL_find_row( tbl, val, out_row );
+		<b>if</b> ( rc != E_OK )
+		{
+			LAST_ROW = </font><font color="#00bb00">""</font><font color=black>;
+			<b>return</b> rc;
+		}
+		LAST_ROW = out_row;
+		<b>return</b> E_OK;
+	}
+
+	</font><font color="#ff0000"><i># ... by index (nothing to search for)</font></i><font color=black>
+	<b>if</b> ( match( row, </font><font color="#00bb00">"#[0-9][0-9]*"</font><font color=black> ) &amp;&amp; RLENGTH == <b>length</b>( row ) )  
+	{
+		out_row = row;
+		LAST_ROW = row;
+		<b>return</b> E_OK;
+	}
+
+	</font><font color="#ff0000"><i># ... by "&lt;LAST&gt;" (last valid row)</font></i><font color=black>
+	<b>if</b> ( match( row, </font><font color="#00bb00">"&lt;[Ll][Aa][Ss][Tt]&gt;"</font><font color=black> ) &amp;&amp; RLENGTH == <b>length</b>( row ) )  
+	{
+		debug_msg( </font><font color="#00bb00">"using last row: &#92;&#34;"</font><font color=black> &amp; LAST_ROW &amp; </font><font color="#00bb00">"&#92;&#34;"</font><font color=black> );
+		out_row = LAST_ROW;
+		<b>return</b> E_OK;
+	}
+
+	</font><font color="#ff0000"><i># ... by row name (search in column 0)</font></i><font color=black>
+</font><font color="#ff0000"><i>#	rc = FRM_TBL_find_cell( tbl, row, out_row, dummy, "", "#0", exact );</font></i><font color=black>
+	rc = FRM_TBL_find_row( tbl, row, out_row );
+	<b>if</b> ( rc != E_OK )
+	{
+		LAST_ROW = </font><font color="#00bb00">""</font><font color=black>;
+		<b>return</b> rc;
+	}
+	LAST_ROW = out_row;
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Conains the value of the last selected  col 
+#* (set/reset by the function FRM_TBL_determine_col())
+#*/</font></i><font color=black>
+<b>static</b> LAST_COL;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns the name/index of the column depending on the specified row/col.
+#* If &amp;lt;col&amp;gt; is given (i.e. != ""), the unchanged value is returned.
+#* If &amp;lt;col&amp;gt; is not given (i.e. == ""), the column containing the given
+#* &amp;lt;val&amp;gt; is searched for in the row specified by &amp;lt;row&amp;gt;.
+#* If both &amp;lt;row&amp;gt; and &amp;lt;col&amp;gt; are not given, an error is returned.
+#* @param tbl (in) table object
+#* @param row (in) row to select (if row does not match "#[0-9][0-9]*", then
+#*	column #0 is searched for the value &amp;lt;row&amp;gt;
+#* @param col (in) column to select (if col does not equal "", no search is
+#*	performed;  if row equals "&lt;LAST&gt;", last valid row determined by this function
+#*	is returned (no search performed))
+#* @param val (in) value to search for in the determined row
+#* @param out_col (out) the name of the determined column
+#* @param exact (in) [optinal] true indicates that an exact match is to be performed
+#* @return
+#*	E_OK: value was found (i.e. out_col contains the name of the column)
+#*	else: error
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_determine_col ( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> val, <b>out</b> out_col, <b>in</b> exact )
+{
+	<b>auto</b> r, dummy, rc;
+	<b>extern</b> RLENGTH;
+
+	</font><font color="#ff0000"><i># ... by searching for the &lt;val&gt; in &lt;row&gt;</font></i><font color=black>
+	<b>if</b> ( col == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		<b>if</b> ( row == </font><font color="#00bb00">""</font><font color=black> )
+		{
+			<b>return</b> E_ILLEGAL_PARAMETER;  </font><font color="#ff0000"><i># at least one dimension must be specified</font></i><font color=black>
+		}
+		<b>if</b> ( match( row, </font><font color="#00bb00">"#[0-9][0-9]*"</font><font color=black> ) &amp;&amp; RLENGTH == <b>length</b>( row ) )  
+		{
+			r = row;
+		}
+		<b>else</b>
+		{	</font><font color="#ff0000"><i># search the &lt;row&gt; by its name in col 0</font></i><font color=black>
+			rc = FRM_TBL_find_cell( tbl, row, r, dummy, </font><font color="#00bb00">""</font><font color=black>, </font><font color="#00bb00">"#0"</font><font color=black>, exact );
+			<b>if</b> ( rc != E_OK )
+			{
+				LAST_COL = </font><font color="#00bb00">""</font><font color=black>;
+				<b>return</b> rc;
+			}
+		}
+		rc = FRM_TBL_find_cell( tbl, val, dummy, out_col, r, </font><font color="#00bb00">""</font><font color=black>, exact );
+		<b>if</b> ( rc != E_OK )
+		{
+			LAST_COL = </font><font color="#00bb00">""</font><font color=black>;
+			<b>return</b> rc;
+		}
+		LAST_COL = out_col;
+		<b>return</b> E_OK;
+	}
+
+	</font><font color="#ff0000"><i># ... by "&lt;LAST&gt;" (last valid col)</font></i><font color=black>
+	<b>if</b> ( match( col, </font><font color="#00bb00">"&lt;[Ll][Aa][Ss][Tt]&gt;"</font><font color=black> ) &amp;&amp; RLENGTH == <b>length</b>( col ) )  
+	{
+		debug_msg( </font><font color="#00bb00">"using last col: &#92;&#34;"</font><font color=black> &amp; LAST_COL &amp; </font><font color="#00bb00">"&#92;&#34;"</font><font color=black> );
+		out_col = LAST_COL;
+		<b>return</b> E_OK;
+	}
+
+	</font><font color="#ff0000"><i># ... by column index or name (nothing to search for)</font></i><font color=black>
+	out_col = col;
+	LAST_COL = col;
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Searches for a row that contains given data in specified coumns. Note
+#* that an exact mtch is always performed. 
+#* If such row is found (first from top!) the row index is returned otherwise
+#* an error is indicated. Cells can be specified using the following syntax:
+#* &lt;p&gt;
+#*	&lt;pre&gt;col=val[;col=val]...&lt;/pre&gt;
+#* &lt;p&gt;
+#*	where &lt;code&gt;col&lt;/code&gt; is either
+#* &lt;ul&gt;
+#*	&lt;li&gt;&lt;b&gt;name&lt;/b&gt; such as "Column1" (without quotes!)&lt;/li&gt;
+#*	&lt;li&gt;&lt;b&gt;index&lt;/b&gt; such as #3&lt;/li&gt;
+#* &lt;/ul&gt; 
+#* @param tbl(in) table to search
+#* @param row_spec (in) formated cell content specification (see above)
+#* @param out_row (out) row index (only if retrn == E_OK)
+#* @param idx (in) [optional] internal index needed for recursion
+#* @return
+#*	E_OK:			row found
+#*	E_NOT_FOUND:	row not found
+#*	else:			other error
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_find_row( <b>in</b> tbl, <b>in</b> row_spec, <b>out</b> out_row, <b>in</b> idx, <b>in</b> row_offset )
+{
+	<b>auto</b> colArr[], colCount;
+	<b>auto</b> col2Arr[], col2Count;
+	<b>auto</b> rc, dummy;
+
+	colCount = split( row_spec, colArr, </font><font color="#00bb00">";"</font><font color=black> );
+	<b>if</b> ( colCount &lt; 1 )
+		<b>return</b> E_NOT_FOUND;				</font><font color="#ff0000"><i># no row spec</font></i><font color=black>
+	</font><font color="#ff0000"><i># initialise offsets (needed for recursion)</font></i><font color=black>
+	<b>if</b> ( idx == </font><font color="#00bb00">""</font><font color=black> )
+		idx = 1;
+	<b>if</b> ( row_offset == </font><font color="#00bb00">""</font><font color=black> )
+		row_offset = 1;
+	</font><font color="#ff0000"><i># everything found! (recursion completed)</font></i><font color=black>
+	<b>if</b> ( idx &gt; colCount )
+		<b>return</b> E_OK;
+
+	col2Count = split( colArr[idx], col2Arr, </font><font color="#00bb00">"="</font><font color=black> );
+	<b>if</b> ( col2Count != 2 )
+		<b>return</b> E_ILLEGAL_PARAMETER;		</font><font color="#ff0000"><i># invalid row spec</font></i><font color=black>
+
+	<b>if</b> ( idx == 1 )
+	{
+		</font><font color="#ff0000"><i># vertically search only the first spec</font></i><font color=black>
+		<b>while</b> ( (rc = FRM_TBL_find_cell( tbl, col2Arr[2], out_row, dummy, </font><font color="#00bb00">""</font><font color=black>, col2Arr[1], TRUE, row_offset ) ) == E_OK )
+		{	</font><font color="#ff0000"><i># found the first one, now find the others</font></i><font color=black>
+			row_offset = substr( out_row, 2 );
+			rc = FRM_TBL_find_row( tbl, row_spec, dummy, ++idx, row_offset );
+			<b>if</b> ( rc == E_OK )
+				<b>return</b> rc;
+			row_offset++;
+		}
+		<b>return</b> rc;
+	}
+	</font><font color="#ff0000"><i># recursive part</font></i><font color=black>
+	</font><font color="#ff0000"><i># search for other colums is limmited only to curent row</font></i><font color=black>
+	rc = FRM_TBL_find_cell( tbl, col2Arr[2], out_row, dummy, </font><font color="#00bb00">"#"</font><font color=black>&amp;row_offset, col2Arr[1], TRUE, row_offset );
+	<b>if</b> ( rc == E_OK )
+		<b>return</b> FRM_TBL_find_row( tbl, row_spec, dummy, ++idx, row_offset);
+	<b>return</b> rc;
+	
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Searches for a cell that contains a given &lt;code&gt;regex&lt;/code&gt;. 
+#* You can limit the search to a particular &lt;code&gt;row&lt;/code&gt; or a &lt;code&gt;col&lt;/code&gt;,
+#* by providing their names or indices (#idx).
+#*
+#* @param tbl (in)	table object
+#* @param regex (in)	text to search for (regular expression)
+#* @param out_row (out)	row where text was found
+#* @param out_col (out)	column where text was found
+#* @param row (in) [optional] limit the search to this row only
+#* @param col (in) [optional] limit the search to this column only
+#* @param exact (in) [optional] TRUE=exact match, FALSE=tolerant match [default=FALSE]
+#* @param row_offset (in) [optional] row index where the search begins [default=0]
+#* @return
+#*	E_OK:			text found
+#*	E_NOT_FOUND:	text not found
+#*	else:			other error
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_find_cell( <b>in</b> tbl, <b>in</b> regex, <b>out</b> out_row, <b>out</b> out_col, <b>in</b> row, <b>in</b> col, <b>in</b> exact, <b>in</b> row_offset )
+{
+	<b>extern</b> RLENGTH;
+	
+	<b>auto</b> rows, cols;
+	<b>auto</b> offset = (row_offset == </font><font color="#00bb00">""</font><font color=black> ? 1 : row_offset);
+	<b>auto</b> val;
+	<b>auto</b> rc;
+	
+	rc+=tbl_get_rows_count( tbl, rows );
+	rc+=tbl_get_cols_count( tbl, cols );
+	<b>if</b> ( rc )
+		<b>return</b> rc;
+
+	rows += FRM_TBL_get_rows_count_adjustment(); 
+	cols += FRM_TBL_get_cols_count_adjustment(); 
+
+	<b>if</b> ( <b>int</b>(row) &gt; rows || <b>int</b>(col) &gt; cols )
+		<b>return</b> E_ILLEGAL_PARAMETER;
+	</font><font color="#ff0000"><i># search the whole table (left-to-right, top-to-botom)</font></i><font color=black>
+	<b>if</b> ( row == </font><font color="#00bb00">""</font><font color=black> &amp;&amp; col == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		<b>for</b> ( out_row=offset; out_row&lt;rows; out_row++ )
+		{
+			<b>for</b> ( out_col=0; out_col&lt;cols; out_col++ )
+			{
+				rc = tbl_get_cell_data( tbl, </font><font color="#00bb00">"#"</font><font color=black>&amp;out_row, </font><font color="#00bb00">"#"</font><font color=black>&amp;out_col, val );
+				<b>if</b> ( rc ) <b>return</b> rc;
+				<b>if</b> ( match( val, regex ) )
+				{
+					<b>if</b> ( !exact || RLENGTH == <b>length</b>( val ) )
+					{
+						out_row = </font><font color="#00bb00">"#"</font><font color=black>&amp;out_row;
+						out_col = </font><font color="#00bb00">"#"</font><font color=black>&amp;out_col;
+						<b>return</b> E_OK;
+					}
+				}
+			}
+		}
+		<b>return</b> E_NOT_FOUND;
+	}
+	</font><font color="#ff0000"><i># search within a column</font></i><font color=black>
+	<b>if</b> ( row == </font><font color="#00bb00">""</font><font color=black> &amp;&amp; col != </font><font color="#00bb00">""</font><font color=black> )
+	{
+		out_col = col;
+		<b>for</b> ( out_row=offset; out_row&lt;rows; out_row++ )
+		{
+			rc = tbl_get_cell_data( tbl, </font><font color="#00bb00">"#"</font><font color=black>&amp;out_row, out_col, val );
+			<b>if</b> ( rc ) <b>return</b> rc;
+			<b>if</b> ( match( val, regex ) )
+			{
+				<b>if</b> ( !exact || RLENGTH == <b>length</b>( val ) )
+				{
+					out_row = </font><font color="#00bb00">"#"</font><font color=black>&amp;out_row;
+					<b>return</b> E_OK;
+				}
+			}
+		}
+		<b>return</b> E_NOT_FOUND;
+	}
+	</font><font color="#ff0000"><i># search within a row</font></i><font color=black>
+	<b>if</b> ( row != </font><font color="#00bb00">""</font><font color=black> &amp;&amp; col == </font><font color="#00bb00">""</font><font color=black> )
+	{
+		out_row = row;
+		<b>for</b> ( out_col=0; out_col&lt;cols; out_col++ )
+		{
+			rc = tbl_get_cell_data( tbl, out_row, </font><font color="#00bb00">"#"</font><font color=black>&amp;out_col, val );
+			<b>if</b> ( rc ) <b>return</b> rc;
+			<b>if</b> ( match( val, regex ) )
+			{
+				<b>if</b> ( !exact || RLENGTH == <b>length</b>( val ) )
+				{
+					out_col = </font><font color="#00bb00">"#"</font><font color=black>&amp;out_col;
+					<b>return</b> E_OK;
+				}
+			}
+		}
+		<b>return</b> E_NOT_FOUND;
+	}
+	</font><font color="#ff0000"><i># check the single cell</font></i><font color=black>
+	out_row = row;
+	out_col = col;
+	rc = tbl_get_cell_data( tbl, out_row, out_col, val );
+	<b>if</b> ( rc ) <b>return</b> rc;
+	<b>if</b> ( match( val, regex ) )
+	{
+		<b>if</b> ( !exact || RLENGTH == <b>length</b>( val ) )
+			<b>return</b> E_OK;
+	}
+	<b>return</b> E_NOT_FOUND;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Selects the cell and opens it's popup menue via the &amp;lt;kAppa&amp;gt; key.
+#* @param tbl (in) table object
+#* @param row (in) row to select
+#* @param col (in) column to select
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_popup_cell_menu( <b>in</b> tbl, <b>in</b> row, <b>in</b> col )
+{
+	<b>auto</b> rc;
+
+	rc = FRM_TBL_select_cell( tbl, row, col );
+	<b>if</b> ( rc != E_OK )
+		<b>return</b> rc;
+	</font><font color="#ff0000"><i># press the popup menu key</font></i><font color=black>
+	<b>return</b> obj_type( tbl ,</font><font color="#00bb00">"&lt;kApps&gt;"</font><font color=black> );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Opens a popup menue at the specified location within the table object
+#*	or, if not specified, at the top-left corner of the table object.
+#* @param tbl (in) table object
+#* @param x (in) [optional] x-coordinate to click to [default: 0]
+#* @param y (in) [optional] y-coordinate to click to [default: 0]
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_popup_menu( <b>in</b> tbl, <b>in</b> x, <b>in</b> y )
+{
+	<b>return</b> obj_mouse_click( tbl, x*1, y*1, RIGHT );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Pops a drop-down list on a Stingray-ComboBox-cell by performing
+#* a left-mouse click at some calculated position within the &lt;code&gt;obj&lt;/code&gt;.
+#* 
+#* @param obj	(in)	object to click
+#* @param list	(in)	list object that drops down after the click
+#* @param item	(in)	item to select
+#* @return
+#*	E_OK:	success
+#*	else:	failure
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_list_select_item ( <b>in</b> obj, <b>in</b> list, <b>in</b> item )
+{
+	<b>auto</b> rc;
+	<b>auto</b> w, h;
+
+	rc+=FRM_TBL_obj_drop_list( obj );
+	rc+=list_select_item( list, item );
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Pops a drop-down list on Stingray-ComboBox-cell by performing
+#* a left-mouse click at some calculated position within the &lt;code&gt;obj&lt;/code&gt;.
+#* 
+#* @param obj	(in)	object to click
+#* @return
+#*	E_OK:	success
+#*	else:	failure
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> FRM_TBL_obj_drop_list ( <b>in</b> obj )
+{
+	<b>auto</b> rc;
+	<b>auto</b> x,y, w, h;
+	</font><font color="#ff0000"><i>#printf( "%s", obj );</font></i><font color=black>
+	rc+=obj_get_info( obj, </font><font color="#00bb00">"abs_x"</font><font color=black>, x );
+	rc+=obj_get_info( obj, </font><font color="#00bb00">"abs_y"</font><font color=black>, y );
+	rc+=obj_get_info( obj, </font><font color="#00bb00">"width"</font><font color=black>, w );
+	rc+=obj_get_info( obj, </font><font color="#00bb00">"height"</font><font color=black>, h );
+	</font><font color="#ff0000"><i>#printf( "Before Clicking %d", rc );</font></i><font color=black>
+</font><font color="#ff0000"><i>#	rc+=obj_mouse_click( obj, w-11, h/2, LEFT );</font></i><font color=black>
+	rc+=move_locator_abs( x+w+5, y+(h/2) );
+	rc+=click(</font><font color="#00bb00">"Left"</font><font color=black>);
+	</font><font color="#ff0000"><i>#printf( "After Clicking %d", rc );</font></i><font color=black>
+	<b>return</b> rc;
+}
+
+<b>public</b> <b>function</b> FRM_TBL_web_get_child_item( <b>in</b> tbl, <b>in</b> row, <b>in</b> col, <b>in</b> desc )
+{
+	<b>auto</b> object;
+	<b>auto</b> itemArr[];
+	<b>auto</b> count;
+	<b>auto</b> rc;
+	
+	count = split( desc, itemArr, </font><font color="#00bb00">":"</font><font color=black> );
+	<b>if</b> ( count != 3 )
+	{
+		<b>return</b> E_ILLEGAL_PARAMETER;
+	}
+	rc = web_obj_get_child_item ( tbl, row, col, itemArr[2], itemArr[3], object );
+	<b>if</b> ( rc == E_OK )
+		<b>return</b> object;
+	<b>else</b>
+		<b>return</b> rc;
+}
+
+</pre></body></html>

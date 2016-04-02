@@ -1,0 +1,19 @@
+<html>
+<title>Package: LIB.FRM</title>
+<body>
+This package contains only EMOS Framework-specific libraries. These libraries define
+function that implement the logic for the so called "test blocks" (see webhelp for more
+about EMOS Framework concepts). In other words most of your test code resides here! 
+<h3>Directory Structure</h3>
+There is no prefered way of (sub)structuring this package. The size of your application
+and the number of tests will dictate the structure. We usually divide this package into
+subpackages for bigger projects. The guideline for such division  are the modules 
+(groups of something) that we find in applications that we test.
+<h3>Naming conventions</h3>
+<ul>
+  <li><b>name prefix</b> <b>frm_</b> indicates that this is a framework-specific librariy</li>
+  <li><b>middle part</b> choose any middle part you want</li>
+  <li><b>name postfix</b> <b>_lib</b> indicates this is a library</li>
+</ul>
+</body>
+</html>

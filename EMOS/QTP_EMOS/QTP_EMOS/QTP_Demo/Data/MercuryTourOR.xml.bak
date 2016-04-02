@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<Object_Repository>
+<Object Name="MainBrowser" Type="Browser">
+<Def Type="ParentObject">
+<Description>"MainBrowser"</Description>
+</Def>
+<Object Name="Login" Type="Page">
+<Def Type="ChildObject">
+<Description>
+<title>Welcome: Mercury Tours</title>
+</Description>
+</Def>
+<Object Name="Login_UserName_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>userName</name>
+</Description>
+</Def>
+</Object>
+<Object Name="Login_Password_TextField" Type="WebEdit">
+<Def Type="ChildObject">
+<Description>
+<name>password</name>
+</Description>
+</Def>
+</Object>
+<Object Name="Login_SignIn_Button" Type="image">
+<Def Type="ChildObject">
+<Description>
+<file__XORSPACE__name>btn_signin.gif</file__XORSPACE__name>
+</Description>
+</Def>
+</Object>
+</Object>
+<Object Name="FlightFinder" Type="Page">
+<Def Type="ChildObject">
+<Description>
+<title>Find a Flight: Mercury Tours:</title>
+</Description>
+</Def>
+<Object Name="FlightFinder_TripType_RadioButton" Type="WebRadioGroup">
+<Def Type="ChildObject">
+<Description>
+<value>roundtrip</value>
+<name>tripType</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_TripType2_RadioButton" Type="WebRadioGroup">
+<Def Type="ChildObject">
+<Description>
+<value>oneway</value>
+<name>tripType</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_PassCount_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>passCount</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_FromPort_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>fromPort</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_FromMonth_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>fromMonth</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_FromDay_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>fromDay</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_ToPort_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>toPort</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_ToMonth_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>toMonth</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_ToDay_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>toDay</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_ServClass_RadioButton" Type="WebRadioGroup">
+<Def Type="ChildObject">
+<Description>
+<value>Coach</value>
+<name>servClass</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_ServClass2_RadioButton" Type="WebRadioGroup">
+<Def Type="ChildObject">
+<Description>
+<value>Business</value>
+<name>servClass</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_ServClass3_RadioButton" Type="WebRadioGroup">
+<Def Type="ChildObject">
+<Description>
+<value>First</value>
+<name>servClass</name>
+</Description>
+</Def>
+</Object>
+<Object Name="FlightFinder_Airline_List" Type="WebList">
+<Def Type="ChildObject">
+<Description>
+<name>airline</name>
+</Description>
+</Def>
+</object>
+<Object Name="FlightFinder_Continue_Button" Type="Image">
+<Def Type="ChildObject">
+<Description>
+<file__XORSPACE__name>continue.gif</file__XORSPACE__name>
+</Description>
+</Def>
+</Object>
+</Object>
+</Object>
+</Object_Repository>

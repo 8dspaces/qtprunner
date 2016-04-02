@@ -1,0 +1,46 @@
+<Object Name="temp.xml" Type="Page">
+<Def Type="ChildObject">
+<Description>
+<title>Select a Flight: Mercury Tours</title>
+</Description>
+</Def>
+<Object Name="temp.xml_OutFlight_RadioButton" Type="WebRadioGroup">
+<Def Type="ChildObject">
+<Description>
+<value>Blue Skies Airlines$200$244$5:03$</value>
+<name>outFlight</name>
+</Description>
+</Def>
+</Object>
+<Object Name="temp.xml_OutFlight2_RadioButton" Type="WebRadioGroup">
+<Def Type="ChildObject">
+<Description>
+<value>Blue Skies Airlines$201$249$7:09$</value>
+<name>outFlight</name>
+</Description>
+</Def>
+</Object>
+<Object Name="temp.xml_OutFlight3_RadioButton" Type="WebRadioGroup">
+<Def Type="ChildObject">
+<Description>
+<value>Pangea Airlines$202$260$9:15$</value>
+<name>outFlight</name>
+</Description>
+</Def>
+</Object>
+<Object Name="temp.xml_OutFlight4_RadioButton" Type="WebRadioGroup">
+<Def Type="ChildObject">
+<Description>
+<value>Unified Airlines$203$283$11:21$</value>
+<name>outFlight</name>
+</Description>
+</Def>
+</Object>
+<Object Name="temp.xml_Continue_Button" Type="Image">
+<Def Type="ChildObject">
+<Description>
+<src>/images/forms/continue.gif</src>
+</Description>
+</Def>
+</Object>
+</Object>

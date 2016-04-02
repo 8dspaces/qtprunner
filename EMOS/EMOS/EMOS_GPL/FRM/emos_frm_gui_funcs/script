@@ -1,0 +1,510 @@
+################################################################################
+# TEST:	EMOS_FRM_GUI_funcs
+################################################################################
+# Copyright (C) 2000  EMOS Computer Consulting GmbH
+#
+# This test is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This test is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this test; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# For further information please contact:
+#
+#	Dean Rajovic
+#	EMOS Computer Consulting GmbH
+#	Oskar-Messter-Straﬂe 25
+#	85737 Ismaning
+#	Germany
+#	tel.: +49 89 608 765-0
+#	mailto:drajovic@emos.de
+#	http://www.emos.de
+################################################################################
+# $Revision: 1.1.1.1 $
+# $Author: drajovic $
+# $Date: 2004/03/24 20:13:59 $
+# $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/FRM/emos_frm_gui_funcs/script $
+# $NoKeywords: $
+################################################################################
+
+#**# 
+#* This script defines function prototypes for selected public functions.
+#* The best way to load this is by calling generate_function_prototypes()
+#* function from your startup script (after loading library "emos_libs"!).
+#*/
+
+static const C0 = "EMOS";
+static const C1 = "EMOS_FRM_GUI";
+
+static const TE = "type_edit";
+static const PO = "point_object";
+
+static s1,s2;
+
+# generate categories
+
+rc = generator_add_category(C0);
+rc = generator_add_category(C1);
+rc = generator_add_subcategory(C0, C1);
+
+
+#-------------------------------------------------------------------------------
+#public function FRM_win_type ( in table, in test, in window, in suffix, in force_suffix )
+
+s1 ="FRM_win_type";
+s2 ="A standard \"wrapper\" for win_type() function."
+	&"\n  The function performs a win_type() on a specified <window> using the value" 
+	&"\n  from the data table."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  navigation (read-only)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing value to be typed."
+	&"\nSET-MODE:"
+	&"\n  The function uses the value from the data table as a second parameter to the"
+	&"\n  win_type() function."
+	&"\nCHK-MODE:"
+	&"\n  Not supported for type: navigation!"
+	&"\n  We could retrieve some text from the window and compare it. In practice is"
+	&"\n  this rather useless because there is either too much or no text all."
+	&"\n  For testing win_type() is normally only useful to check keyboard navigation"
+	&"\n  or when you have no other chance (e.g. DOS applications). In the second"
+	&"\n  case you would use the SET mode to completely drive the application (i.e."
+	&"\n  navigate and enter date) but you could hardly be able to check anything."
+	&"\n  There is some chance if font is known, so you could try with win_get_text()"
+	&"\n  and the like. "
+	&"\n  Behaves the same as the SET-mode!" 
+	&"\nGEN-MODE:"
+	&"\n  Not supported for type: navigation!"
+	&"\n  Ignores the cell (i.e. skips the cell).";
+
+rc = generator_add_function(s1,s2,5,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"window:",PO,"",
+		"suffix" ,TE,"",
+		"force_suffix",TE,"FALSE");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_obj_type ( in table, in test, in object, in suffix, in force_suffix )
+
+s1 ="FRM_obj_type";
+s2 ="A standard \"wrapper\" for obj_type() function."
+	&"\n  The function performs a obj_type() on a specified <object> using the value" 
+	&"\n  from the data table."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  data-entry (read/write)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing value to be typed or checked."
+	&"\nSET-MODE:"
+	&"\n  The function uses the value from the data table as a second parameter to the"
+	&"\n  obj_type() function."
+	&"\nCHK-MODE:"
+	&"\n  The function compares the value from the data table with the value returned"
+	&"\n  by obj_get_text(). Please note that comparison is case-sensitive."
+	&"\nGEN-MODE:"
+	&"\n  Uses obj_get_text() to retrieve the content of the <object>. Note that"
+	&"\n  that no conversion takes place before generating the test data.";
+
+rc = generator_add_function(s1,s2,5,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"object:",PO,"",
+		"suffix" ,TE,"",
+		"force_suffix",TE,"FALSE");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_static_get ( in table, in test, in object )
+
+s1 ="FRM_static_get";
+s2 ="A standard \"wrapper\" for static_get_text() function."
+	&"\n  The function performs a static_get_text() on a specified <object> using the value" 
+	&"\n  from the data table."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  data-entry (read)"
+	&"\nTEST DATA FORMAT:"
+	&"\n  String containing value to be set or checked."
+	&"\nSET-MODE:"
+	&"\n  Performs the same as in CHK mode."
+	&"\nCHK-MODE:"
+	&"\n  The function uses the value from the data table as a second parameter to"
+	&"\n  static_check_text() function."
+	&"\nGEN-MODE:"
+	&"\n  Uses static_get_text() to retrieve the content of the edit object. Note that"
+	&"\n  an empty string is converted to \"<<clear>>\" as generated test data.";
+
+rc = generator_add_function(s1,s2,3,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"object:",PO,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_edit_set ( in table, in test, in object )
+
+s1 ="FRM_edit_set";
+s2 ="A standard \"wrapper\" for edit_set() function."
+	&"\n  The function performs a edit_set() on a specified <object> using the value"
+	&"\n  from the data table."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  data-entry (read/write)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing value to be set or checked."
+	&"\nSET-MODE:"
+	&"\n  The function uses the value from the data table as a second parameter to"
+	&"\n  edit_set() function."
+	&"\nCHK-MODE:"
+	&"\n  The function uses the value from the data table as a second parameter to"
+	&"\n  edit_check_text() function. Please note that third parameter (case-sensitive"
+	&"\n  flag) can be specified via FRM_set_case_sensitive()."
+	&"\nGEN-MODE:"
+	&"\n  Uses edit_get_text() to retrieve the content of the edit object. Note that"
+	&"\n  an empty string is converted to \"<<clear>>\" as generated test data.";
+
+rc = generator_add_function(s1,s2,3,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"object:",PO,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_list_select_item ( in table, in test, in object )
+
+s1 ="FRM_list_select_item";
+s2 ="A standard \"wrapper\" for list_select_item() function."
+	&"\n  The function performs a list_select_item() on a specified <object>" 
+	&"\n  using the value from the data table."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  data-entry (read/write)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing names or indices of the desired list items."
+	&"\nSET-MODE:"
+	&"\n  The function uses the value from the data table as a second parameter to"
+	&"\n  list_select_item() function. Third and fourth parameters are not"
+	&"\n  supported."
+	&"\nCHK-MODE:"
+	&"\n  The function uses the value from the data table as a second parameter to"
+	&"\n  list_check_selected() function."
+	&"\nGEN-MODE:"
+	&"\n  Uses list_get_selected() to retrieve the selection and generate test data.";
+
+rc = generator_add_function(s1,s2,3,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"object:",PO,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_list_activate_item ( in table, in test, in object )
+
+s1 ="FRM_list_activate_item";
+s2 ="A standard \"wrapper\" for list_activate_item() function."
+	&"\n  The function performs a list_activate_item() using the value from the data" 
+	&"\n  table."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  navigation (read-only, can be generated)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing logical name or the index (e.g. #1) of the item to be" 
+	&"\n  activated."
+	&"\nSET-MODE:"
+	&"\n  The function reads the value from the data table and uses it as a parameter"
+	&"\n  to a native list_activate_item() function."
+	&"\nCHK-MODE:"
+	&"\n  Not supported for type: navigation!"
+	&"\n  There is nothing to be checked with a double click on a list item."
+	&"\n  Behaves the same as the SET-mode! "
+	&"\nGEN-MODE:"
+	&"\n  Supported although type: navigation!"
+	&"\n  We have found it practical to generate the item name of the currently" 
+	&"\n  selected item.";
+
+rc = generator_add_function(s1,s2,3,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"object:",PO,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_list_select_multi_items ( in table, in test, in object )
+
+s1 ="FRM_list_select_multi_items";
+s2 ="A standard \"wrapper\" for list_select_multi_items() function."
+	&"\n  The function performs a list_select_multi_items() on a specified <object>" 
+	&"\n  using the value from the data table. Make sure to format the string "
+	&"\n  according to the rules for the native function (i.e. comma-separated)."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  data-entry (read/write)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing names or indices of the desired list items."
+	&"\nSET-MODE:"
+	&"\n  The function uses the value from the data table as a second parameter to"
+	&"\n  list_select_multi_items() function. Third and fourth parameters are not"
+	&"\n  supported."
+	&"\nCHK-MODE:"
+	&"\n  It probably won't work because native functions list_check_mult_selected()" 
+	&"\n  and list_check_selection() do not seem to be available for public. "
+	&"\n  Our implementation is based on list_check_selected(). We were too lazy to"
+	&"\n  implement our own checking. If you want to do it yourself, then function"
+	&"\n  list_get_selected() is something to start with."
+	&"\nGEN-MODE:"
+	&"\n  Uses list_get_selected() to retrieve the selection. Before generating the"
+	&"\n  test data the separators returned by list_get_selected() are converted to"
+	&"\n  something compatible with list_select_multi_items().";
+
+rc = generator_add_function(s1,s2,3,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"object:",PO,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_menu_select_item ( in table, in test, in timeout )
+
+s1 ="FRM_menu_select_item";
+s2 ="A standard \"wrapper\" for menu_select_item() function."
+	&"\n  The function performs a menu_select_item() using the value from the data" 
+	&"\n  table."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  navigation (read-only)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing logical name or the index (e.g. #1) of the tab to be" 
+	&"\n  selected."
+	&"\nSET-MODE:"
+	&"\n  The function reads the value from the data table and uses it as a parameter"
+	&"\n  to a native menu_select_item() function."
+	&"\nCHK-MODE:"
+	&"\n  Not supported for type: navigation!"
+	&"\n  There is nothing to be checked with menu_select_item()."
+	&"\n  Behaves the same as the SET-mode! "
+	&"\nGEN-MODE:"
+	&"\n  Not supported for type: navigation!"
+	&"\n  Ignores the cell (i.e. skips the cell).";
+
+rc = generator_add_function(s1,s2,3,
+		"table:"  ,TE,"table",
+		"test:"   ,TE,"test",
+		"timeout:",TE,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_tab_select_item ( in table, in test, in object )
+
+s1 ="FRM_tab_select_item";
+s2 ="A standard \"wrapper\" for tab_select_item() function."
+	&"\n  The function performs a tab_select_item() on a specified <object> using the" 
+	&"\n  value from the data table."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  navigation (read-only, can be generated)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing logical name or the index (e.g. #1) of the tab to be" 
+	&"\n  selected."
+	&"\nSET-MODE:"
+	&"\n  The function reads the value from the data table and uses it as a parameter"
+	&"\n  to a native tab_select_item() function."
+	&"\nCHK-MODE:"
+	&"\n  Not supported for type: navigation!"
+	&"\n  One could check whether a tab is selected. In practice however this is not"
+	&"\n  as much used and in FRM concept soon becomes irritating. For this reason"
+	&"\n  we have implemnted this function as type navigation which means that"
+	&"\n  checking is not supported (although we do have the code for it)."
+	&"\n  Behaves the same as the SET-mode! "
+	&"\nGEN-MODE:"
+	&"\n  Supported although type: navigation!"
+	&"\n  We have found it practical to generate the tab name/index although we"
+	&"\n  ignore it in CHK mode.";
+
+rc = generator_add_function(s1,s2,3,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"object:",PO,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_button_press ( in table, in test, in object )
+
+s1 ="FRM_button_press";
+s2 ="A standard \"wrapper\" for button_press() function."
+	&"\n  You may use the function in two ways. "
+	&"\n  1.) If you specify the <object>, then the value from the data table is" 
+	&"\n      evaluated. If the value resambles to Yes, the <object> is \"pressed\"." 
+	&"\n  2.) If you do not provide the <object> parameter, then the value from the"
+	&"\n      data table is used as the name of the object to be \"pressed\"."
+	&"\n  The second alternative is an elegant way of pressing on OK, Cancel and"
+	&"\n  similar buttons."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  navigation (read-only)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing either Y/YES/ON (or german equivalent J/JA/ON) or"
+	&"\n  the logical name of the button to be pressed."
+	&"\nSET-MODE:"
+	&"\n  The function reads the value from the data table and uses it as a parameter"
+	&"\n  to a native button_press() function according to aforementioned description."
+	&"\nCHK-MODE:"
+	&"\n  Not supported for type: navigation!"
+	&"\n  There is nothing to be checked with button_press()."
+	&"\n  Behaves the same as the SET-mode! "
+	&"\nGEN-MODE:"
+	&"\n  Not supported for type: navigation!"
+	&"\n  Ignores the cell (i.e. skips the cell).";
+
+rc = generator_add_function(s1,s2,3,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"object:",PO,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_toolbar_button_press ( in table, in test, in object )
+
+s1 ="FRM_toolbar_button_press";
+s2 ="A standard \"wrapper\" for toolbar_button_press() function."
+	&"\n  The function performs a toolbar_button_press() on a specified <object>"
+	&"\n  using the value from the data table."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  navigation (read-only)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing either the logical name of the toolbar button or the"
+	&"\n  index (e.g. #1)."
+	&"\nSET-MODE:"
+	&"\n  The function reads the value from the data table and uses it as a parameter"
+	&"\n  to a native toolbar_button_press() function."
+	&"\nCHK-MODE:"
+	&"\n  Not supported for type: navigation!"
+	&"\n  There is nothing to be checked with toolbar_button_press()."
+	&"\n  Behaves the same as the SET-mode! "
+	&"\nGEN-MODE:"
+	&"\n  Not supported for type: navigation!"
+	&"\n  Ignores the cell (i.e. skips the cell).";
+
+rc = generator_add_function(s1,s2,3,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"object:",PO,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_button_set ( in table, in test, in object )
+
+s1 ="FRM_button_set";
+s2 ="A standard \"wrapper\" for button_set() function."
+	&"\n  The function performs a button_set() on a specified <object> using the"
+	&"\n  value from the data table. You can use it for both radio buttons and"
+	&"\n  check buttons. The supported states are ON and OFF. DIMMED is not supported."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  data-entry (read/write)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing either Y/YES/ON or N/NO/OFF (or German version J/JA/ON and"
+	&"\n  N/NEIN/OFF)."
+	&"\nSET-MODE:"
+	&"\n  The function evaluates the value from the data table. If Yes, the <object>"
+	&"\n  is set to ON. Otherwise the <object> is set to OFF."
+	&"\nCHK-MODE:"
+	&"\n  The function evaluates the value from the data table. If Yes, the <object>"
+	&"\n  is expected to be in ON-state. Otherwise the <object> is expected to be in"
+	&"\n  OFF-state."
+	&"\nGEN-MODE:"
+	&"\n  The evaluates the state of the <object>. If ON, then \"ON\" is generated."
+	&"\n  If OFF, then \"OFF\" is generted. If any other state is determined (e.g."
+	&"\n  DIMMED),then \"???\" is generated. Nonexisting objects are silently ignored.";
+
+rc = generator_add_function(s1,s2,3,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"object:",PO,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_button_set_YesNo ( in table, in test, in yesObject, in noObject )
+
+s1 ="FRM_button_set_YesNo";
+s2 ="The convenience function for GUI constructs consisting of two radio buttons"
+	&"\n  where one stands for \"yes\" and the other one for \"no\". A special-purpose" 
+	&"\n  \"wrapper\" for button_set() function."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  data-entry (read/write)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing either \"Yes\"/\"No\", \"Y\"/\"N\" or the German equivalent"
+	&"\n  ( \"Ja\"/\"Nein\", \"J\"/\"N\")"
+	&"\nSET-MODE:"
+	&"\n  The function evaluates the value from the data table. In case of Yes,"
+	&"\n  the <yesObject> is set. Otherwise <noObject> is set."
+	&"\nCHK-MODE:"
+	&"\n  The function evaluates the value from the data table. In case of Yes,"
+	&"\n  the <yesObject> is expected to be set. Otherwise <noObject> is expected"
+	&"\n  to be set."
+	&"\nGEN-MODE:"
+	&"\n  The function first evaluates the <yesObject>. If set, then \"Y\" is generated."
+	&"\n  Otherwise the <noObject> is evaluated. If set, then \"N\" is generated."
+	&"\n  If either none of objects exist or none of them is set, then no data is"
+	&"\n  generated.";
+
+rc = generator_add_function(s1,s2,4,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"yesObject:",PO,"",
+		"noObject:" ,PO,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_button_set_JaNein ( in table, in test, in jaObject, in neinObject )
+s1 ="FRM_button_set_JaNein";
+s2 ="Sonderforn der FRM_button_set." 
+	&"\n  Besonderheit: Mit eine Excel-Zelle werden zwei Checkboxen gesteuert."
+	&"\n  	Wenn Zelleninhalt = \"Ja\" dann Ja-Objekt aktivieren"
+	&"\n  	Wenn Zelleninhalt = \"Nein\" dann Nein-Objekt aktivieren"
+	&"\n  Es wird vorausgesetzt, daﬂ AUT richtig das andere Button jeweils"
+	&"\n  richtig ausschaltet.";
+
+rc = generator_add_function(s1,s2,4,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"jaObject:",PO,"",
+		"neinObject:" ,PO,"");
+rc = generator_add_function_to_category(C1,s1);
+
+#-------------------------------------------------------------------------------
+#public function FRM_radio_button_set ( in table, in test, inout objArr[] )
+
+s1 ="FRM_radio_button_set";
+s2 ="The convenience function for GUI constructs consisting of a group of related"
+	&"\n  radio buttons. A special-purpose \"wrapper\" for button_set() function."
+	&"\n  The function accepts a vector (one-dimensional array) containing names of"
+	&"\n  the radio buttons (GUI map) indexed by some keyword. The keywords are used"
+	&"\n  in data tables to identify particular button and can differ from the"
+	&"\n  actual object name."
+	&"\n  In this way one can address multiple radio buttons (one at a time) with"
+	&"\n  one data cell."
+	&"\nFRM-GUI-TYPE:"
+	&"\n  data-entry (read/write)"
+	&"\nTEST DATA FORMAT :"
+	&"\n  String containing the keyword which identifies the particular radio button."
+	&"\nSET-MODE:"
+	&"\n  The function reads the keyword from the data table. It then tries to set the"
+	&"\n  button indexed by the particular keyword."
+	&"\nCHK-MODE:"
+	&"\n  The function reads the keyword from the data table. It then checks whether"
+	&"\n  the button indexed by the particular keyword is set."
+	&"\nGEN-MODE:"
+	&"\n  The function scans the <objArr> in a random sequence and checks if the"
+	&"\n  particular object (radio button) is set. If yes, then the corresponding"
+	&"\n  keyword is generated as test data. Object that do not exist are silently"
+	&"\n  ignored.";
+
+rc = generator_add_function(s1,s2,3,
+		"table:" ,TE,"table",
+		"test:"  ,TE,"test",
+		"objArr[]:" ,TE,"");
+rc = generator_add_function_to_category(C1,s1);
+
+################################################################################
+# TEST:	EMOS_FRM_GUI_funcs
+################################################################################

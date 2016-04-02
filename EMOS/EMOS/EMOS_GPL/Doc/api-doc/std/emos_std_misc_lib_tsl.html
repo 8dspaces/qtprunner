@@ -1,0 +1,437 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_misc_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2000  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.1.1.1 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2004/03/24 20:14:03 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Archive: /MERCURY/TSL_PROJECTS/EMOS_GPL/STD/emos_std_misc_lib/script $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/***
+#*	Contains some general-purpose miscellaneous function that do not seem to 
+#*	fit nicely into any other EMOS library. 
+#*&lt;p&gt; PUBLIC CONSTANTS:
+#*&lt;ul&gt;
+#* &lt;li&gt;	ARRSEP&lt;/li&gt;
+#*&lt;/ul&gt;
+#*/</font></i><font color=black>
+
+<b>static</b> debug = TRUE;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* 	Turns debug mode on/off.
+#* @param mode (in)		TRUE = turn debug on, else turn debug off
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> set_debug( <b>in</b> mode )
+{
+	<b>if</b> ( mode == TRUE )
+		debug = TRUE;
+	<b>else</b>
+		debug = FALSE;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* 	Returns the debug mode.
+#* @return
+#*	TRUE = debug mode on
+#*	FALSE = debug mode off
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> is_debug( )
+{
+	<b>return</b> debug;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* 	In debug-mode produces a "report_msg" formated as "DEBUG: &lt;code&gt;msg&lt;/code&gt;".
+#*	Otherwise just returns (no message produced).
+#* @param msg (in)	message to be reported in debug mode
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> debug_msg( <b>in</b> msg )
+{
+	<b>auto</b> txt;
+	<b>if</b> ( !debug )
+		<b>return</b>;
+	txt = </font><font color="#00bb00">"DEBUG: "</font><font color=black> &amp; msg;
+	<b>report_msg</b>( txt );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* 	In debug-mode produces a "report_msg" formated as "DEBUG: &lt;code&gt;msg&lt;/code&gt;" if debug level &gt;= 2.
+#*	Otherwise just returns (no message produced).
+#* @param msg (in)	message to be reported in debug mode
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> debug_msg2( <b>in</b> msg )
+{
+	<b>auto</b> txt;
+	<b>if</b> ( debug &lt; 2 )
+		<b>return</b>;
+	txt = </font><font color="#00bb00">"DEBUG: "</font><font color=black> &amp; msg;
+	<b>report_msg</b>( txt );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Defines the level for loggin call chains. Default=2 --&gt; log short &amp; full calls 
+#*/</font></i><font color=black>
+<b>static</b> log_call_level = 2;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Defines the level for logging call chains.
+#* @param level (in)
+#*		0 = no call logging;
+#*		1 = log only full chains (in case of error);
+#*		2 = log full chains and short chains (in case of E_OK)
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> set_log_call_level ( <b>in</b> level )
+{
+	log_call_level = level;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns the level for logging call chains.
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> get_log_call_level()
+{
+	<b>return</b> log_call_level;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* 	Wrapper around GUI_load(). It makes sure that the &lt;code&gt;gui&lt;/code&gt; is unloaded first
+#*	before the load is attempted (avoids a message). Additionally it produces
+#*	a tl_step() message documenting the outcome of invoked GUI_load() function.
+#* @param gui (in)		filename/path of a GUI-map to be loaded
+#* @return
+#*	E_OK:		operation successfull
+#*	otherwise:	see return values for GUI_load()
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> load_GUI ( <b>in</b> gui )
+{
+	<b>auto</b> rc, msg;
+	GUI_unload( gui );
+	rc = GUI_load( gui );
+	msg = sprintf( </font><font color="#00bb00">"%s [rc=%s]"</font><font color=black>, gui, rc);
+	<b>tl_step</b>( </font><font color="#00bb00">"GUI-Map laden"</font><font color=black>, rc, msg );
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* 	Converts a string "Y"/"Yes" or German equivalent "J"/"Ja" 
+#*	(case-insensitive!) to boolean. 
+#*	This function is particularly useful when reading user input (either
+#*	interactivelly or from data-tables).
+#*&lt;p&gt; NOTE!
+#*	Blanks are trimmed from both sides of &lt;str&gt; before comparison.
+#* @param str (in)	string to be evaluated
+#* @return
+#*	TRUE:		string resambles to "y","yes","j" or "ja"
+#*	FALSE:		string resambles to anything else
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> yes ( <b>in</b> str ) 
+{
+	<b>return</b> Ja( str );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* 	Converts a string "Y"/"Yes" or German equivalent "J"/"Ja" 
+#*	(case-insensitive!) to boolean. 
+#*	This function is particularly useful when reading user input (either
+#*	interactivelly or from data-tables).
+#*&lt;p&gt; NOTE!
+#*	Blanks are trimmed from both sides of &lt;str&gt; before comparison.
+#* @param str (in)	string to be evaluated
+#* @return
+#*	TRUE:		string resambles to "y","yes","j" or "ja"
+#*	FALSE:		string resambles to anything else
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> Ja ( <b>in</b> str ) 
+{
+	<b>switch</b> ( tolower( strip_both( str ) ) )
+	{
+	<b>case</b> </font><font color="#00bb00">"j"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"ja"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"y"</font><font color=black>:
+	<b>case</b> </font><font color="#00bb00">"yes"</font><font color=black>:
+		<b>return</b> TRUE;
+	<b>default</b>:
+		<b>return</b> FALSE;
+	}
+</font><font color="#ff0000"><i>#	return compare_text( jaNein, "ja", "JA", "ja" );	</font></i><font color=black>
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Mercury has managed again to confuse "timeout" amd "timeout_msec".
+#* In version 7.00 and 7.01 "timeout_msec" did not work properly.
+#* As of Version 7.5 "timeout" does not work any more.
+#* The following three variables are used to determine what behavior is currently
+#* active on your machine in order to apply the correct logic. 
+#*/</font></i><font color=black>
+
+<b>static</b> <b>const</b> def_timeout = getvar(</font><font color="#00bb00">"timeout_msec"</font><font color=black> );
+<b>static</b> <b>const</b> tmp_timeout = setvar(</font><font color="#00bb00">"timeout"</font><font color=black>, 1 );
+<b>static</b> <b>const</b> is_timeout_ok = getvar(</font><font color="#00bb00">"timeout"</font><font color=black>);
+<b>static</b> <b>const</b> restore_timeout = setvar(</font><font color="#00bb00">"timeout_msec"</font><font color=black>, def_timeout);
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Stores the current timeout value which is used in restore_timeout().
+#*/</font></i><font color=black>
+<b>static</b> timeout = getvar( is_timeout_ok ? </font><font color="#00bb00">"timeout"</font><font color=black> : </font><font color="#00bb00">"timeout_msec"</font><font color=black> );
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* 	Wrapper around setvar("timeout"). It saves the current timeout before
+#*	setting it to the new value.
+#* @param time (in)	timeout (in seconds) to be set
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> set_timeout( <b>in</b> time )
+{
+</font><font color="#ff0000"><i>#printf( "set_timeout(%s)", time );</font></i><font color=black>
+</font><font color="#ff0000"><i>#printf( "\tbefore=%s", getvar( is_timeout_ok ? "timeout" : "timeout_msec" ) );</font></i><font color=black>
+	timeout = getvar( is_timeout_ok ? </font><font color="#00bb00">"timeout"</font><font color=black> : </font><font color="#00bb00">"timeout_msec"</font><font color=black> );
+	setvar( is_timeout_ok ? </font><font color="#00bb00">"timeout"</font><font color=black> : </font><font color="#00bb00">"timeout_msec"</font><font color=black>, is_timeout_ok ? time : time*1000 );	
+</font><font color="#ff0000"><i>#printf( "\t after=%s", getvar( is_timeout_ok ? "timeout" : "timeout_msec" ) );</font></i><font color=black>
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* 	Restores the timeout that has been overriden by the last invocation of the
+#*	set_timeout() function.
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> restore_timeout( )
+{
+</font><font color="#ff0000"><i>#printf( "restore_timeout()" );</font></i><font color=black>
+</font><font color="#ff0000"><i>#printf( "\tbefore=%s", getvar( is_timeout_ok ? "timeout" : "timeout_msec" ) );</font></i><font color=black>
+	setvar( is_timeout_ok ? </font><font color="#00bb00">"timeout"</font><font color=black> : </font><font color="#00bb00">"timeout_msec"</font><font color=black>, timeout );	
+</font><font color="#ff0000"><i>#printf( "\t after=%s", getvar( is_timeout_ok ? "timeout" : "timeout_msec" ) );</font></i><font color=black>
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* WR has a nice bug with in-operator operating on multi-dimensional
+#* arrays. For example &lt;code&gt;for ( i in arr )&lt;/code&gt; returns different
+#* occasionally returns different separators (mostly pipe | but simetimes
+#* something else that appears as bold pipe)
+#* With this function we determine the separator dynamically as it seems
+#* to stay constant during the single WR invocation.
+#*/</font></i><font color=black>
+
+<b>static</b> <b>function</b> get_arrsep ()
+{
+	<b>auto</b> arr[], i;
+	arr[0,0] = 0;
+	<b>for</b> ( i <b>in</b> arr ) <b>return</b> substr( i, 2, 1 );
+}
+<b>public</b> <b>const</b> ARRSEP = get_arrsep();
+
+
+
+<b>static</b> lastrc=0;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* returns !0 if rc == E_OK
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> pass( <b>in</b> rc )
+{
+	lastrc=rc;
+	<b>return</b> rc==E_OK;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+# returns !0 if rc != E_OK
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> fail( <b>in</b> rc )
+{
+	lastrc=rc;
+	<b>return</b> rc!=E_OK;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* what was the last error  
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> getLastRc()
+{
+	<b>return</b> lastrc;
+}
+
+</font><font color="#ff0000"><i>#----------------------------</font></i><font color=black>
+
+<b>static</b> pathIdx;
+<b>static</b> pathArr[];
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Remembers all inquired paths for quicker access.  
+#*/</font></i><font color=black>
+<b>static</b> pathCache[];
+
+<b>static</b> <b>function</b> addPath ( <b>in</b> path )
+{
+	<b>if</b>( path != </font><font color="#00bb00">""</font><font color=black> )
+		pathArr[pathIdx++] = path;
+}
+
+<b>static</b> <b>function</b> extractPath ( <b>in</b> searchPath )
+{
+	<b>auto</b> start, end;
+	<b>extern</b> RSTART, RLENGTH;
+	
+	<b>if</b>( start = match( searchPath, </font><font color="#00bb00">"&lt;.*&gt;"</font><font color=black> ) )
+	{
+		end = RLENGTH;
+		addPath( substr( searchPath, start+1, end-2 ) );
+		extractPath( substr( searchPath, 1, start-1 ) );
+		extractPath( substr( searchPath, start+end ) );		
+	}
+	<b>else</b> <b>if</b>( start = match( searchPath, </font><font color="#00bb00">"&#92;&#34;.*&#92;&#34;"</font><font color=black> ) )
+	{
+		end = RLENGTH;
+		addPath( substr( searchPath, start+1, end-2 ) );
+		extractPath( substr( searchPath, 1, start-1 ) );
+		extractPath( substr( searchPath, start+end ) );		
+	}
+	<b>else</b> <b>if</b>( end = index( searchPath, </font><font color="#00bb00">" "</font><font color=black> ) )
+	{
+		addPath( substr( searchPath, 1, end-1 ) );
+		extractPath( substr( searchPath, end+1 ) );
+	}
+	<b>else</b>
+	{
+		addPath( searchPath );
+	}
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns true if specified test refers to a WinRunner compiled module
+#* @param test (in) name of the test
+#* @return true if test is the compiled module otherwise false
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> splitSearchPath ( <b>out</b> outArr[] )
+{
+	<b>auto</b> path = getvar(</font><font color="#00bb00">"searchpath"</font><font color=black>);
+	<b>auto</b> i;
+	pathIdx = 0;
+	<b>for</b>( i <b>in</b> pathArr ) delete pathArr[i];
+	extractPath( path );
+	<b>for</b>( i <b>in</b> pathArr ) outArr[i] = pathArr[i];
+}
+
+</font><font color="#ff0000"><i># static function test_splitSearchPath ( in path )</font></i><font color=black>
+</font><font color="#ff0000"><i># {</font></i><font color=black>
+</font><font color="#ff0000"><i># 	auto i;</font></i><font color=black>
+</font><font color="#ff0000"><i># 	pathIdx = 0;</font></i><font color=black>
+</font><font color="#ff0000"><i># 	for( i in pathArr ) delete pathArr[i];</font></i><font color=black>
+</font><font color="#ff0000"><i># 	extractPath( path );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	for( i in pathArr ) print pathArr[i];</font></i><font color=black>
+</font><font color="#ff0000"><i># }</font></i><font color=black>
+</font><font color="#ff0000"><i># test_splitSearchPath( "" );</font></i><font color=black>
+</font><font color="#ff0000"><i># test_splitSearchPath( "a" );</font></i><font color=black>
+</font><font color="#ff0000"><i># test_splitSearchPath( "a b c" );</font></i><font color=black>
+</font><font color="#ff0000"><i># test_splitSearchPath( "&lt;a&gt;" );</font></i><font color=black>
+</font><font color="#ff0000"><i># test_splitSearchPath( "&lt;a&gt;&lt;b&gt;&lt;c&gt;" );</font></i><font color=black>
+</font><font color="#ff0000"><i># test_splitSearchPath( "&lt;a&gt; &lt;b&gt; &lt;c&gt;" );</font></i><font color=black>
+</font><font color="#ff0000"><i># test_splitSearchPath( "a&lt;b&gt;c" );</font></i><font color=black>
+</font><font color="#ff0000"><i># test_splitSearchPath( "a &#92;&#34;b b b&#92;&#34; &lt;c&gt;" );</font></i><font color=black>
+</font><font color="#ff0000"><i># test_splitSearchPath( "[TD]a b &lt;[TD]c&gt;" );</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns true if the given test name refers to a compiled module otherwise
+#* false is returned. Search path is taken into account.
+#* @param test (in) name of the test
+#* @return true if the given test name refers to a compiled module otherwise
+#* false
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> isCompiledModule( <b>in</b> test )
+{
+	<b>auto</b> pathArr[];
+	<b>auto</b> i;
+	<b>auto</b> rc;
+	<b>auto</b> line;
+	<b>auto</b> hdrFile;
+
+	<b>if</b> ( test <b>in</b> pathCache )
+		<b>return</b> pathCache[test];
+
+	splitSearchPath( pathArr );
+	<b>for</b>( i <b>in</b> pathArr )
+	{
+		hdrFile = join_path( pathArr[i], test, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> ) &amp; </font><font color="#00bb00">"&#92;&#92;header"</font><font color=black>;
+		rc = file_open( hdrFile, FO_MODE_READ );
+		<b>if</b> ( rc == E_OK )
+		{
+			<b>while</b>( file_getline( hdrFile, line ) == E_OK )
+			{
+				<b>if</b> ( match( line, </font><font color="#00bb00">"TYPE=CM"</font><font color=black> ) )
+				{
+					file_close( hdrFile );
+					pathCache[test] = TRUE;
+					<b>return</b> TRUE;
+				}
+			}
+			file_close( hdrFile );
+		}
+	}
+	pathCache[test] = FALSE;
+	<b>return</b> FALSE;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Creates a new file.
+#* @param dir directory name or full path name (second parameter must be empty)
+#* @param name filename (if empty, fullpath assumed in first parameter)
+#* @return E_OK success, else failire
+#*/</font></i><font color=black>
+
+<b>public</b> <b>function</b> create_file( <b>in</b> dir, <b>in</b> name )
+{
+	<b>auto</b> rc;
+	<b>auto</b> file;
+	<b>if</b> ( nargs() &gt; 1 )
+		file = join_path( dir,  name, </font><font color="#00bb00">"&#92;&#92;"</font><font color=black> );
+	<b>else</b>
+		file = dir;
+	rc = file_open( file, FO_MODE_WRITE );
+	file_close( file );
+	<b>return</b> rc;
+}
+
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_misc_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</pre></body></html>

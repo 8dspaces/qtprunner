@@ -1,0 +1,275 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head></head><body><pre>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># TSL-LIBRARY:	EMOS_STD_err_lib</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># Copyright (C) 2003  EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is free software; you can redistribute it and/or</font></i><font color=black>
+</font><font color="#ff0000"><i># modify it under the terms of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License as published by the Free Software Foundation; either</font></i><font color=black>
+</font><font color="#ff0000"><i># version 2.1 of the License, or (at your option) any later version.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># This library is distributed in the hope that it will be useful,</font></i><font color=black>
+</font><font color="#ff0000"><i># but WITHOUT ANY WARRANTY; without even the implied warranty of</font></i><font color=black>
+</font><font color="#ff0000"><i># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</font></i><font color=black>
+</font><font color="#ff0000"><i># Lesser General Public License for more details.</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># You should have received a copy of the GNU Lesser General Public</font></i><font color=black>
+</font><font color="#ff0000"><i># License along with this library; if not, write to the Free Software</font></i><font color=black>
+</font><font color="#ff0000"><i># Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i># For further information please contact:</font></i><font color=black>
+</font><font color="#ff0000"><i>#</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Dean Rajovic</font></i><font color=black>
+</font><font color="#ff0000"><i>#	EMOS Computer Consulting GmbH</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Oskar-Messter-Straﬂe 25</font></i><font color=black>
+</font><font color="#ff0000"><i>#	85737 Ismaning</font></i><font color=black>
+</font><font color="#ff0000"><i>#	Germany</font></i><font color=black>
+</font><font color="#ff0000"><i>#	tel.: +49 89 608 765-0</font></i><font color=black>
+</font><font color="#ff0000"><i>#	mailto:drajovic@emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>#	http://www.emos.de</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+</font><font color="#ff0000"><i># $Revision: 1.2 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Author: drajovic $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Date: 2004/11/07 22:26:27 $</font></i><font color=black>
+</font><font color="#ff0000"><i># $Source: C:/Archive/FRAMEWORK/EMOS_GPL/STD/emos_std_err_lib/script,v $</font></i><font color=black>
+</font><font color="#ff0000"><i># $NoKeywords: $</font></i><font color=black>
+</font><font color="#ff0000"><i>################################################################################</font></i><font color=black>
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/***
+#* This library implements an interface to descriptions of WinRunner errors.
+#* All information about error codes ant the corresponding descriptions are
+#* maintained in Excel table "default.xls". To keep this library up to date 
+#* some manual work is necessary. Our approach is two-fold:
+#* &lt;ul&gt;
+#*	&lt;li&gt;The "official" codes are collected from WinRunner on-line help 
+#*      as this seems to be the only place where Mercury keeps the up-to-date 
+#*		information. This codes are listed in Excel sheet named "documented codes".
+#*	&lt;/li&gt;
+#*	&lt;li&gt;The list of additional (undocumented) codes is produced by searching
+#*		the WinRunner "lib" directory and merging the codes that we found into 
+#*		the official list. The merged list is kept in worksheet "all codes".
+#*	&lt;/li&gt;
+#* &lt;/ul&gt;
+#* By default "all codes" are activated. However you may change this by 
+#* setting the other sheet as default (note that the file is read-only).
+#* &lt;h4&gt;Language support&lt;/h4&gt;
+#* Note that this library supports two languages so far: English and German.
+#* We use codes "EN" and "DE" respectively. We have decided to keep our own
+#* list of language codes (see err_get_supproted_languages()) because we cannot 
+#* rely on WinRunner's undocumented features such as get_lang() function 
+#* (which returns "DEU" for German and God knows what for other environments).
+#* &lt;p&gt;You are welcome to add additional languages. Please inform us about this
+#* so we can merge your language into our distribution.
+#* &lt;h4&gt;Typical usage&lt;/h4&gt;
+#* This library is automatically loaded with EMOS Framework. By default english 
+#* texts are loaded. You would normally change this setting in your startup test, e.g.
+#* &lt;pre&gt;
+#*	    err_set_language( "DE" );
+#* &lt;/pre&gt;
+#* To print formatted error descriptions you could do following in your code:
+#* &lt;pre&gt;
+#*	    rc = set_window( "some non-existing window" );
+#*	    if ( rc != E_OK )
+#*	    {
+#*	    	print( err_perror( rc ) );
+#*	    	tl_step( "Argh!", FAIL, "Have enough for today." );
+#*	    	treturn rc;
+#*	    }
+#* &lt;/pre&gt;
+#* &lt;h4&gt;Acknowledgements&lt;/h4&gt;
+#* We would especially like to thank Michael Skobowsky from DAT 
+#* (mailto:Michael.Skobowsky@dat.de) for his German translation and for 
+#* all his enthusiastic support and ideas.
+#*/</font></i><font color=black>
+
+<b>static</b> errCodeArr[];
+<b>static</b> errDescArr[];
+<b>static</b> langArr[] = { </font><font color="#00bb00">"EN"</font><font color=black>, </font><font color="#00bb00">"DE"</font><font color=black> };
+<b>static</b> defLang = </font><font color="#00bb00">"EN"</font><font color=black>;
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Initialises the internal data structures from external table "default.xls".
+#* @return E_OK if initialisation OK, otherwise failure.
+#*/</font></i><font color=black>
+<b>static</b> <b>function</b> err_init()
+{
+	<b>auto</b> table = </font><font color="#00bb00">"default.xls"</font><font color=black>;
+	<b>auto</b> errNr, errCode, errDesc;
+	<b>auto</b> lang, i;
+	<b>auto</b> rc; 
+	rc = ddt_open(table, DDT_MODE_READ);
+	<b>if</b> (rc!= E_OK &amp;&amp; rc != E_FILE_OPEN)
+	{
+		debug_msg( </font><font color="#00bb00">"Cannot open table with error descriptions."</font><font color=black> );
+		debug_msg( </font><font color="#00bb00">"Not critical error. No error descriptions available."</font><font color=black> );
+		<b>return</b> rc;
+	}
+	<b>while</b>( rc == E_OK )
+	{
+		errNr = ddt_val(table, </font><font color="#00bb00">"ErrorNr"</font><font color=black>);
+		errCode = ddt_val(table, </font><font color="#00bb00">"ErrorCode"</font><font color=black>);
+		errCodeArr[ errNr ] = errCode;
+		<b>for</b>( i <b>in</b> langArr )
+		{
+			lang = langArr[i];
+			errDesc = ddt_val(table, </font><font color="#00bb00">"ErrorDesc_"</font><font color=black> &amp; lang);
+			errDescArr[errNr, lang] = errDesc;
+		}
+		rc = ddt_next_row(table);
+	}
+	ddt_close(table);
+	<b>return</b> E_OK;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns the comma-separated list of the supported languages for
+#* error descriptions.
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> err_get_supproted_languages()
+{
+	<b>auto</b> i, msg;
+	<b>for</b> ( i <b>in</b> langArr )
+		msg = msg &amp; langArr[i] &amp; </font><font color="#00bb00">","</font><font color=black>;
+	<b>return</b> substr( msg, 1, (<b>length</b>( msg ) - 1) );
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Sets the default language to the given &lt;code&gt;lang&lt;/code&gt; code.
+#* This function returns the code of the new default language.
+#* If invalid language code is given, no change is made and the old
+#* default code is returned. The available language codes are returned
+#* via err_get_supported_languages().
+#* @param lang language code 
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> err_set_language( <b>in</b> lang )
+{
+	<b>auto</b> i;
+	<b>for</b> ( i <b>in</b> langArr )
+		<b>if</b> ( lang == langArr[i] )
+			defLang = lang;
+	<b>return</b> defLang;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns the code of the default language.
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> err_get_language()
+{
+	<b>return</b> defLang;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns &lt;code&gt;TRUE&lt;/code&gt; if given &lt;code&gt;errNr&lt;/code&gt; is a known error code.
+#* Otherwise &lt;code&gt;FALSE&lt;/code&gt; is returned.
+#* @param errNr error number 
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> err_is_error( <b>in</b> errNr )
+{
+	<b>if</b> ( errNr <b>in</b> errCodeArr )
+		<b>return</b> TRUE;
+	<b>return</b> FALSE;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns the error description for the given error number and the langauge code.
+#* If no language code was given, the default language is taken.
+#* For non-existing error numbers an empty string is returned.
+#* @param errNr error number 
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> err_get_error_desc( <b>in</b> errNr, <b>in</b> lang )
+{
+</font><font color="#ff0000"><i>#	auto lang;</font></i><font color=black>
+
+	<b>if</b> ( !err_is_error( errNr ) )
+		<b>return</b> </font><font color="#00bb00">""</font><font color=black>;
+		
+	<b>if</b> ( nargs() &lt; 2 )
+		lang = err_get_language();
+	<b>else</b> <b>if</b> ( lang <b>in</b> langArr )
+		defLang = lang;
+	<b>else</b>
+		lang = err_get_language();
+		
+	<b>return</b> errDescArr[errNr, lang]; 
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns the error code as text for the given error number, e.g. "E_GENERAL_ERROR".
+#* For non-existing error numbers an empty string is returned.
+#* @param errNr error number 
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> err_get_error_code( <b>in</b> errNr )
+{
+	<b>if</b> ( !err_is_error( errNr ) )
+		<b>return</b> </font><font color="#00bb00">""</font><font color=black>;
+
+	<b>return</b> errCodeArr[errNr]; 
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Returns formatted error message, e.g. "[-10001] General error occurred. (E_GENERAL_ERROR)".
+#* The message is also printed out via debug_msg(). 
+#* &lt;p&gt;NOTE: This function only supports the default language.
+#* @param errNr error number 
+#*/</font></i><font color=black>
+<b>public</b> <b>function</b> err_perror( <b>in</b> errNr )
+{
+	<b>auto</b> msg;
+	<b>if</b> ( nargs() &lt; 1 )
+		<b>return</b> </font><font color="#00bb00">""</font><font color=black>;
+	msg = sprintf( </font><font color="#00bb00">"[%s] %s (%s)"</font><font color=black>, 
+		errNr, 
+		err_get_error_desc( errNr ),
+		err_get_error_code( errNr ) ); 
+	debug_msg( msg );
+	<b>return</b> msg;
+}
+
+</font><font color="#ff0000"><i>#</font></i><font color=black></font><font color="#ff0000"><i>/**
+#* Triggers automatic initialisatation at the time when library is loaded.
+#* Also reports the status of the initialisation.
+#*/</font></i><font color=black>
+<b>public</b> <b>const</b> STD_ERR_INIT = err_init();
+
+</font><font color="#ff0000"><i>#-------------------------------------------------------------------------</font></i><font color=black>
+
+</font><font color="#ff0000"><i># static function assert_equal( in expr1, in expr2 )</font></i><font color=black>
+</font><font color="#ff0000"><i># {</font></i><font color=black>
+</font><font color="#ff0000"><i># 	auto fmt = "%s: '%s' : '%s'";</font></i><font color=black>
+</font><font color="#ff0000"><i># </font></i><font color=black>
+</font><font color="#ff0000"><i># 	if ( expr1 == expr2 )</font></i><font color=black>
+</font><font color="#ff0000"><i># 	{</font></i><font color=black>
+</font><font color="#ff0000"><i># 		printf( fmt, "OK", expr1, expr2 );</font></i><font color=black>
+</font><font color="#ff0000"><i># 		return TRUE;</font></i><font color=black>
+</font><font color="#ff0000"><i># 	}</font></i><font color=black>
+</font><font color="#ff0000"><i># 	else</font></i><font color=black>
+</font><font color="#ff0000"><i># 	{ </font></i><font color=black>
+</font><font color="#ff0000"><i># 		printf( fmt, "ERR", expr1, expr2 );</font></i><font color=black>
+</font><font color="#ff0000"><i># 		return FALSE;</font></i><font color=black>
+</font><font color="#ff0000"><i># 	}</font></i><font color=black>
+</font><font color="#ff0000"><i># }</font></i><font color=black>
+</font><font color="#ff0000"><i># </font></i><font color=black>
+</font><font color="#ff0000"><i># static function unit_test()</font></i><font color=black>
+</font><font color="#ff0000"><i># {</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_get_supproted_languages(), "EN" );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_set_language(), "EN" );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_set_language("xxx"), "EN" );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_set_language("EN"), "EN" );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_get_language(), "EN" );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_is_error(), FALSE );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_is_error( -123 ), FALSE );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_is_error( -10001 ), TRUE );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_get_error_desc(), "" );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_get_error_desc( 123 ), "" );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_get_error_desc( E_ILLEGAL_PARAMETER ), "Specified value for one or more parameters is invalid." );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_get_error_desc( E_ILLEGAL_PARAMETER, "EN" ), "Specified value for one or more parameters is invalid." );</font></i><font color=black>
+</font><font color="#ff0000"><i># 	assert_equal( err_get_error_desc( E_ILLEGAL_PARAMETER, "xxx" ), "Specified value for one or more parameters is invalid." );</font></i><font color=black>
+</font><font color="#ff0000"><i># }</font></i><font color=black>
+</font><font color="#ff0000"><i># </font></i><font color=black>
+</font><font color="#ff0000"><i># public function run_unit_test()</font></i><font color=black>
+</font><font color="#ff0000"><i># {</font></i><font color=black>
+</font><font color="#ff0000"><i># 	unit_test();</font></i><font color=black>
+</font><font color="#ff0000"><i># }</font></i><font color=black>
+</pre></body></html>
